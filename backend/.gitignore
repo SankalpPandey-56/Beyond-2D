@@ -1,0 +1,11 @@
+venv/
+*.pyc
+__pycache__/
+db.sqlite3
+media/uploads/*
+!media/uploads/.gitkeep
+media/generated/*
+!media/generated/.gitkeep
+staticfiles/
+.env
+.pytest_cache/
