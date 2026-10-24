@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';
 import { BuildingDimensions, EnvironmentMode, RoomData, ShadingMode, TransformTool, WallData } from '@/lib/types';
 import { 
   Box, 
@@ -14,7 +15,8 @@ import {
   Move, 
   Layers,
   Sparkles,
-  Maximize2
+  Maximize2,
+  ChevronDown
 } from 'lucide-react';
 
 interface BlenderViewportProps {
@@ -247,6 +249,8 @@ export default function BlenderViewport({
 
   const [stats, setStats] = useState({ verts: 450, faces: 220, objects: 18, fps: 60 });
   const [showFurniture, setShowFurniture] = useState(false); // Default false for clean unfurnished blueprints
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const [isExportingGLB, setIsExportingGLB] = useState(false);
 
   // 1. Initialize Three.js Scene
   useEffect(() => {
@@ -941,7 +945,41 @@ export default function BlenderViewport({
     ctrl.update();
   };
 
-  const handleExport = () => {
+  // Export 3D Binary Model (.glb) for Blender, Unity, Unreal, or 3D Web
+  const exportGLB = () => {
+    if (!houseGroupRef.current) return;
+    setIsExportingGLB(true);
+
+    try {
+      const exporter = new GLTFExporter();
+      exporter.parse(
+        houseGroupRef.current,
+        (gltf) => {
+          setIsExportingGLB(false);
+          const blob = new Blob([gltf as ArrayBuffer], { type: 'model/gltf-binary' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `Beyond-2D_House_Model.glb`;
+          a.click();
+          URL.revokeObjectURL(url);
+          setShowExportMenu(false);
+        },
+        (error) => {
+          setIsExportingGLB(false);
+          console.error('Error exporting GLB:', error);
+          alert('Could not generate 3D GLB model. Try JSON format.');
+        },
+        { binary: true }
+      );
+    } catch (err) {
+      setIsExportingGLB(false);
+      console.error(err);
+    }
+  };
+
+  // Export CAD Floor Plan Schema (.json)
+  const exportJSON = () => {
     const exportData = {
       project: "Beyond-2D Architectural Model",
       exportedAt: new Date().toISOString(),
@@ -956,6 +994,7 @@ export default function BlenderViewport({
     a.download = `Beyond-2D_House_Model.json`;
     a.click();
     URL.revokeObjectURL(url);
+    setShowExportMenu(false);
   };
 
   return (
@@ -1076,14 +1115,66 @@ export default function BlenderViewport({
             </button>
           </div>
 
-          <button
-            onClick={handleExport}
-            className="flex items-center gap-1.5 px-3 py-1 bg-[#eb7724] hover:bg-[#f38938] text-white font-medium rounded shadow-sm text-xs transition-colors"
-            title="Export 3D Model"
-          >
-            <Download size={13} />
-            <span>Export</span>
-          </button>
+          {/* Export Dropdown Menu (GLB 3D Model vs JSON CAD Schema) */}
+          <div className="relative">
+            <button
+              onClick={() => setShowExportMenu(!showExportMenu)}
+              className="flex items-center gap-1.5 px-3 py-1 bg-[#eb7724] hover:bg-[#f38938] text-white font-medium rounded shadow-sm text-xs transition-colors"
+              title="Export 3D Model (.glb) or CAD Schema (.json)"
+            >
+              <Download size={13} />
+              <span>Export</span>
+              <ChevronDown size={11} className={`transition-transform duration-200 ${showExportMenu ? 'rotate-180' : ''}`} />
+            </button>
+
+            {showExportMenu && (
+              <>
+                <div 
+                  className="fixed inset-0 z-40" 
+                  onClick={() => setShowExportMenu(false)} 
+                />
+                <div className="absolute right-0 top-full mt-1.5 w-64 bg-[#242424] border border-[#3e3e3e] rounded-lg shadow-2xl z-50 p-1.5 text-xs">
+                  <div className="px-2 py-1 text-[10px] uppercase font-mono tracking-wider text-[#888] border-b border-[#333]">
+                    Choose Export Format
+                  </div>
+
+                  <button
+                    onClick={exportGLB}
+                    disabled={isExportingGLB}
+                    className="w-full text-left p-2 hover:bg-[#303030] rounded flex items-start gap-2.5 transition-colors group mt-1"
+                  >
+                    <div className="w-7 h-7 rounded bg-[#3b82f6]/20 text-[#60a5fa] flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-[#3b82f6] group-hover:text-white transition-colors">
+                      <Box size={14} />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-white flex items-center gap-1.5">
+                        3D Binary Model (.glb)
+                        <span className="text-[9px] bg-[#3b82f6]/25 text-[#60a5fa] px-1 py-0.2 rounded font-mono">3D</span>
+                      </div>
+                      <div className="text-[10px] text-[#999] mt-0.5 leading-snug">
+                        {isExportingGLB ? 'Generating GLB mesh...' : 'Full 3D model for Blender, Unity, Unreal, or Web.'}
+                      </div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={exportJSON}
+                    className="w-full text-left p-2 hover:bg-[#303030] rounded flex items-start gap-2.5 transition-colors group"
+                  >
+                    <div className="w-7 h-7 rounded bg-[#eb7724]/20 text-[#f97316] flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-[#eb7724] group-hover:text-white transition-colors">
+                      <Layers size={14} />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-white">CAD Layout (.json)</div>
+                      <div className="text-[10px] text-[#999] mt-0.5 leading-snug">
+                        Room polygons, wall coordinates & metadata.
+                      </div>
+                    </div>
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
