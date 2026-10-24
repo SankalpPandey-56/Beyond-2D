@@ -37,34 +37,36 @@ export class GeminiFloorPlanProvider implements IFloorPlanProvider {
 
   async analyzeFloorPlan(imageBase64: string, mimeType: string): Promise<RawAIPlanOutput> {
     const apiKey = this.getApiKey();
-    const candidateModels = ['gemini-3.1-flash-lite-preview', 'gemini-3.6-flash', 'gemini-3-flash-preview'];
+    const candidateModels = ['gemini-3.1-flash-lite-preview', 'gemini-3.5-flash', 'gemini-3.6-flash'];
 
     const cleanBase64 = imageBase64.replace(/^data:[^;]+;base64,/, '');
 
     const promptText = `
-You are an expert architectural blueprint and floor plan analysis engine.
-Analyze this 2D architectural floor plan image with extreme precision.
+You are an expert architectural blueprint and CAD floor plan reconstruction engine.
+Analyze this 2D architectural floor plan image with extreme precision and spatial accuracy.
 
-Instructions:
+Rules for Blueprint Extraction:
 1. Detect written dimension numbers on the plan:
-   - Overall width (e.g., 10.0 m) and length/depth (e.g., 8.0 m).
-   - Individual room dimensions (e.g., "3.5 m x 3.0 m", "1.5 m x 2.0 m", "3.0 m x 3.0 m", etc.).
-2. Identify every labeled room and architectural zone:
-   - Bedroom 1, Bedroom 2, Bathroom, Living Room, Kitchen, Dining Area, Entrance, Porch/Balcony.
-3. Compute precise normalized coordinates (0.0 to 1.0):
-   - X axis: 0.0 on West (left) to 1.0 on East (right).
-   - Z axis: 0.0 on North (top) to 1.0 on South (bottom).
-   - relX, relZ: top-left corner normalized position.
-   - relW, relD: width and depth fractions.
-   - For example: if total width is 10.0m and Bedroom 1 is 3.5m wide, relW = 0.35, relX = 0.0.
-4. Accurately distinguish DOORS vs WINDOWS:
-   - Doors have a swing arc or doorway gap indicating entry/passage. Specify "type": "door".
-   - Windows are double parallel lines or gaps on exterior walls, or labeled 'W' / 'V'. Specify "type": "window".
-   - Never classify an exterior window as a door!
-   - Detect all exterior windows on North, East, South, and West perimeter walls.
-5. Detect furniture present in each room (bed, closet, desk, sofa, coffee table, tv, dining table, kitchen counter, sink, stove, toilet, vanity).
+   - Identify total overall building width (in meters, e.g. 10.0) and length (depth, e.g. 8.0).
+   - Identify each room's labeled dimensions (e.g. '3.5 m x 3.0 m', '1.5 m x 2.0 m', etc.).
+2. Room Identification:
+   - Extract every labeled room (e.g., Bedroom 1, Bedroom 2, Bathroom, Kitchen, Living Room, Porch, Dining Area, Entrance).
+3. Coordinate Topology (Flush alignment, NO GAPS):
+   - relX: left edge normalized (0.0 to 1.0, West to East).
+   - relZ: top edge normalized (0.0 to 1.0, North to South).
+   - relW: width fraction (0.0 to 1.0).
+   - relD: depth fraction (0.0 to 1.0).
+   - Adjacent rooms MUST share exact boundaries (e.g., if Room A relX=0 and relW=0.4, then adjacent Room B relX must be exactly 0.4).
+   - All rooms must form a tight, flush, gapless floor plan spanning up to 1.0.
+4. Doors vs Windows:
+   - DOORS: Passage openings between rooms or main entrance door (swing arc or doorway opening). Specify "type": "door".
+   - WINDOWS: Exterior wall openings with parallel lines or labeled W. Specify "type": "window".
+   - Every exterior-facing bedroom, living room, dining room, and kitchen must have its proper windows on the exterior walls!
+   - DO NOT classify exterior windows as doors!
+5. Furniture & Fixtures:
+   - Identify furniture present in each room (bed, closet, desk, sofa, coffee table, dining table, kitchen counter, sink, stove, toilet, vanity).
 
-Return ONLY a valid JSON object matching this schema:
+Return ONLY valid JSON matching this schema:
 {
   "dimensions": {
     "width": 10.0,
@@ -74,13 +76,13 @@ Return ONLY a valid JSON object matching this schema:
   },
   "rooms": [
     {
-      "id": "room_1",
+      "id": "bedroom_1",
       "name": "Bedroom 1",
       "type": "bedroom",
       "relX": 0.0,
       "relZ": 0.0,
-      "relW": 0.35,
-      "relD": 0.375,
+      "relW": 0.4,
+      "relD": 0.4,
       "dimensionsText": "3.5 m x 3.0 m",
       "furniture": ["bed", "closet"],
       "openings": [
@@ -89,7 +91,7 @@ Return ONLY a valid JSON object matching this schema:
       ]
     }
   ],
-  "confidence": 0.95
+  "confidence": 0.98
 }
 
 Types: "bedroom", "living", "kitchen", "bathroom", "dining", "entrance", "porch", "hallway".
