@@ -1,4 +1,6 @@
 import math
+import cv2
+import numpy as np
 from typing import List, Dict, Any, Tuple
 from ..config import (
     DEFAULT_WALL_HEIGHT,
@@ -35,6 +37,99 @@ OPEN_PLAN_PAIRS = {
     ("living", "hallway"), ("hallway", "living"),
     ("living_room", "hallway"), ("hallway", "living_room"),
 }
+
+def snap_rooms_to_wall_pixels(
+    rooms: List[Dict[str, Any]],
+    crop_gray: np.ndarray
+) -> List[Dict[str, Any]]:
+    """
+    Approach 3: Deterministic CV Wall Snapping.
+    Refines room dividing coordinates using 1D profile projection of dark structural wall pixels.
+    Snaps partition walls to the physical wall centerlines in the image.
+    Ensures walls never slice through furniture or drift off their drawn positions.
+    """
+    if not rooms or crop_gray is None or crop_gray.size == 0:
+        return rooms
+
+    bh, bw = crop_gray.shape[:2]
+
+    # Invert so dark structural walls become 255
+    _, binary = cv2.threshold(crop_gray, 140, 255, cv2.THRESH_BINARY_INV)
+    kernel_thin = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+    thick_walls = cv2.dilate(cv2.erode(binary, kernel_thin, iterations=1), kernel_thin, iterations=1)
+
+    # Calculate 1D column and row wall pixel density profiles
+    col_density = np.sum(thick_walls > 0, axis=0) / float(bh)
+    row_density = np.sum(thick_walls > 0, axis=1) / float(bw)
+
+    def snap_1d(val: float, density: np.ndarray, length: int) -> float:
+        if val <= 0.05 or val >= 0.95:
+            return round(val, 3)
+        px = int(val * length)
+        win = int(0.06 * length)
+        s = max(0, px - win)
+        e = min(length, px + win)
+        if e > s and np.max(density[s:e]) > 0.15:
+            peak = s + int(np.argmax(density[s:e]))
+            return round(peak / float(length), 3)
+        return round(val, 3)
+
+    # Collect unique interior X dividing lines and Z dividing lines
+    raw_x_divs = set()
+    raw_z_divs = set()
+    for r in rooms:
+        rx = float(r.get("relX", 0.0))
+        rw = float(r.get("relW", 0.3))
+        rz = float(r.get("relZ", 0.0))
+        rd = float(r.get("relD", 0.3))
+        if 0.05 < rx < 0.95:
+            raw_x_divs.add(round(rx, 3))
+        if 0.05 < (rx + rw) < 0.95:
+            raw_x_divs.add(round(rx + rw, 3))
+        if 0.05 < rz < 0.95:
+            raw_z_divs.add(round(rz, 3))
+        if 0.05 < (rz + rd) < 0.95:
+            raw_z_divs.add(round(rz + rd, 3))
+
+    x_map = {}
+    for x in raw_x_divs:
+        x_map[x] = snap_1d(x, col_density, bw)
+
+    z_map = {}
+    for z in raw_z_divs:
+        z_map[z] = snap_1d(z, row_density, bh)
+
+    refined = []
+    for r in rooms:
+        rx = float(r.get("relX", 0.0))
+        rw = float(r.get("relW", 0.3))
+        rz = float(r.get("relZ", 0.0))
+        rd = float(r.get("relD", 0.3))
+
+        # Snap left
+        left = 0.0 if rx <= 0.05 else x_map.get(round(rx, 3), rx)
+        # Snap right
+        right_raw = round(rx + rw, 3)
+        right = 1.0 if right_raw >= 0.95 else x_map.get(right_raw, right_raw)
+
+        # Snap top
+        top = 0.0 if rz <= 0.05 else z_map.get(round(rz, 3), rz)
+        # Snap bottom
+        bottom_raw = round(rz + rd, 3)
+        bottom = 1.0 if bottom_raw >= 0.95 else z_map.get(bottom_raw, bottom_raw)
+
+        new_w = max(0.05, round(right - left, 3))
+        new_d = max(0.05, round(bottom - top, 3))
+
+        refined.append({
+            **r,
+            "relX": round(left, 3),
+            "relZ": round(top, 3),
+            "relW": new_w,
+            "relD": new_d
+        })
+
+    return refined
 
 def calibrate_and_normalize_rooms(
     raw_rooms: List[Dict[str, Any]],

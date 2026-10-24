@@ -1,11 +1,12 @@
 import time
 from typing import Dict, Any, List, Tuple
-from .image_preprocessing import preprocess_floor_plan_image
+from .image_preprocessing import preprocess_floor_plan_image, crop_building_footprint
 from .ai_interpretation import query_vision_ai_interpretation
 from .dynamic_geometry import (
     calibrate_and_normalize_rooms,
     generate_wall_network_from_rooms,
-    build_walls_from_ai_vectors
+    build_walls_from_ai_vectors,
+    snap_rooms_to_wall_pixels
 )
 from .semantic_segmentation import generate_planpop_semantic_and_overlay
 from .geometry_validation import validate_architectural_geometry
@@ -90,14 +91,17 @@ def execute_floor_plan_pipeline(image_bytes: bytes, file_name: str = "uploaded_p
     """
     start_time = time.time()
 
-    # 1. Image Preprocessing
+    # 1. Image Preprocessing & Isolated Footprint Crop (Approach 3)
     prep_res = preprocess_floor_plan_image(image_bytes)
     w_px, h_px = prep_res.orig_dims
     bbox = prep_res.bbox
     drawing_ratio = bbox[2] / float(max(1, bbox[3]))
 
-    # 2. Vision AI Interpretation
-    ai_result = query_vision_ai_interpretation(image_bytes)
+    # Deterministically crop building footprint to structural walls (eliminates dimension line contamination)
+    crop_bgr, crop_gray, crop_bytes = crop_building_footprint(prep_res.orig_bgr, prep_res.clean_gray, bbox)
+
+    # 2. Vision AI Interpretation (Dual-image: full blueprint for dimension labels, cropped footprint for room layout)
+    ai_result = query_vision_ai_interpretation(image_bytes, crop_bytes=crop_bytes)
 
     # 3. Determine Metric Dimensions
     # If dimensions given by AI / labeled in plan, use them; otherwise scale based on drawing aspect ratio
@@ -124,36 +128,15 @@ def execute_floor_plan_pipeline(image_bytes: bytes, file_name: str = "uploaded_p
         "wallThickness": float(ai_dims.get("wallThickness", 0.22)),
     }
 
-    # 4. Extract and Calibrate Rooms for THIS specific plan
+    # 4. Extract and Calibrate Rooms for THIS specific plan (Approach 3)
     raw_rooms = ai_result.get("rooms", []) if ai_result else []
     if raw_rooms:
-        bx, by, bw, bh = bbox
-        # Transform room coordinates from full image coordinate space to drawing bounding box space
-        # This eliminates margin offsets and ensures 1:1 pixel overlay alignment
-        transformed_rooms = []
-        for r in raw_rooms:
-            rx = float(r.get("relX", 0.0))
-            rz = float(r.get("relZ", 0.0))
-            rw = float(r.get("relW", 0.3))
-            rd = float(r.get("relD", 0.3))
-
-            mx = (rx * w_px - bx) / float(bw)
-            mz = (rz * h_px - by) / float(bh)
-            mw = (rw * w_px) / float(bw)
-            md = (rd * h_px) / float(bh)
-
-            transformed_rooms.append({
-                **r,
-                "relX": max(0.0, min(0.95, mx)),
-                "relZ": max(0.0, min(0.95, mz)),
-                "relW": max(0.05, min(1.0 - max(0.0, mx), mw)),
-                "relD": max(0.05, min(1.0 - max(0.0, mz), md)),
-            })
-        raw_rooms = transformed_rooms
+        # Snap room partitions directly to physical black wall pixels in crop_gray
+        snapped_rooms = snap_rooms_to_wall_pixels(raw_rooms, crop_gray)
+        calibrated_rooms = calibrate_and_normalize_rooms(snapped_rooms, real_width_m, real_length_m)
     else:
         raw_rooms = extract_rooms_from_image_cv(prep_res.clean_gray, bbox, real_width_m, real_length_m)
-
-    calibrated_rooms = calibrate_and_normalize_rooms(raw_rooms, real_width_m, real_length_m)
+        calibrated_rooms = calibrate_and_normalize_rooms(raw_rooms, real_width_m, real_length_m)
 
     # 5. Dynamically Generate Wall Network, Doors & Windows (Approach 2: Collinear CAD Vectors)
     walls = []

@@ -69,15 +69,22 @@ def extract_building_footprint_bbox(clean_gray: np.ndarray, binary_inv: np.ndarr
     """
     Finds the exact outer bounding box of the architectural building drawing,
     isolating continuous solid walls from outer dimension lines, legends, and margin text.
+    Uses morphological thickness erosion to strip thin 1-2px dimension lines and arrows.
     """
     h, w = clean_gray.shape[:2]
 
-    # Filter dark solid wall pixels using connected components
-    _, binary_strict = cv2.threshold(clean_gray, 85, 255, cv2.THRESH_BINARY_INV)
-    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(binary_strict, connectivity=8)
+    # Invert so dark walls become 255
+    _, binary = cv2.threshold(clean_gray, 140, 255, cv2.THRESH_BINARY_INV)
+
+    # Morphological erosion with (3, 3) structuring element strips thin 1-2px dimension lines, text, and leader arrows
+    kernel_thin = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+    thick_walls = cv2.dilate(cv2.erode(binary, kernel_thin, iterations=1), kernel_thin, iterations=1)
+
+    # Filter connected components: major structural wall network has area > 500
+    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(thick_walls, connectivity=8)
     wall_mask = np.zeros((h, w), dtype=np.uint8)
     for i in range(1, num_labels):
-        if stats[i, cv2.CC_STAT_AREA] > 80:
+        if stats[i, cv2.CC_STAT_AREA] > 500:
             wall_mask[labels == i] = 255
 
     wall_pts = np.argwhere(wall_mask > 0)
@@ -91,10 +98,25 @@ def extract_building_footprint_bbox(clean_gray: np.ndarray, binary_inv: np.ndarr
     bw = int(x_max - x_min)
     bh = int(y_max - y_min)
 
-    if bw < w * 0.2 or bh < h * 0.2:
+    if bw < w * 0.15 or bh < h * 0.15:
         return 0, 0, w, h
 
     return bx, by, bw, bh
+
+def crop_building_footprint(
+    orig_bgr: np.ndarray,
+    clean_gray: np.ndarray,
+    bbox: Tuple[int, int, int, int]
+) -> Tuple[np.ndarray, np.ndarray, bytes]:
+    """
+    Crops the original BGR and clean grayscale images to the structural building footprint.
+    Returns (crop_bgr, crop_gray, crop_png_bytes).
+    """
+    bx, by, bw, bh = bbox
+    crop_bgr = orig_bgr[by:by + bh, bx:bx + bw]
+    crop_gray = clean_gray[by:by + bh, bx:bx + bw]
+    _, buf = cv2.imencode(".png", crop_bgr)
+    return crop_bgr, crop_gray, buf.tobytes()
 
 def preprocess_floor_plan_image(image_bytes: bytes) -> PreprocessingResult:
     """
