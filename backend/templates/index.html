@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beyond-2D | Django 3D Architecture Studio</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Three.js + GLTFLoader + OrbitControls via CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+  <style>
+    body { background-color: #1a1a1a; color: #cfcfcf; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #222; }
+    ::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+  </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex flex-col select-none">
+
+  <!-- 1. Header Bar -->
+  <header class="h-12 bg-[#232323] border-b border-[#383838] px-4 flex items-center justify-between z-20 shrink-0">
+    <div class="flex items-center gap-3">
+      <div class="w-7 h-7 rounded bg-[#eb7724] flex items-center justify-center font-bold text-white text-xs shadow">B2</div>
+      <div>
+        <div class="font-bold text-white text-sm flex items-center gap-2">
+          Beyond-2D
+          <span class="text-[9px] uppercase tracking-wider bg-[#333] text-[#eb7724] px-1.5 py-0.5 rounded font-mono font-bold">Django + OpenCV + Trimesh</span>
+        </div>
+      </div>
+    </div>
+    <div class="flex items-center gap-4 text-xs font-mono">
+      <div class="flex items-center gap-1.5 bg-[#1a2230] border border-[#2563eb]/40 text-[#60a5fa] px-2.5 py-1 rounded">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span>API Live: /api/v1/</span>
+      </div>
+      <a href="/api/v1/health/" target="_blank" class="text-[#888] hover:text-white transition-colors">Health [API]</a>
+      <a href="http://localhost:3000" target="_blank" class="text-[#eb7724] hover:text-[#f38938] font-semibold transition-colors flex items-center gap-1">
+        <span>Open Next.js UI</span> ↗
+      </a>
+    </div>
+  </header>
+
+  <!-- 2. Main Work Area -->
+  <div class="flex-1 flex overflow-hidden">
+    
+    <!-- Left Sidebar: Controls & Pipeline Stepper -->
+    <aside class="w-80 bg-[#242424] border-r border-[#383838] flex flex-col h-full overflow-y-auto text-xs p-3.5 space-y-4 shrink-0">
+      
+      <!-- Upload Box -->
+      <div>
+        <label class="block text-[10px] uppercase font-mono tracking-wider text-[#888] mb-1.5">1. Select 2D Floor Plan Image</label>
+        <div id="dropZone" class="border-2 border-dashed border-[#444] hover:border-[#eb7724] bg-[#1c1c1c] rounded-lg p-3 text-center cursor-pointer transition-all">
+          <input type="file" id="fileInput" accept="image/*" class="hidden">
+          <div class="text-[#bbb] font-medium" id="dropPrompt">Click or Drag Blueprint Image</div>
+          <div class="text-[10px] text-[#777] mt-0.5">PNG, JPG, or WebP</div>
+        </div>
+        <div id="fileInfo" class="hidden mt-2 p-2 rounded bg-[#1e232d] border border-[#2563eb]/30 text-[11px] text-[#93c5fd]"></div>
+      </div>
+
+      <!-- Scale Calibration -->
+      <div>
+        <label class="block text-[10px] uppercase font-mono tracking-wider text-[#888] mb-1.5">2. Scale Calibration</label>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <span class="text-[10px] text-[#aaa]">Width (meters):</span>
+            <input type="number" id="knownWidth" value="10.0" step="0.5" min="2" max="60" class="w-full mt-0.5 bg-[#181818] border border-[#444] rounded px-2 py-1 text-white font-mono focus:border-[#eb7724] outline-none">
+          </div>
+          <div>
+            <span class="text-[10px] text-[#aaa]">Wall Height:</span>
+            <input type="number" id="wallHeight" value="2.8" step="0.1" min="2" max="5" class="w-full mt-0.5 bg-[#181818] border border-[#444] rounded px-2 py-1 text-white font-mono focus:border-[#eb7724] outline-none">
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="space-y-2 pt-1">
+        <button id="btnUpload" class="w-full py-2 bg-[#eb7724] hover:bg-[#f38938] disabled:opacity-40 text-white font-semibold rounded shadow transition-colors flex items-center justify-center gap-1.5">
+          <span>Upload Floor Plan</span>
+        </button>
+
+        <button id="btnAnalyze" disabled class="w-full py-2 bg-[#2563eb] hover:bg-[#3b82f6] disabled:opacity-40 text-white font-semibold rounded shadow transition-colors flex items-center justify-center gap-1.5">
+          <span>Run OpenCV Analysis</span>
+        </button>
+
+        <button id="btnGenerate3D" disabled class="w-full py-2 bg-[#059669] hover:bg-[#10b981] disabled:opacity-40 text-white font-semibold rounded shadow transition-colors flex items-center justify-center gap-1.5">
+          <span>Generate 3D Model (Trimesh)</span>
+        </button>
+      </div>
+
+      <!-- Progress / Pipeline Status -->
+      <div class="border-t border-[#383838] pt-3">
+        <div class="flex items-center justify-between text-[10px] font-mono uppercase text-[#888] mb-1">
+          <span>Pipeline Stage:</span>
+          <span id="jobStage" class="text-[#eb7724]">Ready</span>
+        </div>
+        <div class="w-full h-1.5 bg-[#181818] rounded-full overflow-hidden">
+          <div id="progressBar" class="h-full bg-[#eb7724] transition-all duration-300" style="width: 0%"></div>
+        </div>
+        <div id="logMessage" class="mt-2 text-[11px] text-[#aaa] font-mono leading-relaxed bg-[#181818] p-2 rounded border border-[#333] max-h-32 overflow-y-auto">
+          Ready to upload 2D floor plan image.
+        </div>
+      </div>
+
+      <!-- Detected Rooms Inspector -->
+      <div class="border-t border-[#383838] pt-3 flex-1">
+        <div class="text-[10px] font-mono uppercase text-[#888] mb-2 flex items-center justify-between">
+          <span>Detected Architecture:</span>
+          <span id="roomCount" class="text-white">0 rooms</span>
+        </div>
+        <div id="roomList" class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+          <div class="text-[11px] text-[#666] italic">Run analysis to view detected rooms and walls.</div>
+        </div>
+      </div>
+
+      <!-- Export / Download Section -->
+      <div id="exportSection" class="hidden border-t border-[#383838] pt-3 space-y-2">
+        <a id="btnDownloadGLB" href="#" download class="w-full py-2 bg-[#333] hover:bg-[#444] text-[#60a5fa] border border-[#2563eb]/40 font-semibold rounded text-center block transition-colors">
+          Download 3D Model (.glb)
+        </a>
+        <button id="btnDownloadJSON" class="w-full py-1.5 bg-[#252525] hover:bg-[#333] text-[#aaa] border border-[#444] rounded text-center block transition-colors">
+          Download CAD Schema (.json)
+        </button>
+      </div>
+
+    </aside>
+
+    <!-- Center: Interactive 3D Viewport -->
+    <main class="flex-1 relative bg-[#181818] flex flex-col overflow-hidden">
+      
+      <!-- Viewport Header Toolbar -->
+      <div class="h-9 bg-[#202020] border-b border-[#333] px-3 flex items-center justify-between z-10 text-xs">
+        <div class="flex items-center gap-1">
+          <span class="text-[#777] font-mono text-[10px] uppercase mr-2">Views:</span>
+          <button id="btnViewTop" class="px-2 py-0.5 rounded bg-[#2b2b2b] text-[#bbb] hover:text-white">Top [7]</button>
+          <button id="btnViewFront" class="px-2 py-0.5 rounded bg-[#2b2b2b] text-[#bbb] hover:text-white">Front [1]</button>
+          <button id="btnViewIso" class="px-2 py-0.5 rounded bg-[#383838] text-white">Isometric</button>
+        </div>
+
+        <div class="flex items-center gap-2 text-[11px] text-[#888] font-mono">
+          <span id="viewportStats">Vertices: 0 | Faces: 0</span>
+        </div>
+      </div>
+
+      <!-- 3D Canvas Mount Point -->
+      <div id="viewportCanvas" class="flex-1 w-full h-full relative cursor-grab active:cursor-grabbing outline-none">
+        
+        <!-- Empty Placeholder state -->
+        <div id="canvasOverlay" class="absolute inset-0 flex flex-col items-center justify-center text-center p-6 pointer-events-none">
+          <div class="w-16 h-16 rounded-full bg-[#242424] border border-[#383838] flex items-center justify-center text-[#eb7724] mb-3 text-2xl font-bold">
+            3D
+          </div>
+          <div class="text-white font-semibold text-base mb-1">Interactive 3D Architectural Viewport</div>
+          <div class="text-xs text-[#777] max-w-sm">
+            Upload your floor plan on the left. The Django OpenCV and Trimesh pipeline will generate and render the 3D model right here.
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- JavaScript: 3D Viewport & API Integration -->
+  <script>
+    let currentJobId = null;
+    let currentGeometry = null;
+    let selectedFile = null;
+
+    // UI Elements
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const dropPrompt = document.getElementById('dropPrompt');
+    const fileInfo = document.getElementById('fileInfo');
+    const btnUpload = document.getElementById('btnUpload');
+    const btnAnalyze = document.getElementById('btnAnalyze');
+    const btnGenerate3D = document.getElementById('btnGenerate3D');
+    const jobStage = document.getElementById('jobStage');
+    const progressBar = document.getElementById('progressBar');
+    const logMessage = document.getElementById('logMessage');
+    const roomCount = document.getElementById('roomCount');
+    const roomList = document.getElementById('roomList');
+    const exportSection = document.getElementById('exportSection');
+    const btnDownloadGLB = document.getElementById('btnDownloadGLB');
+    const btnDownloadJSON = document.getElementById('btnDownloadJSON');
+    const canvasOverlay = document.getElementById('canvasOverlay');
+    const viewportStats = document.getElementById('viewportStats');
+
+    // 1. Initialize Three.js Scene
+    const container = document.getElementById('viewportCanvas');
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x1a1a1a);
+
+    const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+    camera.position.set(0, 14, 16);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    container.appendChild(renderer.domElement);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.target.set(0, 1.0, 0);
+
+    // Subtle Grid floor
+    const grid = new THREE.GridHelper(30, 30, 0xeb7724, 0x333333);
+    grid.position.y = 0;
+    scene.add(grid);
+
+    // Lighting
+    const ambLight = new THREE.AmbientLight(0xffffff, 0.7);
+    scene.add(ambLight);
+    const sunLight = new THREE.DirectionalLight(0xfff8ee, 1.4);
+    sunLight.position.set(10, 20, 15);
+    sunLight.castShadow = true;
+    scene.add(sunLight);
+
+    let currentModelGroup = null;
+
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = container.clientWidth / container.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(container.clientWidth, container.clientHeight);
+    });
+
+    // Camera presets
+    document.getElementById('btnViewTop').onclick = () => {
+      camera.up.set(0, 0, -1);
+      camera.position.set(0, 22, 0);
+      controls.target.set(0, 0, 0);
+      controls.update();
+    };
+    document.getElementById('btnViewFront').onclick = () => {
+      camera.up.set(0, 1, 0);
+      camera.position.set(0, 3, 20);
+      controls.target.set(0, 1.4, 0);
+      controls.update();
+    };
+    document.getElementById('btnViewIso').onclick = () => {
+      camera.up.set(0, 1, 0);
+      camera.position.set(0, 14, 16);
+      controls.target.set(0, 1.0, 0);
+      controls.update();
+    };
+
+    // 2. File Selection & Drag-and-drop
+    dropZone.onclick = () => fileInput.click();
+    fileInput.onchange = (e) => handleFile(e.target.files[0]);
+    dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('border-[#eb7724]'); };
+    dropZone.ondragleave = () => dropZone.classList.remove('border-[#eb7724]');
+    dropZone.ondrop = (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('border-[#eb7724]');
+      if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
+    };
+
+    function handleFile(file) {
+      if (!file) return;
+      selectedFile = file;
+      dropPrompt.textContent = file.name;
+      fileInfo.classList.remove('hidden');
+      fileInfo.textContent = `Selected: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+      btnUpload.disabled = false;
+      logMessage.textContent = `File ready: ${file.name}. Click "Upload Floor Plan".`;
+    }
+
+    // 3. Step 1: Upload
+    btnUpload.onclick = async () => {
+      if (!selectedFile) return;
+      btnUpload.disabled = true;
+      jobStage.textContent = 'Uploading...';
+      progressBar.style.width = '20%';
+      logMessage.textContent = 'Uploading blueprint image to Django backend...';
+
+      const formData = new FormData();
+      formData.append('image', selectedFile);
+      formData.append('known_width_meters', document.getElementById('knownWidth').value);
+
+      try {
+        const res = await fetch('/api/v1/floorplans/upload/', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Upload failed');
+
+        currentJobId = data.job_id;
+        jobStage.textContent = 'Uploaded';
+        progressBar.style.width = '35%';
+        logMessage.textContent = `Upload complete! Job ID: ${currentJobId}. Image size: ${data.image.width}x${data.image.height}px. Click "Run OpenCV Analysis".`;
+        btnAnalyze.disabled = false;
+      } catch (err) {
+        logMessage.textContent = `Error: ${err.message}`;
+        btnUpload.disabled = false;
+      }
+    };
+
+    // 4. Step 2: Analyze
+    btnAnalyze.onclick = async () => {
+      if (!currentJobId) return;
+      btnAnalyze.disabled = true;
+      jobStage.textContent = 'Analyzing...';
+      progressBar.style.width = '55%';
+      logMessage.textContent = 'Executing OpenCV feature detection (walls, rooms, scale calibration)...';
+
+      try {
+        const res = await fetch(`/api/v1/floorplans/${currentJobId}/analyze/`, { method: 'POST' });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Analysis failed');
+
+        currentGeometry = data;
+        jobStage.textContent = 'Analyzed';
+        progressBar.style.width = '75%';
+        logMessage.textContent = `Analysis complete! Detected ${data.rooms.length} rooms and ${data.walls.length} wall segments with ${(data.confidence * 100).toFixed(0)}% confidence. Click "Generate 3D Model".`;
+
+        // Render detected rooms in list
+        roomCount.textContent = `${data.rooms.length} rooms`;
+        roomList.innerHTML = '';
+        data.rooms.forEach(r => {
+          const div = document.createElement('div');
+          div.className = 'p-2 rounded bg-[#1c1c1c] border border-[#333] flex items-center justify-between';
+          div.innerHTML = `
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${r.color}"></span>
+              <span class="font-medium text-white">${r.name}</span>
+            </div>
+            <span class="text-[#888] font-mono text-[10px]">${r.dimensionsText}</span>
+          `;
+          roomList.appendChild(div);
+        });
+
+        btnGenerate3D.disabled = false;
+      } catch (err) {
+        logMessage.textContent = `Analysis error: ${err.message}`;
+        btnAnalyze.disabled = false;
+      }
+    };
+
+    // 5. Step 3: Generate 3D Model & Load in Viewport
+    btnGenerate3D.onclick = async () => {
+      if (!currentJobId) return;
+      btnGenerate3D.disabled = true;
+      jobStage.textContent = 'Generating 3D...';
+      progressBar.style.width = '85%';
+      logMessage.textContent = 'Constructing 3D geometry with Trimesh & exporting validated binary GLB...';
+
+      try {
+        const res = await fetch(`/api/v1/floorplans/${currentJobId}/generate-3d/`, { method: 'POST' });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || '3D generation failed');
+
+        jobStage.textContent = 'Completed';
+        progressBar.style.width = '100%';
+        logMessage.textContent = `Success! 3D Model generated (${(data.model.file_size / 1024).toFixed(1)} KB, ${data.model.vertex_count} vertices). Loading into viewport...`;
+
+        // Load GLB into Three.js Viewport
+        const loader = new THREE.GLTFLoader();
+        loader.load(data.model.glb_url, (gltf) => {
+          if (currentModelGroup) scene.remove(currentModelGroup);
+          currentModelGroup = gltf.scene;
+          scene.add(currentModelGroup);
+          canvasOverlay.classList.add('hidden');
+          viewportStats.textContent = `Vertices: ${data.model.vertex_count} | Faces: ${data.model.face_count}`;
+
+          // Setup download links
+          btnDownloadGLB.href = data.model.glb_url;
+          btnDownloadJSON.onclick = () => {
+            const blob = new Blob([JSON.stringify(currentGeometry, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Beyond-2D_FloorPlan_${currentJobId}.json`;
+            a.click();
+          };
+          exportSection.classList.remove('hidden');
+        });
+
+      } catch (err) {
+        logMessage.textContent = `3D generation error: ${err.message}`;
+        btnGenerate3D.disabled = false;
+      }
+    };
+  </script>
+</body>
+</html>
