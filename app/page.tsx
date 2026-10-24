@@ -109,20 +109,30 @@ export default function Beyond2DApp() {
     const displayTitle = cleanFileName.length > 20 ? `${cleanFileName.slice(0, 18)}...` : cleanFileName;
 
     setIsAnalyzing(true);
-    setAnalyzingStep('1/3 Uploading plan...');
+    setAnalyzingStep('1/3 Uploading architectural plan...');
+
+    let progressInterval: any = null;
 
     try {
       const formData = new FormData();
       formData.append('file', file);
 
-      setAnalyzingStep('2/3 Gemma 4 analyzing layout...');
+      setAnalyzingStep('2/3 Vision AI inspecting rooms & walls...');
+      progressInterval = setInterval(() => {
+        setAnalyzingStep(prev => {
+          if (prev.includes('rooms')) return '2/3 Extracting metric dimensions...';
+          if (prev.includes('dimensions')) return '2/3 Tracing wall boundaries & doors...';
+          return '2/3 Vision AI inspecting rooms & walls...';
+        });
+      }, 5000);
 
       const response = await fetch('/api/analyze-floorplan', {
         method: 'POST',
         body: formData,
       });
 
-      setAnalyzingStep('3/3 Building 3D geometry...');
+      clearInterval(progressInterval);
+      setAnalyzingStep('3/3 Building 3D dollhouse & furniture...');
 
       const data: AIAnalysisResponse = await response.json();
 
@@ -203,6 +213,7 @@ export default function Beyond2DApp() {
       setProjects(prev => [fallbackProject, ...prev]);
       setCurrentProjectId(newId);
     } finally {
+      if (progressInterval) clearInterval(progressInterval);
       setIsAnalyzing(false);
       setAnalyzingStep('');
     }

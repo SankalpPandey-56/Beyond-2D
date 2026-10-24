@@ -37,7 +37,7 @@ export class GeminiFloorPlanProvider implements IFloorPlanProvider {
 
   async analyzeFloorPlan(imageBase64: string, mimeType: string): Promise<RawAIPlanOutput> {
     const apiKey = this.getApiKey();
-    const candidateModels = ['gemini-3.5-flash', 'gemini-3-flash-preview', 'gemma-4-26b-a4b-it'];
+    const candidateModels = ['gemini-3.1-flash-lite-preview', 'gemini-3.6-flash', 'gemini-3-flash-preview'];
 
     const cleanBase64 = imageBase64.replace(/^data:[^;]+;base64,/, '');
 
@@ -120,7 +120,7 @@ Ensure relX + relW <= 1.0 and relZ + relD <= 1.0. Output pure JSON without markd
         };
 
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 22000);
+        const timeout = setTimeout(() => controller.abort(), 55000); // 55s timeout ensures complex vision inference completes
 
         const response = await fetch(url, {
           method: 'POST',
