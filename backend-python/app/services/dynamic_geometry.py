@@ -43,12 +43,38 @@ def calibrate_and_normalize_rooms(
 ) -> List[Dict[str, Any]]:
     """
     Normalizes AI-detected or CV-detected room bounds:
+    - Automatically rescales room coordinates to span the entire building footprint [0.0, 1.0].
     - Snaps perimeter rooms to 0.0 and 1.0.
     - Flushes adjacent boundaries to eliminate black voids.
     - Assigns clean architectural colors and furniture.
     """
     if not raw_rooms:
         return []
+
+    # 1. Rescale rooms to fill building footprint if AI coordinates included image margins
+    if len(raw_rooms) >= 3:
+        min_x = min(float(r.get("relX", 0)) for r in raw_rooms)
+        min_z = min(float(r.get("relZ", 0)) for r in raw_rooms)
+        max_x = max(float(r.get("relX", 0)) + float(r.get("relW", 0.3)) for r in raw_rooms)
+        max_z = max(float(r.get("relZ", 0)) + float(r.get("relD", 0.3)) for r in raw_rooms)
+        span_x = max(0.1, max_x - min_x)
+        span_z = max(0.1, max_z - min_z)
+
+        if (span_x < 0.92 or span_z < 0.92 or min_x > 0.06 or min_z > 0.06):
+            normalized_raw = []
+            for r in raw_rooms:
+                rx = (float(r.get("relX", 0)) - min_x) / span_x
+                rz = (float(r.get("relZ", 0)) - min_z) / span_z
+                rw = float(r.get("relW", 0.3)) / span_x
+                rd = float(r.get("relD", 0.3)) / span_z
+                normalized_raw.append({
+                    **r,
+                    "relX": max(0.0, min(0.95, rx)),
+                    "relZ": max(0.0, min(0.95, rz)),
+                    "relW": max(0.05, min(1.0 - rx, rw)),
+                    "relD": max(0.05, min(1.0 - rz, rd)),
+                })
+            raw_rooms = normalized_raw
 
     cleaned: List[Dict[str, Any]] = []
 

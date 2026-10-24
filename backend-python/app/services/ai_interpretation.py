@@ -25,44 +25,35 @@ def query_vision_ai_interpretation(image_bytes: bytes, mime_type: str = "image/p
 
     b64_data = base64.b64encode(image_bytes).decode("utf-8")
     
-    prompt = """You are an expert CAD reverse-engineering system.
-Analyze the floor plan drawing.
-Your goal is to extract the EXACT structural wall centerlines with perfect collinearity and rectilinear alignment (90 degree angles), plus all room boundaries, doors, and windows.
+    prompt = """You are an expert architectural blueprint computer vision analyzer.
+Analyze the uploaded floor plan image and identify EVERY SINGLE ROOM across the ENTIRE house.
+Do NOT stop at 2 or 3 rooms! Inspect all sections across the entire drawing:
+1. Top-Left / North-West: Bedrooms side-by-side
+2. Middle-Left / West: Bathrooms, toilets, utility/closet rooms
+3. Bottom-Left / South-West: Master Bedroom / suite
+4. Center / Core: Living Room, Family Room, Foyer
+5. Right Side / East: Kitchen, Dining Area, Office or Bedroom
+6. Bottom-Center / South: Entryway Porch / Foyer Vestibule
 
-Extract:
-1. "dimensions": {"width": float, "length": float, "wallHeight": 2.8, "wallThickness": 0.22}
-   (If labeled e.g. 10.0m x 8.0m or 14.0m x 8.9m, use exact labeled metric dimensions).
-2. "walls": list of structural wall centerlines:
-   - "id": string (e.g. "ext_north", "ext_east", "int_wall_1")
-   - "start_norm": [x, z] normalized coordinates (0.0 to 1.0)
-   - "end_norm": [x, z] normalized coordinates (0.0 to 1.0)
-   - "isExterior": boolean
-   - "thickness": float (0.22 for exterior, 0.15 for interior)
-   - "openings": list of doors and windows on this wall: [{"type": "door"|"window", "position": float 0..1, "width": float}]
-3. "doors": list of doors:
-   - "id": string
-   - "center_norm": [x, z]
-   - "width_m": 0.9
-4. "windows": list of windows:
-   - "id": string
-   - "center_norm": [x, z]
-   - "width_m": 1.2
-5. "rooms": list of rooms:
-   - "id": string (e.g. "room_bed1", "room_living")
-   - "name": string (exact labeled name e.g. "Bedroom 1", "Living Room", "Kitchen", "Bathroom", "Porch")
-   - "type": "bedroom"|"living"|"kitchen"|"bathroom"|"dining"|"porch"|"hallway"|"office"
-   - "relX": float 0..1 (top-left X)
-   - "relZ": float 0..1 (top-left Z)
-   - "relW": float 0..1 (width along X)
-   - "relD": float 0..1 (depth along Z)
-   - "dimensionsText": string (e.g. "3.5 m x 3.0 m")
+For EVERY room, return:
+- "id": string (e.g. "bed_1", "bed_2", "bath_1", "master_bed", "living", "kitchen", "dining", "porch", "hallway")
+- "name": string (exact labeled room name e.g. "Bedroom 1", "Master Bedroom", "Kitchen", "Living Room", "Bathroom", "Porch")
+- "type": "bedroom"|"living"|"kitchen"|"bathroom"|"dining"|"hallway"|"office"|"porch"|"entrance"
+- "relX": float (0.0 to 1.0, top-left X position relative to building footprint)
+- "relZ": float (0.0 to 1.0, top-left Z position relative to building footprint)
+- "relW": float (0.05 to 1.0, width along X)
+- "relD": float (0.05 to 1.0, depth along Z)
+- "dimensionsText": string (e.g. "3.5 m x 3.0 m")
+- "furniture": list of furniture items seen (e.g. ["bed", "wardrobe"])
 
-CRITICAL CAD ALIGNMENT RULES:
-- Every wall MUST be strictly horizontal (start_norm[1] == end_norm[1]) or vertical (start_norm[0] == end_norm[0]). No diagonal walls.
-- Walls that share an axis line MUST share the EXACT same coordinate along that axis (perfect collinear snapping).
-- Exterior walls must form a closed outer boundary perimeter around all rooms.
+Also identify building dimensions:
+- "dimensions": {"width": float, "length": float, "wallHeight": 2.8, "wallThickness": 0.22}
+  (If labeled e.g. 10.0m x 8.0m or 14.0m x 8.9m, use exact labeled metric dimensions).
+
+CRITICAL ARCHITECTURAL RULES:
+- The extracted rooms together MUST span the full house footprint. Do NOT leave large areas empty.
 - Adjacent rooms must share boundaries flush with ZERO VOID GAPS between rooms.
-- Return ONLY valid JSON."""
+- Return ONLY valid JSON with {"dimensions": {...}, "rooms": [...]}. Do not include a walls array."""
 
     candidate_models = ["gemini-3.1-flash-lite-preview", "gemini-3.1-flash-lite"]
     
