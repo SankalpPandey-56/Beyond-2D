@@ -68,6 +68,17 @@ Return JSON:
       "dimensionsText": string,
       "furniture": list of furniture items seen (e.g. ["bed", "wardrobe"])
     }
+  ],
+  "openings": [
+    {
+      "type": "door" | "window",
+      "wallSide": "top" | "bottom" | "left" | "right" | "interior",
+      "relX": float (0.0 to 1.0, exact CENTER of the opening relative to Image 2 cropped footprint),
+      "relZ": float (0.0 to 1.0, exact CENTER of the opening relative to Image 2 cropped footprint),
+      "widthMeters": float (e.g. 0.9 for door, 1.4 for window),
+      "hingeSide": "left" | "right",
+      "swingDirection": "inward" | "outward"
+    }
   ]
 }
 
@@ -76,7 +87,13 @@ CRITICAL ARCHITECTURAL RULES:
 2. Extract all room coordinates relative to Image 2 (the cropped building footprint).
 3. The rooms together MUST cover the entire house layout. Do not leave large sections empty.
 4. Adjacent rooms must share boundaries flush with ZERO VOID GAPS between rooms.
-5. Return ONLY valid JSON with {"dimensions": {...}, "rooms": [...]}. Do not include a walls array."""
+5. OPENINGS (DOORS & WINDOWS):
+   - relX and relZ MUST represent the exact geometric CENTER of the opening, NOT just the starting corner.
+     For example, if a window is centered on the top wall, its relX must be 0.50!
+   - DOORS: Look for breaks in walls with a door leaf or 90-degree swing arc. Identify hingeSide ('left' or 'right' when viewed from outside facing the door) and swingDirection ('inward' into the room).
+   - WINDOWS: Look for wall cutouts with double/triple parallel lines, window frames, or glass panes. Set relX/relZ to the exact center of the window opening.
+   - SOLID WALLS: If a wall segment has NO door swing and NO window lines, do NOT add an opening. Solid walls must have zero openings.
+6. Return ONLY valid JSON with {"dimensions": {...}, "rooms": [...], "openings": [...]}. Do not include a walls array."""
 
         parts = [
             {"text": prompt},
@@ -107,14 +124,31 @@ For EVERY room, return:
 - "dimensionsText": string (e.g. "3.5 m x 3.0 m")
 - "furniture": list of furniture items seen (e.g. ["bed", "wardrobe"])
 
-Also identify building dimensions:
+Also identify building dimensions and openings:
 - "dimensions": {"width": float, "length": float, "wallHeight": 2.8, "wallThickness": 0.22}
   (If labeled e.g. 10.0m x 8.0m or 14.0m x 8.9m, use exact labeled metric dimensions).
+- "openings": list of doors and windows seen:
+  [
+    {
+      "type": "door" | "window",
+      "wallSide": "top" | "bottom" | "left" | "right" | "interior",
+      "relX": float (0.0 to 1.0, exact CENTER of the opening relative to building footprint),
+      "relZ": float (0.0 to 1.0, exact CENTER of the opening relative to building footprint),
+      "widthMeters": float (e.g. 0.9 for door, 1.4 for window),
+      "hingeSide": "left" | "right",
+      "swingDirection": "inward" | "outward"
+    }
+  ]
 
 CRITICAL ARCHITECTURAL RULES:
 - The extracted rooms together MUST span the full house footprint. Do NOT leave large areas empty.
 - Adjacent rooms must share boundaries flush with ZERO VOID GAPS between rooms.
-- Return ONLY valid JSON with {"dimensions": {...}, "rooms": [...]}. Do not include a walls array."""
+- OPENINGS:
+  - relX and relZ MUST represent the exact geometric CENTER of the opening (e.g. centered window = 0.50).
+  - DOORS: Look for breaks in walls with a door leaf or 90-degree swing arc. Identify hingeSide ('left' or 'right') and swingDirection ('inward').
+  - WINDOWS: Look for wall cutouts with double/triple parallel lines, window frames, or glass panes. Set relX/relZ to the exact center of the window opening.
+  - SOLID WALLS: If a wall has NO door swing and NO window lines, do NOT add an opening. Solid walls must have zero openings.
+- Return ONLY valid JSON with {"dimensions": {...}, "rooms": [...], "openings": [...]}. Do not include a walls array."""
 
         parts = [
             {"text": prompt},

@@ -1,0 +1,12 @@
+{
+  "name": "form-studio-frontend",
+  "version": "1.0.0",
+  "description": "Luxury Architectural 3D Workspace Frontend for Beyond-2D",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["architecture", "threejs", "3d", "floorplan"],
+  "author": "",
+  "license": "MIT"
+}

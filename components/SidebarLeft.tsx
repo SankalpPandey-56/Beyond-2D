@@ -50,6 +50,17 @@ export default function SidebarLeft({
     }
   };
 
+  const handleLoadPerfectPlan = async () => {
+    try {
+      const res = await fetch('/samples/perfect_floorplan.png');
+      const blob = await res.blob();
+      const file = new File([blob], 'perfect_floorplan.png', { type: 'image/png' });
+      onUploadImage(file);
+    } catch (err) {
+      console.error('Failed to load benchmark floorplan:', err);
+    }
+  };
+
   return (
     <aside className="w-64 bg-[#282828] border-r border-[#3c3c3c] flex flex-col h-full select-none text-xs text-[#cfcfcf]">
       {/* 1. Header / App Brand */}
@@ -107,6 +118,27 @@ export default function SidebarLeft({
               </>
             )}
           </button>
+
+          <button
+            onClick={handleLoadPerfectPlan}
+            disabled={isAnalyzing}
+            title="Load the 100% verified 10.0m x 8.0m 4-room CAD benchmark plan"
+            className="w-full flex items-center justify-center gap-1.5 bg-[#1a2e22] hover:bg-[#233d2e] border border-[#2d5c40] text-[#4ade80] disabled:opacity-50 font-medium py-1.5 px-3 rounded text-[11px] transition-colors shadow-sm"
+          >
+            <Sparkles size={13} className="text-[#4ade80] shrink-0" />
+            <span>Load Benchmark Plan (4 Rooms)</span>
+          </button>
+
+          <a
+            href="http://localhost:3000"
+            target="_blank"
+            rel="noreferrer"
+            title="Open dedicated FORM Studio luxury architectural frontend on port 3000"
+            className="w-full flex items-center justify-center gap-1.5 bg-[#1e2833] hover:bg-[#283545] border border-[#2d3947] text-[#e9e4da] font-medium py-1.5 px-3 rounded text-[11px] transition-colors shadow-sm text-center"
+          >
+            <span className="text-[#ae906c] font-serif font-bold text-xs">FORM</span>
+            <span>Open FORM Studio (Port 3000) ↗</span>
+          </a>
         </div>
 
         {/* 3. Drag & Drop Floor Plan Area */}

@@ -146,6 +146,7 @@ def execute_floor_plan_pipeline(image_bytes: bytes, file_name: str = "uploaded_p
     ai_walls = ai_result.get("walls", []) if ai_result else []
     ai_doors = ai_result.get("doors", []) if ai_result else []
     ai_windows = ai_result.get("windows", []) if ai_result else []
+    ai_openings = ai_result.get("openings", []) if ai_result else []
 
     # Check if AI returned a complete wall network (both exterior + interior partitions)
     int_count = sum(1 for w in ai_walls if not w.get("isExterior") and w.get("type") != "exterior")
@@ -165,7 +166,8 @@ def execute_floor_plan_pipeline(image_bytes: bytes, file_name: str = "uploaded_p
             rooms=calibrated_rooms,
             width_m=real_width_m,
             length_m=real_length_m,
-            bbox=bbox
+            bbox=bbox,
+            openings=ai_openings
         )
 
     # 6. Validate Architectural Geometry
