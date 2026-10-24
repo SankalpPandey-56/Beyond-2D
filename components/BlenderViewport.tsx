@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';
+import { OBJExporter } from 'three/examples/jsm/exporters/OBJExporter.js';
 import { BuildingDimensions, EnvironmentMode, ProjectData, RoomData, ShadingMode, TransformTool, WallData } from '@/lib/types';
 import { 
   Box, 
@@ -35,6 +36,7 @@ interface BlenderViewportProps {
   shadingMode: ShadingMode;
   onShadingModeChange: (mode: ShadingMode) => void;
   diagnostics?: ProjectData['diagnostics'];
+  blueprintUrl?: string;
 }
 
 // Procedural PBR Floor Texture Generators for Architectural Realism
@@ -242,6 +244,7 @@ export default function BlenderViewport({
   shadingMode,
   onShadingModeChange,
   diagnostics,
+  blueprintUrl,
 }: BlenderViewportProps) {
   const mountRef = useRef<HTMLDivElement>(null);
   const gizmoRef = useRef<HTMLCanvasElement>(null);
@@ -254,8 +257,10 @@ export default function BlenderViewport({
 
   const [stats, setStats] = useState({ verts: 450, faces: 220, objects: 18, fps: 60 });
   const [showFurniture, setShowFurniture] = useState(true); // Default true for rich, furnished architectural 3D view
+  const [showBlueprint, setShowBlueprint] = useState(false); // PlanPop-style 2D floor plan overlay
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [isExportingGLB, setIsExportingGLB] = useState(false);
+  const [isExportingOBJ, setIsExportingOBJ] = useState(false);
 
   // Diagnostic & Framing State
   const [showDiagnostics, setShowDiagnostics] = useState(true);
@@ -597,6 +602,32 @@ export default function BlenderViewport({
     slabMesh.position.set(0, 0.1, 0);
     slabMesh.receiveShadow = true;
     group.add(slabMesh);
+
+    // PlanPop-Style 2D Floor Plan Blueprint Texture Overlay
+    if (showBlueprint && blueprintUrl) {
+      const texLoader = new THREE.TextureLoader();
+      texLoader.load(
+        blueprintUrl,
+        (texture) => {
+          texture.colorSpace = THREE.SRGBColorSpace;
+          const overlayGeo = new THREE.PlaneGeometry(W, L);
+          const overlayMat = new THREE.MeshBasicMaterial({
+            map: texture,
+            transparent: true,
+            opacity: 0.85,
+            side: THREE.DoubleSide,
+            depthWrite: false,
+          });
+          const overlayMesh = new THREE.Mesh(overlayGeo, overlayMat);
+          overlayMesh.rotation.x = -Math.PI / 2;
+          overlayMesh.position.set(0, 0.205, 0);
+          group.add(overlayMesh);
+          rendererRef.current?.render(sceneRef.current!, cameraRef.current!);
+        },
+        undefined,
+        (err) => console.warn('Blueprint texture overlay error:', err)
+      );
+    }
 
     // Materials
     const wallColor = shadingMode === 'rendered' ? 0xe5e7eb : (shadingMode === 'solid' ? 0x9ca3af : 0xd1d5db);
@@ -1038,7 +1069,7 @@ export default function BlenderViewport({
     requestAnimationFrame(() => {
       fitCameraToModel(1.25);
     });
-  }, [dimensions, rooms, walls, selectedRoomId, shadingMode, showFurniture, fitCameraToModel]);
+  }, [dimensions, rooms, walls, selectedRoomId, shadingMode, showFurniture, showBlueprint, blueprintUrl, fitCameraToModel]);
 
   // Keyboard Shortcuts: 'F' to Frame Model, '7' Top View, '1' Front View, '3' Right View
   useEffect(() => {
@@ -1164,6 +1195,29 @@ export default function BlenderViewport({
     }
   };
 
+  // Export 3D Wavefront Model (.obj) (PlanPop 3D Architecture)
+  const exportOBJ = () => {
+    if (!houseGroupRef.current) return;
+    setIsExportingOBJ(true);
+
+    try {
+      const exporter = new OBJExporter();
+      const result = exporter.parse(houseGroupRef.current);
+      const blob = new Blob([result], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Beyond-2D_House_Model.obj`;
+      a.click();
+      URL.revokeObjectURL(url);
+      setIsExportingOBJ(false);
+      setShowExportMenu(false);
+    } catch (err) {
+      setIsExportingOBJ(false);
+      console.error('Error exporting OBJ:', err);
+    }
+  };
+
   // Export CAD Floor Plan Schema (.json)
   const exportJSON = () => {
     const exportData = {
@@ -1277,6 +1331,22 @@ export default function BlenderViewport({
           {showFurniture ? 'Furniture: ON' : 'Furniture: OFF'}
         </button>
 
+        {/* PlanPop 2D Blueprint Overlay Toggle */}
+        {blueprintUrl && (
+          <button
+            onClick={() => setShowBlueprint(!showBlueprint)}
+            className={`px-2 py-0.5 rounded text-[11px] font-mono border transition-colors flex items-center gap-1 ${
+              showBlueprint 
+                ? 'bg-[#10b981]/25 border-[#10b981] text-[#6ee7b7]' 
+                : 'bg-[#202020] border-[#383838] text-[#808080] hover:text-[#bbb]'
+            }`}
+            title="Toggle PlanPop-Style 2D Blueprint Texture Overlay onto the 3D Floor"
+          >
+            <Layers size={12} />
+            <span>Blueprint: {showBlueprint ? 'ON' : 'OFF'}</span>
+          </button>
+        )}
+
         {/* Real-time Diagnostics HUD Toggle */}
         <button
           onClick={() => setShowDiagnostics(!showDiagnostics)}
@@ -1364,6 +1434,25 @@ export default function BlenderViewport({
                       </div>
                       <div className="text-[10px] text-[#999] mt-0.5 leading-snug">
                         {isExportingGLB ? 'Generating GLB mesh...' : 'Full 3D model for Blender, Unity, Unreal, or Web.'}
+                      </div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={exportOBJ}
+                    disabled={isExportingOBJ}
+                    className="w-full text-left p-2 hover:bg-[#303030] rounded flex items-start gap-2.5 transition-colors group"
+                  >
+                    <div className="w-7 h-7 rounded bg-[#10b981]/20 text-[#34d399] flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-[#10b981] group-hover:text-white transition-colors">
+                      <Box size={14} />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-white flex items-center gap-1.5">
+                        Wavefront 3D (.obj)
+                        <span className="text-[9px] bg-[#10b981]/25 text-[#34d399] px-1 py-0.2 rounded font-mono">OBJ</span>
+                      </div>
+                      <div className="text-[10px] text-[#999] mt-0.5 leading-snug">
+                        {isExportingOBJ ? 'Generating OBJ mesh...' : 'Universal CAD & 3D mesh geometry file.'}
                       </div>
                     </div>
                   </button>

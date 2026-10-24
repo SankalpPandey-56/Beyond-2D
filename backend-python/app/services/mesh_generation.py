@@ -127,3 +127,13 @@ def export_glb_bytes(scene: trimesh.Scene) -> bytes:
     Exports the trimesh scene to binary GLB format.
     """
     return trimesh.exchange.gltf.export_glb(scene)
+
+def export_obj_bytes(scene: trimesh.Scene) -> bytes:
+    """
+    Exports the trimesh scene to Wavefront OBJ format.
+    """
+    try:
+        combined = scene.to_geometry()
+    except Exception:
+        combined = scene.dump(concatenate=True)
+    return trimesh.exchange.obj.export_obj(combined).encode("utf-8")

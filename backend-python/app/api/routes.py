@@ -3,7 +3,7 @@ from fastapi import APIRouter, File, UploadFile, Request, HTTPException, Respons
 from fastapi.responses import JSONResponse
 from typing import Optional
 from ..services.pipeline import execute_floor_plan_pipeline
-from ..services.mesh_generation import generate_building_scene, export_glb_bytes
+from ..services.mesh_generation import generate_building_scene, export_glb_bytes, export_obj_bytes
 from ..schemas import FloorPlanAnalysisResponse, AnalysisRequestJSON
 
 router = APIRouter()
@@ -82,3 +82,26 @@ async def export_glb(request: Request):
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"GLB export failed: {str(e)}")
+
+@router.post("/api/export-obj")
+async def export_obj(request: Request):
+    """
+    Exports a 3D Wavefront model (.obj) from floor plan geometry using Trimesh.
+    """
+    try:
+        body = await request.json()
+        layout = body.get("layout", body)
+        walls = layout.get("walls", [])
+        rooms = layout.get("rooms", [])
+        dims = layout.get("dimensions", {"width": 10.0, "length": 8.0, "wallHeight": 2.8})
+
+        scene, _ = generate_building_scene(walls, rooms, dims)
+        obj_data = export_obj_bytes(scene)
+
+        return Response(
+            content=obj_data,
+            media_type="text/plain",
+            headers={"Content-Disposition": "attachment; filename=Beyond-2D_House_Model_v2.obj"}
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"OBJ export failed: {str(e)}")

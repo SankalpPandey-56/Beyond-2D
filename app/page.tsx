@@ -257,14 +257,16 @@ export default function Beyond2DApp() {
           shadingMode={shadingMode}
           onShadingModeChange={setShadingMode}
           diagnostics={currentProject.diagnostics}
+          blueprintUrl={currentProject.previewUrl}
         />
       </main>
 
-      {/* 3. Right Sidebar: 2D Image Preview, Realtime Dimensions, Outliner */}
+      {/* 3. Right Sidebar: 2D Image Preview, Realtime Dimensions, Outliner, 3D Export */}
       <SidebarRight
         dimensions={currentProject.dimensions}
         onDimensionsChange={handleDimensionsChange}
         rooms={currentProject.rooms}
+        walls={currentProject.walls}
         selectedRoomId={selectedRoomId}
         onSelectRoom={setSelectedRoomId}
         previewUrl={currentProject.previewUrl}

@@ -23,6 +23,7 @@ interface SidebarRightProps {
   dimensions: BuildingDimensions;
   onDimensionsChange: (dims: BuildingDimensions) => void;
   rooms: RoomData[];
+  walls?: any[];
   selectedRoomId: string | null;
   onSelectRoom: (roomId: string | null) => void;
   previewUrl: string;
@@ -55,6 +56,7 @@ export default function SidebarRight({
   dimensions,
   onDimensionsChange,
   rooms,
+  walls,
   selectedRoomId,
   onSelectRoom,
   previewUrl,
