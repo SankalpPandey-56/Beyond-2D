@@ -34,9 +34,16 @@ def generate_planpop_semantic_and_overlay(
     # A. Draw Walls in Solid Red (0, 0, 255 in BGR)
     red_bgr = PALETTE_BGR["wall"]
     for seg in wall_segments:
-        cv2.line(semantic_bgr, seg.p1_px, seg.p2_px, red_bgr, wall_thickness_px)
-        cv2.line(overlay_bgr, seg.p1_px, seg.p2_px, red_bgr, wall_thickness_px)
-        cv2.line(wall_mask, seg.p1_px, seg.p2_px, 255, wall_thickness_px)
+        if isinstance(seg, dict):
+            p1 = seg.get("_p1_px") or seg.get("p1_px")
+            p2 = seg.get("_p2_px") or seg.get("p2_px")
+        else:
+            p1 = getattr(seg, "p1_px", None)
+            p2 = getattr(seg, "p2_px", None)
+        if p1 and p2:
+            cv2.line(semantic_bgr, p1, p2, red_bgr, wall_thickness_px)
+            cv2.line(overlay_bgr, p1, p2, red_bgr, wall_thickness_px)
+            cv2.line(wall_mask, p1, p2, 255, wall_thickness_px)
 
     # B. Draw Windows in Solid Cyan (255, 255, 0 in BGR)
     cyan_bgr = PALETTE_BGR["window"]
