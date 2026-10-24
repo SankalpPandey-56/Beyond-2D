@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { BuildingDimensions, EnvironmentMode, RoomData, ShadingMode, TransformTool } from '@/lib/types';
+import { BuildingDimensions, EnvironmentMode, RoomData, ShadingMode, TransformTool, WallData } from '@/lib/types';
 import { 
   Box, 
   Sun, 
@@ -22,6 +22,7 @@ import {
 interface BlenderViewportProps {
   dimensions: BuildingDimensions;
   rooms: RoomData[];
+  walls?: WallData[];
   environment: EnvironmentMode;
   onEnvironmentChange: (env: EnvironmentMode) => void;
   selectedRoomId: string | null;
@@ -35,6 +36,7 @@ interface BlenderViewportProps {
 export default function BlenderViewport({
   dimensions,
   rooms,
+  walls,
   environment,
   onEnvironmentChange,
   selectedRoomId,
@@ -363,7 +365,13 @@ export default function BlenderViewport({
       wireframe: isWireframe,
     });
 
-    // Outer Perimeter Walls (North, South, East, West)
+    const doorThresholdMat = new THREE.MeshStandardMaterial({
+      color: 0x8b5a2b, // warm wood threshold
+      roughness: 0.5,
+      metalness: 0.1,
+      wireframe: isWireframe,
+    });
+
     const halfW = W / 2;
     const halfL = L / 2;
     const wallY = 0.28 + (H / 2);
@@ -376,24 +384,32 @@ export default function BlenderViewport({
     northMesh.receiveShadow = true;
     group.add(northMesh);
 
-    // South Wall (Z = halfL) with a main entrance door opening gap!
-    const southGeo1 = new THREE.BoxGeometry(W * 0.4, H, T);
+    // South Wall (Z = halfL) with Main Entrance Door Gap
+    const entranceDoorW = 1.2;
+    const southSegmentW = Math.max(0.5, (W - entranceDoorW) / 2);
+    const southGeo1 = new THREE.BoxGeometry(southSegmentW, H, T);
     const southMesh1 = new THREE.Mesh(southGeo1, wallMat);
-    southMesh1.position.set(-W * 0.3, wallY, halfL);
+    southMesh1.position.set(-halfW + (southSegmentW / 2), wallY, halfL);
     southMesh1.castShadow = true;
     group.add(southMesh1);
 
-    const southGeo2 = new THREE.BoxGeometry(W * 0.4, H, T);
+    const southGeo2 = new THREE.BoxGeometry(southSegmentW, H, T);
     const southMesh2 = new THREE.Mesh(southGeo2, wallMat);
-    southMesh2.position.set(W * 0.3, wallY, halfL);
+    southMesh2.position.set(halfW - (southSegmentW / 2), wallY, halfL);
     southMesh2.castShadow = true;
     group.add(southMesh2);
 
-    // Door lintel (above door opening)
-    const lintelGeo = new THREE.BoxGeometry(W * 0.2, H * 0.3, T);
+    // Main entrance lintel (above door opening)
+    const lintelGeo = new THREE.BoxGeometry(entranceDoorW, H * 0.35, T);
     const lintelMesh = new THREE.Mesh(lintelGeo, wallMat);
-    lintelMesh.position.set(0, wallY + H * 0.35, halfL);
+    lintelMesh.position.set(0, wallY + H * 0.325, halfL);
     group.add(lintelMesh);
+
+    // Entrance threshold plate on floor
+    const thresholdGeo = new THREE.BoxGeometry(entranceDoorW, 0.04, T * 1.5);
+    const thresholdMesh = new THREE.Mesh(thresholdGeo, doorThresholdMat);
+    thresholdMesh.position.set(0, 0.29, halfL);
+    group.add(thresholdMesh);
 
     // West Wall (X = -halfW)
     const westGeo = new THREE.BoxGeometry(T, H, L + T);
@@ -409,23 +425,90 @@ export default function BlenderViewport({
     eastMesh.castShadow = true;
     group.add(eastMesh);
 
-    // Interior Partition Walls (Cross division based on rooms)
-    if (rooms.length >= 2) {
-      // Main dividing spine wall along X or Z
-      const spineX = (rooms[0].relW * W) - halfW;
-      const spineGeo = new THREE.BoxGeometry(T, H, L * 0.85);
-      const spineMesh = new THREE.Mesh(spineGeo, wallMat);
-      spineMesh.position.set(spineX, wallY, 0);
-      spineMesh.castShadow = true;
-      group.add(spineMesh);
+    // 6. Dynamic Interior Partition Walls
+    // If walls are provided, render interior walls from walls array
+    const interiorWalls = (walls || []).filter(w => !w.isExterior);
 
-      // Horizontal partition
-      const partZ = (rooms[0].relD * L) - halfL;
-      const partGeo = new THREE.BoxGeometry(W * 0.48, H, T);
-      const partMesh = new THREE.Mesh(partGeo, wallMat);
-      partMesh.position.set(-halfW + (W * 0.24), wallY, partZ);
-      partMesh.castShadow = true;
-      group.add(partMesh);
+    if (interiorWalls.length > 0) {
+      interiorWalls.forEach((w) => {
+        const dx = w.endX - w.startX;
+        const dz = w.endZ - w.startZ;
+        const len = Math.sqrt(dx * dx + dz * dz);
+        if (len < 0.2) return;
+
+        const midX = (w.startX + w.endX) / 2;
+        const midZ = (w.startZ + w.endZ) / 2;
+        const angle = Math.atan2(dz, dx);
+
+        // If wall is long enough, split with a doorway
+        const doorWidth = 0.9;
+        if (len > doorWidth + 0.8) {
+          const segLen = (len - doorWidth) / 2;
+          
+          // Segment 1
+          const segGeo1 = new THREE.BoxGeometry(segLen, H, T);
+          const segMesh1 = new THREE.Mesh(segGeo1, wallMat);
+          segMesh1.position.set(-len / 2 + segLen / 2, 0, 0);
+
+          // Segment 2
+          const segGeo2 = new THREE.BoxGeometry(segLen, H, T);
+          const segMesh2 = new THREE.Mesh(segGeo2, wallMat);
+          segMesh2.position.set(len / 2 - segLen / 2, 0, 0);
+
+          // Door lintel
+          const inLintelGeo = new THREE.BoxGeometry(doorWidth, H * 0.35, T);
+          const inLintelMesh = new THREE.Mesh(inLintelGeo, wallMat);
+          inLintelMesh.position.set(0, H * 0.325, 0);
+
+          // Door threshold
+          const inThreshGeo = new THREE.BoxGeometry(doorWidth, 0.03, T * 1.2);
+          const inThreshMesh = new THREE.Mesh(inThreshGeo, doorThresholdMat);
+          inThreshMesh.position.set(0, -H / 2 + 0.015, 0);
+
+          const wallContainer = new THREE.Group();
+          wallContainer.position.set(midX, wallY, midZ);
+          wallContainer.rotation.y = -angle;
+          wallContainer.add(segMesh1, segMesh2, inLintelMesh, inThreshMesh);
+          group.add(wallContainer);
+        } else {
+          // Solid short partition wall
+          const solidGeo = new THREE.BoxGeometry(len, H, T);
+          const solidMesh = new THREE.Mesh(solidGeo, wallMat);
+          solidMesh.position.set(midX, wallY, midZ);
+          solidMesh.rotation.y = -angle;
+          solidMesh.castShadow = true;
+          group.add(solidMesh);
+        }
+      });
+    } else if (rooms.length >= 2) {
+      // Default room partition dividers
+      for (let i = 0; i < rooms.length; i++) {
+        const r = rooms[i];
+        const rRight = r.relX + r.relW;
+        const rBottom = r.relZ + r.relD;
+
+        if (rRight < 0.98) {
+          const wallX = rRight * W - halfW;
+          const wallZ = (r.relZ + r.relD / 2) * L - halfL;
+          const wallLen = r.relD * L;
+          const divGeo = new THREE.BoxGeometry(T, H, wallLen);
+          const divMesh = new THREE.Mesh(divGeo, wallMat);
+          divMesh.position.set(wallX, wallY, wallZ);
+          divMesh.castShadow = true;
+          group.add(divMesh);
+        }
+
+        if (rBottom < 0.98) {
+          const wallZ = rBottom * L - halfL;
+          const wallX = (r.relX + r.relW / 2) * W - halfW;
+          const wallLen = r.relW * W;
+          const divGeo = new THREE.BoxGeometry(wallLen, H, T);
+          const divMesh = new THREE.Mesh(divGeo, wallMat);
+          divMesh.position.set(wallX, wallY, wallZ);
+          divMesh.castShadow = true;
+          group.add(divMesh);
+        }
+      }
     }
 
     // Update geometry counters
@@ -435,7 +518,7 @@ export default function BlenderViewport({
       faces: group.children.length * 12,
       objects: group.children.length,
     }));
-  }, [dimensions, rooms, selectedRoomId, shadingMode]);
+  }, [dimensions, rooms, walls, selectedRoomId, shadingMode]);
 
   // Raycaster for Room Hover / Click in Viewport
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {

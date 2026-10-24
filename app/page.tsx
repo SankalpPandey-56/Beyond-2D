@@ -10,7 +10,8 @@ import {
   EnvironmentMode, 
   ProjectData, 
   ShadingMode, 
-  TransformTool 
+  TransformTool,
+  AIAnalysisResponse
 } from '@/lib/types';
 
 // Dynamic import with ssr: false for WebGL Three.js canvas
@@ -33,6 +34,10 @@ export default function Beyond2DApp() {
   const [shadingMode, setShadingMode] = useState<ShadingMode>('rendered');
   const [activeTool, setActiveTool] = useState<TransformTool>('select');
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
+
+  // Analysis State
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analyzingStep, setAnalyzingStep] = useState('');
 
   // Active Project Data
   const currentProject = projects.find(p => p.id === currentProjectId) || projects[0];
@@ -96,70 +101,111 @@ export default function Beyond2DApp() {
     setSelectedRoomId(null);
   };
 
-  // Handle Upload 2D Floor Plan
-  const handleUploadImage = (file: File) => {
+  // Handle Upload & Analyze Floor Plan via Gemma 4 Backend
+  const handleUploadImage = async (file: File) => {
     const imageUrl = URL.createObjectURL(file);
     const newId = `proj_upload_${Date.now()}`;
     const cleanFileName = file.name.replace(/\.[^/.]+$/, '');
+    const displayTitle = cleanFileName.length > 20 ? `${cleanFileName.slice(0, 18)}...` : cleanFileName;
 
-    const newUploadedProject: ProjectData = {
-      id: newId,
-      title: cleanFileName.length > 22 ? `${cleanFileName.slice(0, 20)}...` : cleanFileName,
-      updatedAt: 'Just now',
-      previewUrl: imageUrl,
-      dimensions: {
-        width: 11.5,
-        length: 8.5,
-        wallHeight: 2.8,
-        wallThickness: 0.22,
-      },
-      rooms: [
-        {
-          id: 'room_up_1',
-          name: 'Living & Reception',
-          type: 'living',
-          color: '#3b82f6',
-          relX: 0.0,
-          relZ: 0.0,
-          relW: 0.5,
-          relD: 0.6,
-        },
-        {
-          id: 'room_up_2',
-          name: 'Kitchen / Diner',
-          type: 'kitchen',
-          color: '#ec4899',
-          relX: 0.0,
-          relZ: 0.6,
-          relW: 0.5,
-          relD: 0.4,
-        },
-        {
-          id: 'room_up_3',
-          name: 'Master Bed',
-          type: 'bedroom',
-          color: '#10b981',
-          relX: 0.5,
-          relZ: 0.0,
-          relW: 0.5,
-          relD: 0.5,
-        },
-        {
-          id: 'room_up_4',
-          name: 'Guest Bathroom',
-          type: 'bathroom',
-          color: '#eab308',
-          relX: 0.5,
-          relZ: 0.5,
-          relW: 0.5,
-          relD: 0.5,
-        },
-      ],
-    };
+    setIsAnalyzing(true);
+    setAnalyzingStep('1/3 Uploading plan...');
 
-    setProjects([newUploadedProject, ...projects]);
-    setCurrentProjectId(newId);
-    setSelectedRoomId(null);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      setAnalyzingStep('2/3 Gemma 4 analyzing layout...');
+
+      const response = await fetch('/api/analyze-floorplan', {
+        method: 'POST',
+        body: formData,
+      });
+
+      setAnalyzingStep('3/3 Building 3D geometry...');
+
+      const data: AIAnalysisResponse = await response.json();
+
+      if (data && data.layout) {
+        const analyzedProject: ProjectData = {
+          id: newId,
+          title: displayTitle,
+          updatedAt: 'Just now',
+          previewUrl: imageUrl,
+          dimensions: data.layout.dimensions,
+          rooms: data.layout.rooms,
+          walls: data.layout.walls,
+          aiMetadata: data.metadata,
+        };
+
+        setProjects(prev => [analyzedProject, ...prev]);
+        setCurrentProjectId(newId);
+        setSelectedRoomId(null);
+      } else {
+        throw new Error(data.error || 'Invalid response from analysis server');
+      }
+    } catch (err: any) {
+      console.error('Floor plan analysis error:', err);
+      // Even on unexpected network catch, fallback seamlessly
+      const fallbackProject: ProjectData = {
+        id: newId,
+        title: `${displayTitle} (Fallback)`,
+        updatedAt: 'Just now',
+        previewUrl: imageUrl,
+        dimensions: {
+          width: 10.0,
+          length: 8.0,
+          wallHeight: 2.8,
+          wallThickness: 0.2,
+        },
+        rooms: [
+          {
+            id: 'room_fb_1',
+            name: 'Living Space',
+            type: 'living',
+            color: '#3b82f6',
+            relX: 0.0,
+            relZ: 0.0,
+            relW: 0.6,
+            relD: 1.0,
+          },
+          {
+            id: 'room_fb_2',
+            name: 'Bedroom Area',
+            type: 'bedroom',
+            color: '#10b981',
+            relX: 0.6,
+            relZ: 0.0,
+            relW: 0.4,
+            relD: 0.6,
+          },
+          {
+            id: 'room_fb_3',
+            name: 'Bathroom',
+            type: 'bathroom',
+            color: '#eab308',
+            relX: 0.6,
+            relZ: 0.6,
+            relW: 0.4,
+            relD: 0.4,
+          },
+        ],
+        aiMetadata: {
+          provider: 'Fallback Engine',
+          model: 'sample-preset',
+          confidence: 0.7,
+          isFallback: true,
+          processingTimeMs: 0,
+          message: 'Client fallback triggered due to network/API error.',
+        },
+      };
+
+      setProjects(prev => [fallbackProject, ...prev]);
+      setCurrentProjectId(newId);
+    } finally {
+      setIsAnalyzing(false);
+      setAnalyzingStep('');
+    }
   };
 
   return (
@@ -176,6 +222,9 @@ export default function Beyond2DApp() {
         onUploadImage={handleUploadImage}
         environment={environment}
         onEnvironmentChange={setEnvironment}
+        isAnalyzing={isAnalyzing}
+        analyzingStep={analyzingStep}
+        aiMetadata={currentProject.aiMetadata}
       />
 
       {/* 2. Center: Large Blender-Style 3D Viewport */}
@@ -183,6 +232,7 @@ export default function Beyond2DApp() {
         <BlenderViewport
           dimensions={currentProject.dimensions}
           rooms={currentProject.rooms}
+          walls={currentProject.walls}
           environment={environment}
           onEnvironmentChange={setEnvironment}
           selectedRoomId={selectedRoomId}

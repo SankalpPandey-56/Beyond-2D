@@ -9,10 +9,11 @@ import {
   Sun, 
   Moon, 
   Lightbulb, 
-  Compass,
   ChevronRight,
   Sparkles,
-  Layers
+  Loader2,
+  AlertCircle,
+  CheckCircle2
 } from 'lucide-react';
 import { EnvironmentMode, ProjectData } from '@/lib/types';
 
@@ -24,6 +25,9 @@ interface SidebarLeftProps {
   onUploadImage: (file: File) => void;
   environment: EnvironmentMode;
   onEnvironmentChange: (env: EnvironmentMode) => void;
+  isAnalyzing: boolean;
+  analyzingStep: string;
+  aiMetadata?: ProjectData['aiMetadata'];
 }
 
 export default function SidebarLeft({
@@ -34,6 +38,9 @@ export default function SidebarLeft({
   onUploadImage,
   environment,
   onEnvironmentChange,
+  isAnalyzing,
+  analyzingStep,
+  aiMetadata,
 }: SidebarLeftProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -64,11 +71,12 @@ export default function SidebarLeft({
       </div>
 
       <div className="flex-1 overflow-y-auto p-3 space-y-4">
-        {/* 2. Primary Actions: New Project & Upload 2D (Directly from hand-drawn layout!) */}
+        {/* 2. Primary Actions: New Project & Upload 2D */}
         <div className="space-y-2">
           <button
             onClick={onNewProject}
-            className="w-full flex items-center justify-center gap-2 bg-[#3a3a3a] hover:bg-[#454545] text-white font-medium py-2 px-3 rounded border border-[#4a4a4a] transition-colors shadow-sm"
+            disabled={isAnalyzing}
+            className="w-full flex items-center justify-center gap-2 bg-[#3a3a3a] hover:bg-[#454545] disabled:opacity-50 text-white font-medium py-2 px-3 rounded border border-[#4a4a4a] transition-colors shadow-sm"
           >
             <FolderPlus size={15} className="text-[#eb7724]" />
             <span>New Project</span>
@@ -84,24 +92,83 @@ export default function SidebarLeft({
 
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="w-full flex items-center justify-center gap-2 bg-[#eb7724] hover:bg-[#f38938] text-white font-medium py-2 px-3 rounded transition-colors shadow-sm"
+            disabled={isAnalyzing}
+            className="w-full flex items-center justify-center gap-2 bg-[#eb7724] hover:bg-[#f38938] disabled:opacity-50 text-white font-medium py-2 px-3 rounded transition-colors shadow-sm"
           >
-            <UploadCloud size={15} />
-            <span>Upload 2D Plan</span>
+            {isAnalyzing ? (
+              <>
+                <Loader2 size={15} className="animate-spin" />
+                <span>Processing...</span>
+              </>
+            ) : (
+              <>
+                <UploadCloud size={15} />
+                <span>Upload 2D Plan</span>
+              </>
+            )}
           </button>
         </div>
 
         {/* 3. Drag & Drop Floor Plan Area */}
         <div 
-          onClick={() => fileInputRef.current?.click()}
-          className="border-2 border-dashed border-[#444] hover:border-[#eb7724] bg-[#222] hover:bg-[#252525] rounded-lg p-3 text-center cursor-pointer transition-all"
+          onClick={() => !isAnalyzing && fileInputRef.current?.click()}
+          className={`border-2 border-dashed rounded-lg p-3 text-center transition-all ${
+            isAnalyzing 
+              ? 'border-[#eb7724] bg-[#222] cursor-wait'
+              : 'border-[#444] hover:border-[#eb7724] bg-[#222] hover:bg-[#252525] cursor-pointer'
+          }`}
         >
-          <UploadCloud size={20} className="mx-auto text-[#777] mb-1" />
-          <div className="text-[11px] font-medium text-[#ccc]">Drop architectural floor plan</div>
-          <div className="text-[10px] text-[#777] mt-0.5">PNG, JPG, or SVG drawings</div>
+          {isAnalyzing ? (
+            <div className="py-1">
+              <Loader2 size={22} className="mx-auto text-[#eb7724] animate-spin mb-1.5" />
+              <div className="text-[11px] font-semibold text-white">Analyzing Floor Plan</div>
+              <div className="text-[10px] text-[#eb7724] mt-0.5 animate-pulse font-mono">{analyzingStep}</div>
+            </div>
+          ) : (
+            <>
+              <UploadCloud size={20} className="mx-auto text-[#777] mb-1" />
+              <div className="text-[11px] font-medium text-[#ccc]">Drop architectural floor plan</div>
+              <div className="text-[10px] text-[#777] mt-0.5">PNG, JPG, or SVG drawings</div>
+            </>
+          )}
         </div>
 
-        {/* 4. Recents Section (From hand-drawn layout) */}
+        {/* 4. AI Status / Metadata Badge */}
+        {aiMetadata && (
+          <div className={`p-2.5 rounded-lg border text-[11px] leading-relaxed ${
+            aiMetadata.isFallback
+              ? 'bg-[#2a241b] border-[#594326] text-[#e0b77e]'
+              : 'bg-[#18261e] border-[#254d36] text-[#86efac]'
+          }`}>
+            <div className="flex items-center gap-1.5 font-semibold mb-1">
+              {aiMetadata.isFallback ? (
+                <>
+                  <AlertCircle size={13} className="text-[#e0b77e] shrink-0" />
+                  <span>Sample Fallback Active</span>
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 size={13} className="text-[#86efac] shrink-0" />
+                  <span>AI Analysis Complete</span>
+                </>
+              )}
+            </div>
+            <div className="text-[10px] text-[#aaa]">
+              Provider: <span className="text-white font-mono">{aiMetadata.provider}</span> ({aiMetadata.model})
+            </div>
+            {aiMetadata.isFallback ? (
+              <div className="text-[9.5px] text-[#b89565] mt-1">
+                Add <code className="bg-black/40 px-1 py-0.5 rounded text-white font-mono">GEMINI_API_KEY</code> to <code className="bg-black/40 px-1 py-0.5 rounded text-white font-mono">.env.local</code> for live Gemma 4 vision analysis.
+              </div>
+            ) : (
+              <div className="text-[10px] text-emerald-400 mt-0.5">
+                Parsed in {(aiMetadata.processingTimeMs / 1000).toFixed(1)}s &bull; {(aiMetadata.confidence * 100).toFixed(0)}% confidence
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 5. Recents Section */}
         <div>
           <div className="flex items-center justify-between text-[10px] uppercase font-mono text-[#808080] tracking-wider mb-1.5 px-1">
             <span className="flex items-center gap-1">
@@ -135,7 +202,7 @@ export default function SidebarLeft({
           </div>
         </div>
 
-        {/* 5. Environment Controls (From hand-drawn layout: "Environment: Day, night, Studio") */}
+        {/* 6. Environment Controls */}
         <div className="pt-2 border-t border-[#3c3c3c]">
           <div className="text-[10px] uppercase font-mono text-[#808080] tracking-wider mb-2 px-1 flex items-center gap-1">
             <Sun size={11} />
@@ -182,12 +249,12 @@ export default function SidebarLeft({
         </div>
       </div>
 
-      {/* 6. Footer Info */}
+      {/* 7. Footer Info */}
       <div className="p-2.5 border-t border-[#3c3c3c] bg-[#222222] text-[10px] text-[#777] flex items-center justify-between">
-        <span>Beyond-2D Prototype</span>
+        <span>Beyond-2D Engine</span>
         <span className="text-emerald-500 flex items-center gap-1">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-          Ready
+          Connected
         </span>
       </div>
     </aside>
