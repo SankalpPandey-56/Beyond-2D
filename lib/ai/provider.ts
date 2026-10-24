@@ -3,31 +3,28 @@ import { GemmaFloorPlanProvider } from './gemma';
 import { GeminiFloorPlanProvider } from './gemini';
 
 class ResilientFloorPlanProvider implements IFloorPlanProvider {
-  name = 'Gemma 4 (with Gemini Failover)';
-  defaultModel = 'gemma-4-26b-a4b-it';
+  name = 'Gemini 3 Flash & Gemma 4 Engine';
+  defaultModel = 'gemini-3-flash-preview';
 
   private gemma = new GemmaFloorPlanProvider();
   private gemini = new GeminiFloorPlanProvider();
 
   async analyzeFloorPlan(imageBase64: string, mimeType: string): Promise<RawAIPlanOutput> {
-    const requested = (process.env.AI_PROVIDER || 'gemma').toLowerCase();
+    const requested = (process.env.AI_PROVIDER || 'auto').toLowerCase();
 
-    if (requested === 'gemini') {
-      return await this.gemini.analyzeFloorPlan(imageBase64, mimeType);
+    if (requested === 'gemma-strict') {
+      return await this.gemma.analyzeFloorPlan(imageBase64, mimeType);
     }
 
-    // Attempt Gemma 4 first
+    // Default: Use high-speed Gemini 3 Flash for zero-latency architectural analysis
     try {
-      console.log('[Beyond-2D AI] Attempting vision analysis with Gemma 4...');
-      return await this.gemma.analyzeFloorPlan(imageBase64, mimeType);
-    } catch (gemmaError: any) {
+      console.log('[Beyond-2D AI] Running architectural vision analysis via Gemini 3 Flash...');
+      return await this.gemini.analyzeFloorPlan(imageBase64, mimeType);
+    } catch (geminiError: any) {
       console.warn(
-        `[Beyond-2D AI] Gemma 4 failed (${gemmaError?.message || 'unknown'}). Failing over to Gemini 3 Flash...`
+        `[Beyond-2D AI] Gemini 3 Flash failed (${geminiError?.message || 'unknown'}). Attempting Gemma 4...`
       );
-      // Seamless failover to Gemini
-      const geminiResult = await this.gemini.analyzeFloorPlan(imageBase64, mimeType);
-      geminiResult.notes = `Analyzed via Gemini 3 Flash failover (Gemma 4 was unavailable: ${gemmaError.message})`;
-      return geminiResult;
+      return await this.gemma.analyzeFloorPlan(imageBase64, mimeType);
     }
   }
 }
@@ -35,13 +32,12 @@ class ResilientFloorPlanProvider implements IFloorPlanProvider {
 export function getFloorPlanAIProvider(): IFloorPlanProvider {
   const provider = (process.env.AI_PROVIDER || 'auto').toLowerCase();
 
-  if (provider === 'gemini') {
-    return new GeminiFloorPlanProvider();
-  }
   if (provider === 'gemma-strict') {
     return new GemmaFloorPlanProvider();
   }
+  if (provider === 'gemini') {
+    return new GeminiFloorPlanProvider();
+  }
 
-  // Default: Resilient provider with Gemma 4 priority and Gemini failover
   return new ResilientFloorPlanProvider();
 }

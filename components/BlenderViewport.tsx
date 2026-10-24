@@ -9,14 +9,12 @@ import {
   Sun, 
   Moon, 
   Lightbulb, 
-  Eye, 
   Rotate3d, 
   Download, 
-  Maximize2, 
   Move, 
-  Compass,
   Layers,
-  Sparkles
+  Sparkles,
+  Maximize2
 } from 'lucide-react';
 
 interface BlenderViewportProps {
@@ -31,6 +29,53 @@ interface BlenderViewportProps {
   onToolChange: (tool: TransformTool) => void;
   shadingMode: ShadingMode;
   onShadingModeChange: (mode: ShadingMode) => void;
+}
+
+// Helper: Creates high-resolution 2D canvas texture for 3D room floor text labels
+function createRoomFloorLabelTexture(name: string, dimsText?: string): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 256;
+  const ctx = canvas.getContext('2d')!;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Subtle rounded tag badge background
+  ctx.fillStyle = 'rgba(20, 20, 20, 0.75)';
+  const pad = 20;
+  const rw = canvas.width - pad * 2;
+  const rh = canvas.height - pad * 2;
+  const r = 16;
+  ctx.beginPath();
+  ctx.moveTo(pad + r, pad);
+  ctx.arcTo(pad + rw, pad, pad + rw, pad + rh, r);
+  ctx.arcTo(pad + rw, pad + rh, pad, pad + rh, r);
+  ctx.arcTo(pad, pad + rh, pad, pad, r);
+  ctx.arcTo(pad, pad, pad + rw, pad, r);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+  ctx.lineWidth = 4;
+  ctx.stroke();
+
+  // Room Title
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 36px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(name.toUpperCase(), canvas.width / 2, dimsText ? 100 : 128);
+
+  // Dimensions subtitle
+  if (dimsText) {
+    ctx.fillStyle = '#38bdf8';
+    ctx.font = 'bold 24px monospace';
+    ctx.fillText(dimsText, canvas.width / 2, 160);
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
+  return texture;
 }
 
 export default function BlenderViewport({
@@ -55,8 +100,7 @@ export default function BlenderViewport({
   const houseGroupRef = useRef<THREE.Group | null>(null);
   const lightsGroupRef = useRef<THREE.Group | null>(null);
 
-  const [hoveredRoom, setHoveredRoom] = useState<string | null>(null);
-  const [stats, setStats] = useState({ verts: 284, faces: 142, objects: 12, fps: 60 });
+  const [stats, setStats] = useState({ verts: 450, faces: 220, objects: 18, fps: 60 });
 
   // 1. Initialize Three.js Scene
   useEffect(() => {
@@ -65,16 +109,13 @@ export default function BlenderViewport({
     const width = container.clientWidth;
     const height = container.clientHeight;
 
-    // Scene
     const scene = new THREE.Scene();
     sceneRef.current = scene;
 
-    // Camera (Blender default FOV ~ 50mm / 45-50 deg)
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-    camera.position.set(14, 12, 16);
+    camera.position.set(12, 14, 15);
     cameraRef.current = camera;
 
-    // WebGL Renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -83,35 +124,30 @@ export default function BlenderViewport({
     rendererRef.current = renderer;
     container.appendChild(renderer.domElement);
 
-    // Orbit Controls
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.08;
-    controls.target.set(0, 1.2, 0);
-    controls.maxPolarAngle = Math.PI / 2 - 0.02; // Don't go below floor
+    controls.target.set(0, 1.0, 0);
+    controls.maxPolarAngle = Math.PI / 2 - 0.02;
     controlsRef.current = controls;
 
-    // Subtle Blender Grid
+    // Grid Floor
     const grid = new THREE.GridHelper(30, 30, 0x4f4f4f, 0x2d2d2d);
     grid.position.y = 0;
     scene.add(grid);
 
-    // Subtle World Axes Indicator on Floor
     const axesFloor = new THREE.AxesHelper(1.5);
     axesFloor.position.set(0, 0.01, 0);
     scene.add(axesFloor);
 
-    // Lights Container
     const lightsGroup = new THREE.Group();
     scene.add(lightsGroup);
     lightsGroupRef.current = lightsGroup;
 
-    // House Mesh Container
     const houseGroup = new THREE.Group();
     scene.add(houseGroup);
     houseGroupRef.current = houseGroup;
 
-    // Animation Loop
     let animationFrameId: number;
     let lastTime = performance.now();
     let frameCount = 0;
@@ -119,14 +155,9 @@ export default function BlenderViewport({
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
       controls.update();
-
-      // Render main scene
       renderer.render(scene, camera);
-
-      // Render Gizmo
       renderGizmo();
 
-      // FPS tracking
       frameCount++;
       const now = performance.now();
       if (now - lastTime >= 1000) {
@@ -137,7 +168,6 @@ export default function BlenderViewport({
     };
     animate();
 
-    // Resize Handler
     const handleResize = () => {
       if (!mountRef.current || !renderer || !camera) return;
       const w = mountRef.current.clientWidth;
@@ -170,16 +200,14 @@ export default function BlenderViewport({
     const cy = canvas.height / 2;
     const radius = 28;
 
-    // Background circle
     ctx.beginPath();
     ctx.arc(cx, cy, radius + 4, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(35, 35, 35, 0.7)';
+    ctx.fillStyle = 'rgba(35, 35, 35, 0.75)';
     ctx.fill();
     ctx.strokeStyle = '#444';
     ctx.lineWidth = 1;
     ctx.stroke();
 
-    // Get camera orientation matrix
     const matrix = new THREE.Matrix4();
     matrix.extractRotation(cameraRef.current.matrixWorldInverse);
 
@@ -192,7 +220,6 @@ export default function BlenderViewport({
       { name: '-Z', vec: new THREE.Vector3(0, 0, -1), color: '#1e3a8a' },
     ];
 
-    // Project vectors
     const projected = axes.map(axis => {
       const v = axis.vec.clone().applyMatrix4(matrix);
       return {
@@ -204,18 +231,15 @@ export default function BlenderViewport({
       };
     });
 
-    // Sort by depth (back to front)
     projected.sort((a, b) => a.z - b.z);
 
     projected.forEach(axis => {
       if (axis.z < -0.1 && axis.name.startsWith('-')) {
-        // Draw negative axis dots
         ctx.beginPath();
         ctx.arc(axis.x, axis.y, 3, 0, Math.PI * 2);
         ctx.fillStyle = axis.color;
         ctx.fill();
       } else if (!axis.name.startsWith('-')) {
-        // Draw line from center
         ctx.beginPath();
         ctx.moveTo(cx, cy);
         ctx.lineTo(axis.x, axis.y);
@@ -223,13 +247,11 @@ export default function BlenderViewport({
         ctx.lineWidth = 2;
         ctx.stroke();
 
-        // Draw axis head circle
         ctx.beginPath();
         ctx.arc(axis.x, axis.y, 7, 0, Math.PI * 2);
         ctx.fillStyle = axis.color;
         ctx.fill();
 
-        // Axis label
         ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 8px monospace';
         ctx.textAlign = 'center';
@@ -245,21 +267,20 @@ export default function BlenderViewport({
     const scene = sceneRef.current;
     const lights = lightsGroupRef.current;
 
-    // Clear existing lights
     while (lights.children.length > 0) {
       lights.remove(lights.children[0]);
     }
 
     if (environment === 'studio') {
       scene.background = new THREE.Color(0x1e1e1e);
-      const ambLight = new THREE.AmbientLight(0xffffff, 0.8);
-      const keyLight = new THREE.DirectionalLight(0xffffff, 1.2);
+      const ambLight = new THREE.AmbientLight(0xffffff, 0.85);
+      const keyLight = new THREE.DirectionalLight(0xffffff, 1.4);
       keyLight.position.set(12, 18, 10);
       keyLight.castShadow = true;
-      keyLight.shadow.mapSize.width = 1024;
-      keyLight.shadow.mapSize.height = 1024;
+      keyLight.shadow.mapSize.width = 2048;
+      keyLight.shadow.mapSize.height = 2048;
 
-      const fillLight = new THREE.DirectionalLight(0x90b0e0, 0.6);
+      const fillLight = new THREE.DirectionalLight(0x90b0e0, 0.65);
       fillLight.position.set(-10, 8, -10);
 
       const rimLight = new THREE.DirectionalLight(0xffeedd, 0.5);
@@ -268,25 +289,24 @@ export default function BlenderViewport({
       lights.add(ambLight, keyLight, fillLight, rimLight);
     } else if (environment === 'day') {
       scene.background = new THREE.Color(0x28323e);
-      const sunLight = new THREE.DirectionalLight(0xfffaed, 2.0);
+      const sunLight = new THREE.DirectionalLight(0xfffaed, 2.2);
       sunLight.position.set(16, 22, 14);
       sunLight.castShadow = true;
-      const skyLight = new THREE.HemisphereLight(0x87ceeb, 0x332211, 0.8);
+      const skyLight = new THREE.HemisphereLight(0x87ceeb, 0x332211, 0.85);
       lights.add(sunLight, skyLight);
     } else if (environment === 'night') {
       scene.background = new THREE.Color(0x0c1017);
-      const moonLight = new THREE.DirectionalLight(0x406090, 0.6);
+      const moonLight = new THREE.DirectionalLight(0x406090, 0.7);
       moonLight.position.set(-10, 15, -10);
-      const amb = new THREE.AmbientLight(0x182030, 0.5);
+      const amb = new THREE.AmbientLight(0x182030, 0.6);
       
-      // Warm interior point lights
-      const warm1 = new THREE.PointLight(0xffaa44, 2.5, 8);
-      warm1.position.set(0, 1.8, 0);
+      const warm1 = new THREE.PointLight(0xffaa44, 3.0, 12);
+      warm1.position.set(0, 2.2, 0);
       lights.add(moonLight, amb, warm1);
     }
   }, [environment]);
 
-  // 4. Procedural 3D Dollhouse Model Generation (Real-time update on dimensions or rooms)
+  // 4. HIGH-PRECISION 3D DOLLHOUSE ENGINE (Floors, Walls, Doors, Windows, Furniture, Labels)
   useEffect(() => {
     if (!houseGroupRef.current) return;
     const group = houseGroupRef.current;
@@ -306,58 +326,21 @@ export default function BlenderViewport({
     const { width: W, length: L, wallHeight: H, wallThickness: T } = dimensions;
     const isWireframe = shadingMode === 'wireframe';
 
-    // Foundation Base Slab (Extruded foundation)
-    const slabGeo = new THREE.BoxGeometry(W + 0.8, 0.25, L + 0.8);
+    // Foundation Base Slab (Ground level foundation)
+    const slabGeo = new THREE.BoxGeometry(W + 0.6, 0.2, L + 0.6);
     const slabMat = new THREE.MeshStandardMaterial({
-      color: 0x2d3238,
+      color: 0x22262a,
       roughness: 0.9,
       metalness: 0.1,
       wireframe: isWireframe,
     });
     const slabMesh = new THREE.Mesh(slabGeo, slabMat);
-    slabMesh.position.set(0, 0.125, 0);
+    slabMesh.position.set(0, 0.1, 0);
     slabMesh.receiveShadow = true;
     group.add(slabMesh);
 
-    // Build Rooms (Floor plates + Walls)
-    rooms.forEach(room => {
-      // Calculate actual world coordinates centered around (0,0)
-      const roomW = room.relW * W;
-      const roomD = room.relD * L;
-      const roomCenterX = (room.relX * W) + (roomW / 2) - (W / 2);
-      const roomCenterZ = (room.relZ * L) + (roomD / 2) - (L / 2);
-
-      const isSelected = selectedRoomId === room.id;
-
-      // Floor tile for this room
-      const floorGeo = new THREE.BoxGeometry(roomW - 0.05, 0.06, roomD - 0.05);
-      const floorMat = new THREE.MeshStandardMaterial({
-        color: isSelected ? 0xeb7724 : (shadingMode === 'rendered' ? room.color : 0x555555),
-        roughness: 0.6,
-        metalness: 0.1,
-        wireframe: isWireframe,
-      });
-      const floorMesh = new THREE.Mesh(floorGeo, floorMat);
-      floorMesh.position.set(roomCenterX, 0.28, roomCenterZ);
-      floorMesh.receiveShadow = true;
-      (floorMesh as any).userData = { roomId: room.id, roomName: room.name };
-      group.add(floorMesh);
-
-      // Room border wireframe highlight if selected
-      if (isSelected) {
-        const selGeo = new THREE.BoxGeometry(roomW, H + 0.2, roomD);
-        const selEdges = new THREE.EdgesGeometry(selGeo);
-        const selLine = new THREE.LineSegments(
-          selEdges,
-          new THREE.LineBasicMaterial({ color: 0xeb7724, linewidth: 2 })
-        );
-        selLine.position.set(roomCenterX, 0.28 + H / 2, roomCenterZ);
-        group.add(selLine);
-      }
-    });
-
-    // 5. Exterior & Interior Walls
-    const wallColor = shadingMode === 'rendered' ? 0xdddddd : (shadingMode === 'solid' ? 0x8a8a8a : 0xcccccc);
+    // Materials
+    const wallColor = shadingMode === 'rendered' ? 0xe5e7eb : (shadingMode === 'solid' ? 0x9ca3af : 0xd1d5db);
     const wallMat = new THREE.MeshStandardMaterial({
       color: wallColor,
       roughness: 0.85,
@@ -365,162 +348,306 @@ export default function BlenderViewport({
       wireframe: isWireframe,
     });
 
+    const exteriorWallMat = new THREE.MeshStandardMaterial({
+      color: shadingMode === 'rendered' ? 0xd1d5db : 0x6b7280,
+      roughness: 0.8,
+      metalness: 0.1,
+      wireframe: isWireframe,
+    });
+
     const doorThresholdMat = new THREE.MeshStandardMaterial({
-      color: 0x8b5a2b, // warm wood threshold
+      color: 0x854d0e, // warm wood
       roughness: 0.5,
       metalness: 0.1,
       wireframe: isWireframe,
     });
 
-    const halfW = W / 2;
-    const halfL = L / 2;
-    const wallY = 0.28 + (H / 2);
+    const glassMat = new THREE.MeshStandardMaterial({
+      color: 0x93c5fd,
+      roughness: 0.1,
+      metalness: 0.8,
+      transparent: true,
+      opacity: 0.45,
+    });
 
-    // North Wall (Z = -halfL)
-    const northGeo = new THREE.BoxGeometry(W + T, H, T);
-    const northMesh = new THREE.Mesh(northGeo, wallMat);
-    northMesh.position.set(0, wallY, -halfL);
-    northMesh.castShadow = true;
-    northMesh.receiveShadow = true;
-    group.add(northMesh);
+    // 4.1 Build Room Floor Slabs + Text Labels + Furniture Proxies
+    rooms.forEach(room => {
+      const roomW = room.relW * W;
+      const roomD = room.relD * L;
+      const roomCenterX = (room.relX * W) + (roomW / 2) - (W / 2);
+      const roomCenterZ = (room.relZ * L) + (roomD / 2) - (L / 2);
+      const isSelected = selectedRoomId === room.id;
+      const isPorch = room.type === 'porch';
 
-    // South Wall (Z = halfL) with Main Entrance Door Gap
-    const entranceDoorW = 1.2;
-    const southSegmentW = Math.max(0.5, (W - entranceDoorW) / 2);
-    const southGeo1 = new THREE.BoxGeometry(southSegmentW, H, T);
-    const southMesh1 = new THREE.Mesh(southGeo1, wallMat);
-    southMesh1.position.set(-halfW + (southSegmentW / 2), wallY, halfL);
-    southMesh1.castShadow = true;
-    group.add(southMesh1);
+      // Floor tile height: porch is lower (outdoor level)
+      const floorY = isPorch ? 0.15 : 0.24;
+      const floorThickness = isPorch ? 0.1 : 0.08;
 
-    const southGeo2 = new THREE.BoxGeometry(southSegmentW, H, T);
-    const southMesh2 = new THREE.Mesh(southGeo2, wallMat);
-    southMesh2.position.set(halfW - (southSegmentW / 2), wallY, halfL);
-    southMesh2.castShadow = true;
-    group.add(southMesh2);
-
-    // Main entrance lintel (above door opening)
-    const lintelGeo = new THREE.BoxGeometry(entranceDoorW, H * 0.35, T);
-    const lintelMesh = new THREE.Mesh(lintelGeo, wallMat);
-    lintelMesh.position.set(0, wallY + H * 0.325, halfL);
-    group.add(lintelMesh);
-
-    // Entrance threshold plate on floor
-    const thresholdGeo = new THREE.BoxGeometry(entranceDoorW, 0.04, T * 1.5);
-    const thresholdMesh = new THREE.Mesh(thresholdGeo, doorThresholdMat);
-    thresholdMesh.position.set(0, 0.29, halfL);
-    group.add(thresholdMesh);
-
-    // West Wall (X = -halfW)
-    const westGeo = new THREE.BoxGeometry(T, H, L + T);
-    const westMesh = new THREE.Mesh(westGeo, wallMat);
-    westMesh.position.set(-halfW, wallY, 0);
-    westMesh.castShadow = true;
-    group.add(westMesh);
-
-    // East Wall (X = halfW)
-    const eastGeo = new THREE.BoxGeometry(T, H, L + T);
-    const eastMesh = new THREE.Mesh(eastGeo, wallMat);
-    eastMesh.position.set(halfW, wallY, 0);
-    eastMesh.castShadow = true;
-    group.add(eastMesh);
-
-    // 6. Dynamic Interior Partition Walls
-    // If walls are provided, render interior walls from walls array
-    const interiorWalls = (walls || []).filter(w => !w.isExterior);
-
-    if (interiorWalls.length > 0) {
-      interiorWalls.forEach((w) => {
-        const dx = w.endX - w.startX;
-        const dz = w.endZ - w.startZ;
-        const len = Math.sqrt(dx * dx + dz * dz);
-        if (len < 0.2) return;
-
-        const midX = (w.startX + w.endX) / 2;
-        const midZ = (w.startZ + w.endZ) / 2;
-        const angle = Math.atan2(dz, dx);
-
-        // If wall is long enough, split with a doorway
-        const doorWidth = 0.9;
-        if (len > doorWidth + 0.8) {
-          const segLen = (len - doorWidth) / 2;
-          
-          // Segment 1
-          const segGeo1 = new THREE.BoxGeometry(segLen, H, T);
-          const segMesh1 = new THREE.Mesh(segGeo1, wallMat);
-          segMesh1.position.set(-len / 2 + segLen / 2, 0, 0);
-
-          // Segment 2
-          const segGeo2 = new THREE.BoxGeometry(segLen, H, T);
-          const segMesh2 = new THREE.Mesh(segGeo2, wallMat);
-          segMesh2.position.set(len / 2 - segLen / 2, 0, 0);
-
-          // Door lintel
-          const inLintelGeo = new THREE.BoxGeometry(doorWidth, H * 0.35, T);
-          const inLintelMesh = new THREE.Mesh(inLintelGeo, wallMat);
-          inLintelMesh.position.set(0, H * 0.325, 0);
-
-          // Door threshold
-          const inThreshGeo = new THREE.BoxGeometry(doorWidth, 0.03, T * 1.2);
-          const inThreshMesh = new THREE.Mesh(inThreshGeo, doorThresholdMat);
-          inThreshMesh.position.set(0, -H / 2 + 0.015, 0);
-
-          const wallContainer = new THREE.Group();
-          wallContainer.position.set(midX, wallY, midZ);
-          wallContainer.rotation.y = -angle;
-          wallContainer.add(segMesh1, segMesh2, inLintelMesh, inThreshMesh);
-          group.add(wallContainer);
-        } else {
-          // Solid short partition wall
-          const solidGeo = new THREE.BoxGeometry(len, H, T);
-          const solidMesh = new THREE.Mesh(solidGeo, wallMat);
-          solidMesh.position.set(midX, wallY, midZ);
-          solidMesh.rotation.y = -angle;
-          solidMesh.castShadow = true;
-          group.add(solidMesh);
-        }
+      const floorGeo = new THREE.BoxGeometry(roomW - 0.02, floorThickness, roomD - 0.02);
+      const floorMat = new THREE.MeshStandardMaterial({
+        color: isSelected ? 0xeb7724 : (isPorch ? 0x78716c : (shadingMode === 'rendered' ? room.color : 0x555555)),
+        roughness: isPorch ? 0.95 : 0.65,
+        metalness: 0.05,
+        wireframe: isWireframe,
       });
-    } else if (rooms.length >= 2) {
-      // Default room partition dividers
-      for (let i = 0; i < rooms.length; i++) {
-        const r = rooms[i];
-        const rRight = r.relX + r.relW;
-        const rBottom = r.relZ + r.relD;
+      const floorMesh = new THREE.Mesh(floorGeo, floorMat);
+      floorMesh.position.set(roomCenterX, floorY, roomCenterZ);
+      floorMesh.receiveShadow = true;
+      (floorMesh as any).userData = { roomId: room.id, roomName: room.name };
+      group.add(floorMesh);
 
-        if (rRight < 0.98) {
-          const wallX = rRight * W - halfW;
-          const wallZ = (r.relZ + r.relD / 2) * L - halfL;
-          const wallLen = r.relD * L;
-          const divGeo = new THREE.BoxGeometry(T, H, wallLen);
-          const divMesh = new THREE.Mesh(divGeo, wallMat);
-          divMesh.position.set(wallX, wallY, wallZ);
-          divMesh.castShadow = true;
-          group.add(divMesh);
-        }
-
-        if (rBottom < 0.98) {
-          const wallZ = rBottom * L - halfL;
-          const wallX = (r.relX + r.relW / 2) * W - halfW;
-          const wallLen = r.relW * W;
-          const divGeo = new THREE.BoxGeometry(wallLen, H, T);
-          const divMesh = new THREE.Mesh(divGeo, wallMat);
-          divMesh.position.set(wallX, wallY, wallZ);
-          divMesh.castShadow = true;
-          group.add(divMesh);
-        }
+      // Room Floor Label Badge (Placed on the floor slab)
+      if (shadingMode !== 'wireframe' && roomW > 1.2 && roomD > 1.2) {
+        const labelTexture = createRoomFloorLabelTexture(room.name, room.dimensionsText || `${roomW.toFixed(1)}m x ${roomD.toFixed(1)}m`);
+        const labelW = Math.min(roomW * 0.75, 2.2);
+        const labelH = labelW * 0.5;
+        const labelGeo = new THREE.PlaneGeometry(labelW, labelH);
+        const labelMat = new THREE.MeshBasicMaterial({
+          map: labelTexture,
+          transparent: true,
+          opacity: 0.88,
+          depthWrite: false,
+        });
+        const labelMesh = new THREE.Mesh(labelGeo, labelMat);
+        labelMesh.rotation.x = -Math.PI / 2;
+        labelMesh.position.set(roomCenterX, floorY + 0.045, roomCenterZ);
+        group.add(labelMesh);
       }
-    }
 
-    // Update geometry counters
+      // Selection Wireframe Outline
+      if (isSelected) {
+        const selGeo = new THREE.BoxGeometry(roomW, H + 0.2, roomD);
+        const selEdges = new THREE.EdgesGeometry(selGeo);
+        const selLine = new THREE.LineSegments(
+          selEdges,
+          new THREE.LineBasicMaterial({ color: 0xeb7724, linewidth: 3 })
+        );
+        selLine.position.set(roomCenterX, floorY + H / 2, roomCenterZ);
+        group.add(selLine);
+      }
+
+      // 4.2 Architectural 3D Furniture Proxies (Bed, Sofa, Table, Kitchen, Toilet)
+      if (shadingMode !== 'wireframe') {
+        const furnGroup = new THREE.Group();
+        furnGroup.position.set(roomCenterX, floorY + 0.04, roomCenterZ);
+
+        if (room.type === 'bedroom') {
+          // 3D Bed (Mattress, Wooden Frame, Pillows)
+          const bedFrame = new THREE.Mesh(
+            new THREE.BoxGeometry(1.9, 0.35, 1.7),
+            new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.7 })
+          );
+          bedFrame.position.set(0, 0.175, 0);
+
+          const headboard = new THREE.Mesh(
+            new THREE.BoxGeometry(1.95, 0.8, 0.15),
+            new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.6 })
+          );
+          headboard.position.set(0, 0.4, -0.8);
+
+          const pillow1 = new THREE.Mesh(
+            new THREE.BoxGeometry(0.65, 0.15, 0.4),
+            new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 })
+          );
+          pillow1.position.set(-0.5, 0.4, -0.5);
+
+          const pillow2 = new THREE.Mesh(
+            new THREE.BoxGeometry(0.65, 0.15, 0.4),
+            new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 })
+          );
+          pillow2.position.set(0.5, 0.4, -0.5);
+
+          furnGroup.add(bedFrame, headboard, pillow1, pillow2);
+        } else if (room.type === 'living') {
+          // 3D Modern Sofa (Seats, Backrest, Armrests) + Coffee Table
+          const sofaBase = new THREE.Mesh(
+            new THREE.BoxGeometry(2.2, 0.4, 0.85),
+            new THREE.MeshStandardMaterial({ color: 0xd1d5db, roughness: 0.8 })
+          );
+          sofaBase.position.set(0, 0.2, -0.5);
+
+          const sofaBack = new THREE.Mesh(
+            new THREE.BoxGeometry(2.2, 0.5, 0.2),
+            new THREE.MeshStandardMaterial({ color: 0x9ca3af, roughness: 0.8 })
+          );
+          sofaBack.position.set(0, 0.5, -0.85);
+
+          const coffeeTable = new THREE.Mesh(
+            new THREE.BoxGeometry(1.2, 0.3, 0.6),
+            new THREE.MeshStandardMaterial({ color: 0xb45309, roughness: 0.6 })
+          );
+          coffeeTable.position.set(0, 0.15, 0.3);
+
+          furnGroup.add(sofaBase, sofaBack, coffeeTable);
+        } else if (room.type === 'kitchen') {
+          // Kitchen Counter + Sink
+          const counter = new THREE.Mesh(
+            new THREE.BoxGeometry(Math.min(roomW * 0.8, 2.5), 0.85, 0.65),
+            new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.4 })
+          );
+          counter.position.set(0, 0.425, -roomD * 0.25);
+
+          const sink = new THREE.Mesh(
+            new THREE.BoxGeometry(0.7, 0.05, 0.45),
+            new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.8, roughness: 0.2 })
+          );
+          sink.position.set(0.3, 0.86, -roomD * 0.25);
+
+          furnGroup.add(counter, sink);
+        } else if (room.type === 'dining') {
+          // Dining Table + Chairs
+          const table = new THREE.Mesh(
+            new THREE.BoxGeometry(1.6, 0.75, 0.9),
+            new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.5 })
+          );
+          table.position.set(0, 0.375, 0);
+
+          const chair1 = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.45, 0.35), new THREE.MeshStandardMaterial({ color: 0x451a03 }));
+          chair1.position.set(-0.5, 0.225, 0.6);
+          const chair2 = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.45, 0.35), new THREE.MeshStandardMaterial({ color: 0x451a03 }));
+          chair2.position.set(0.5, 0.225, 0.6);
+
+          furnGroup.add(table, chair1, chair2);
+        } else if (room.type === 'bathroom') {
+          // Toilet & Vanity
+          const toiletBowl = new THREE.Mesh(
+            new THREE.BoxGeometry(0.45, 0.4, 0.6),
+            new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.2 })
+          );
+          toiletBowl.position.set(-0.3, 0.2, 0);
+
+          const cistern = new THREE.Mesh(
+            new THREE.BoxGeometry(0.45, 0.45, 0.2),
+            new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.2 })
+          );
+          cistern.position.set(-0.3, 0.55, -0.2);
+
+          const vanity = new THREE.Mesh(
+            new THREE.BoxGeometry(0.7, 0.8, 0.5),
+            new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.3 })
+          );
+          vanity.position.set(0.4, 0.4, 0);
+
+          furnGroup.add(toiletBowl, cistern, vanity);
+        } else if (isPorch) {
+          // Outdoor steps leading up to the house
+          const step1 = new THREE.Mesh(
+            new THREE.BoxGeometry(1.2, 0.08, 0.4),
+            new THREE.MeshStandardMaterial({ color: 0xa8a29e, roughness: 0.9 })
+          );
+          step1.position.set(0, 0.04, roomD * 0.4);
+
+          furnGroup.add(step1);
+        }
+
+        group.add(furnGroup);
+      }
+    });
+
+    // 4.3 DYNAMIC WALL GENERATION (Exterior & Interior Walls derived from room boundaries)
+    const wallY = 0.24 + (H / 2);
+    const activeWalls = walls && walls.length > 0 ? walls : [];
+
+    activeWalls.forEach(w => {
+      const dx = w.endX - w.startX;
+      const dz = w.endZ - w.startZ;
+      const len = Math.sqrt(dx * dx + dz * dz);
+      if (len < 0.15) return;
+
+      const midX = (w.startX + w.endX) / 2;
+      const midZ = (w.startZ + w.endZ) / 2;
+      const angle = Math.atan2(dz, dx);
+      const isExt = w.isExterior;
+
+      const currentMat = isExt ? exteriorWallMat : wallMat;
+
+      // Check if wall has a doorway opening
+      const hasDoorway = (!isExt && len > 1.3) || (isExt && Math.abs(midZ - L/2) < 1.0 && Math.abs(midX) < 2.0); // Entrance door
+
+      if (hasDoorway) {
+        const doorWidth = 0.95;
+        const remainingLen = Math.max(0.2, len - doorWidth);
+        const seg1Len = remainingLen * 0.5;
+        const seg2Len = remainingLen * 0.5;
+
+        const wallGroup = new THREE.Group();
+        wallGroup.position.set(midX, wallY, midZ);
+        wallGroup.rotation.y = -angle;
+
+        // Wall segment 1
+        const seg1 = new THREE.Mesh(new THREE.BoxGeometry(seg1Len, H, T), currentMat);
+        seg1.position.set(-len / 2 + seg1Len / 2, 0, 0);
+        seg1.castShadow = true;
+
+        // Wall segment 2
+        const seg2 = new THREE.Mesh(new THREE.BoxGeometry(seg2Len, H, T), currentMat);
+        seg2.position.set(len / 2 - seg2Len / 2, 0, 0);
+        seg2.castShadow = true;
+
+        // Lintel above door
+        const lintelH = H * 0.3;
+        const lintel = new THREE.Mesh(new THREE.BoxGeometry(doorWidth, lintelH, T), currentMat);
+        lintel.position.set(0, H / 2 - lintelH / 2, 0);
+        lintel.castShadow = true;
+
+        // Wooden Door Threshold on floor
+        const thresh = new THREE.Mesh(new THREE.BoxGeometry(doorWidth, 0.04, T * 1.3), doorThresholdMat);
+        thresh.position.set(0, -H / 2 + 0.02, 0);
+
+        wallGroup.add(seg1, seg2, lintel, thresh);
+        group.add(wallGroup);
+      } else if (isExt && len > 1.8) {
+        // Exterior wall with an architectural window!
+        const winWidth = Math.min(len * 0.45, 1.4);
+        const wallGroup = new THREE.Group();
+        wallGroup.position.set(midX, wallY, midZ);
+        wallGroup.rotation.y = -angle;
+
+        const sideSegLen = (len - winWidth) / 2;
+        const side1 = new THREE.Mesh(new THREE.BoxGeometry(sideSegLen, H, T), currentMat);
+        side1.position.set(-len / 2 + sideSegLen / 2, 0, 0);
+        side1.castShadow = true;
+
+        const side2 = new THREE.Mesh(new THREE.BoxGeometry(sideSegLen, H, T), currentMat);
+        side2.position.set(len / 2 - sideSegLen / 2, 0, 0);
+        side2.castShadow = true;
+
+        // Window Sill (bottom)
+        const sillH = H * 0.32;
+        const sill = new THREE.Mesh(new THREE.BoxGeometry(winWidth, sillH, T), currentMat);
+        sill.position.set(0, -H / 2 + sillH / 2, 0);
+
+        // Window Lintel (top)
+        const topLintelH = H * 0.28;
+        const topLintel = new THREE.Mesh(new THREE.BoxGeometry(winWidth, topLintelH, T), currentMat);
+        topLintel.position.set(0, H / 2 - topLintelH / 2, 0);
+
+        // Glass Pane in center
+        const glass = new THREE.Mesh(new THREE.BoxGeometry(winWidth, H - sillH - topLintelH, T * 0.2), glassMat);
+        glass.position.set(0, (-H / 2 + sillH + H / 2 - topLintelH) / 2, 0);
+
+        wallGroup.add(side1, side2, sill, topLintel, glass);
+        group.add(wallGroup);
+      } else {
+        // Solid wall segment
+        const solidMesh = new THREE.Mesh(new THREE.BoxGeometry(len, H, T), currentMat);
+        solidMesh.position.set(midX, wallY, midZ);
+        solidMesh.rotation.y = -angle;
+        solidMesh.castShadow = true;
+        solidMesh.receiveShadow = true;
+        group.add(solidMesh);
+      }
+    });
+
     setStats(prev => ({
       ...prev,
-      verts: group.children.length * 24,
-      faces: group.children.length * 12,
+      verts: group.children.length * 36,
+      faces: group.children.length * 18,
       objects: group.children.length,
     }));
   }, [dimensions, rooms, walls, selectedRoomId, shadingMode]);
 
-  // Raycaster for Room Hover / Click in Viewport
+  // Raycaster for Room Selection
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     if (!mountRef.current || !cameraRef.current || !houseGroupRef.current) return;
     const rect = mountRef.current.getBoundingClientRect();
@@ -532,10 +659,12 @@ export default function BlenderViewport({
     const intersects = raycaster.intersectObjects(houseGroupRef.current.children, true);
 
     if (intersects.length > 0) {
-      const hit = intersects[0].object as any;
-      if (hit.userData && hit.userData.roomId) {
-        onSelectRoom(hit.userData.roomId);
-        return;
+      for (const hit of intersects) {
+        const obj = hit.object as any;
+        if (obj.userData && obj.userData.roomId) {
+          onSelectRoom(obj.userData.roomId);
+          return;
+        }
       }
     }
   };
@@ -548,7 +677,7 @@ export default function BlenderViewport({
     const dist = Math.max(dimensions.width, dimensions.length) * 1.8;
 
     if (view === 'top') {
-      cam.position.set(0, dist + 4, 0.001); // slight offset so controls don't gimbal lock
+      cam.position.set(0, dist + 4, 0.001);
       ctrl.target.set(0, 0, 0);
     } else if (view === 'front') {
       cam.position.set(0, 3, dist + 2);
@@ -557,19 +686,19 @@ export default function BlenderViewport({
       cam.position.set(dist + 2, 3, 0);
       ctrl.target.set(0, dimensions.wallHeight / 2, 0);
     } else if (view === 'iso') {
-      cam.position.set(14, 12, 16);
-      ctrl.target.set(0, 1.2, 0);
+      cam.position.set(12, 14, 15);
+      ctrl.target.set(0, 1.0, 0);
     }
     ctrl.update();
   };
 
-  // Export 3D Model placeholder
   const handleExport = () => {
     const exportData = {
-      project: "Beyond-2D Export",
-      timestamp: new Date().toISOString(),
+      project: "Beyond-2D Architectural Model",
+      exportedAt: new Date().toISOString(),
       dimensions,
       rooms,
+      walls,
     };
     const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -584,12 +713,12 @@ export default function BlenderViewport({
     <div className="relative w-full h-full flex flex-col bg-[#1e1e1e] overflow-hidden select-none">
       {/* 1. Blender-style Viewport Top Header Toolbar */}
       <div className="h-10 bg-[#282828] border-b border-[#3c3c3c] flex items-center justify-between px-3 z-10 text-xs">
-        {/* Left: Transform Tools */}
+        {/* Left: Tools */}
         <div className="flex items-center gap-1">
           <span className="text-[#808080] font-mono text-[10px] mr-1 uppercase tracking-wider">Mode</span>
           <button
             onClick={() => onToolChange('select')}
-            title="Box Select (W)"
+            title="Box Select"
             className={`px-2 py-1 rounded flex items-center gap-1 font-medium ${
               activeTool === 'select' ? 'bg-[#4772b3] text-white' : 'text-[#cfcfcf] hover:bg-[#383838]'
             }`}
@@ -599,7 +728,7 @@ export default function BlenderViewport({
           </button>
           <button
             onClick={() => onToolChange('move')}
-            title="Move / Translate (G)"
+            title="Move / Translate"
             className={`px-2 py-1 rounded flex items-center gap-1 font-medium ${
               activeTool === 'move' ? 'bg-[#4772b3] text-white' : 'text-[#cfcfcf] hover:bg-[#383838]'
             }`}
@@ -609,7 +738,7 @@ export default function BlenderViewport({
           </button>
           <button
             onClick={() => onToolChange('rotate')}
-            title="Rotate (R)"
+            title="Rotate"
             className={`px-2 py-1 rounded flex items-center gap-1 font-medium ${
               activeTool === 'rotate' ? 'bg-[#4772b3] text-white' : 'text-[#cfcfcf] hover:bg-[#383838]'
             }`}
@@ -654,7 +783,6 @@ export default function BlenderViewport({
 
         {/* Right: Shading Modes & Export Button */}
         <div className="flex items-center gap-2">
-          {/* Shading modes */}
           <div className="flex items-center bg-[#202020] p-0.5 rounded border border-[#383838]">
             <button
               onClick={() => onShadingModeChange('wireframe')}
@@ -679,11 +807,10 @@ export default function BlenderViewport({
             </button>
           </div>
 
-          {/* Export Button (Directly from hand-drawn layout sketch!) */}
           <button
             onClick={handleExport}
             className="flex items-center gap-1.5 px-3 py-1 bg-[#eb7724] hover:bg-[#f38938] text-white font-medium rounded shadow-sm text-xs transition-colors"
-            title="Export 3D Model (JSON / GLTF)"
+            title="Export 3D Model"
           >
             <Download size={13} />
             <span>Export</span>
@@ -691,25 +818,25 @@ export default function BlenderViewport({
         </div>
       </div>
 
-      {/* 2. Main 3D WebGL Canvas Area */}
+      {/* 2. Main 3D Canvas Area */}
       <div 
         ref={mountRef} 
         onPointerDown={handlePointerDown}
         className="flex-1 w-full relative cursor-grab active:cursor-grabbing outline-none"
       >
-        {/* XYZ Axis Gizmo Overlay (Top-Right of Viewport, like Blender) */}
+        {/* XYZ Axis Gizmo Overlay */}
         <div className="absolute top-3 right-3 z-10 flex flex-col items-center pointer-events-none">
           <canvas ref={gizmoRef} width={80} height={80} className="w-20 h-20" />
         </div>
 
-        {/* Viewport Overlay Info (Top-Left of Canvas) */}
+        {/* Viewport Info Overlay */}
         <div className="absolute top-3 left-3 z-10 pointer-events-none text-[11px] font-mono text-[#a0a0a0] bg-[#1a1a1a]/80 backdrop-blur px-2.5 py-1.5 rounded border border-[#333]/50">
-          <div className="text-white font-semibold">User Perspective</div>
-          <div>Scale: 1:1 Metric (m)</div>
-          <div>Grid: 1.0m Ortho</div>
+          <div className="text-white font-semibold">Beyond-2D Architectural Viewport</div>
+          <div>Scale: {dimensions.width.toFixed(1)}m &times; {dimensions.length.toFixed(1)}m</div>
+          <div>Rooms: {rooms.length} | Walls: {walls?.length || 0}</div>
         </div>
 
-        {/* Environment Quick Toggle Floating Pill (Bottom-Left of Viewport) */}
+        {/* Lighting Quick Toggle Pill */}
         <div className="absolute bottom-4 left-4 z-10 flex items-center bg-[#242424]/90 backdrop-blur px-2 py-1 rounded-full border border-[#3c3c3c] shadow-lg text-xs gap-1.5">
           <span className="text-[#808080] text-[10px] uppercase font-mono px-1">Lighting:</span>
           <button
@@ -741,24 +868,23 @@ export default function BlenderViewport({
           </button>
         </div>
 
-        {/* Interaction Helper Pill (Bottom-Right) */}
         <div className="absolute bottom-4 right-4 z-10 pointer-events-none text-[10px] text-[#777] font-mono bg-[#1c1c1c]/90 px-2.5 py-1 rounded border border-[#333]">
-          L-Click: Orbit &bull; M-Click/Shift: Pan &bull; Scroll: Zoom &bull; Click: Select Room
+          L-Click: Orbit &bull; Shift+Click: Pan &bull; Scroll: Zoom &bull; Click Room: Inspect
         </div>
       </div>
 
-      {/* 3. Blender-style Bottom Status Bar */}
+      {/* 3. Blender Status Bar */}
       <div className="h-6 bg-[#222222] border-t border-[#333] flex items-center justify-between px-3 text-[11px] text-[#888] font-mono">
         <div className="flex items-center gap-4">
           <span>Building: {dimensions.width.toFixed(1)}m &times; {dimensions.length.toFixed(1)}m</span>
           <span>Rooms: {rooms.length}</span>
-          <span>Verts: {stats.verts}</span>
-          <span>Faces: {stats.faces}</span>
+          <span>Wall Height: {dimensions.wallHeight.toFixed(1)}m</span>
+          <span>Objects: {stats.objects}</span>
         </div>
         <div className="flex items-center gap-3">
           <span className="text-[#4772b3]">Tool: {activeTool.toUpperCase()}</span>
           <span className="text-emerald-500">{stats.fps} FPS</span>
-          <span>Beyond-2D v0.1.0</span>
+          <span>Beyond-2D Engine</span>
         </div>
       </div>
     </div>

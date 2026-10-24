@@ -10,6 +10,8 @@ const ROOM_COLORS: Record<RoomType, string> = {
   hallway: '#64748b',
   office: '#8b5cf6',
   balcony: '#06b6d4',
+  entrance: '#a855f7',
+  porch: '#78716c',
 };
 
 export function validateAndNormalizeFloorPlan(raw: Partial<RawAIPlanOutput>): {
@@ -21,8 +23,8 @@ export function validateAndNormalizeFloorPlan(raw: Partial<RawAIPlanOutput>): {
   const rawDims = raw.dimensions || ({} as any);
   const width = Math.max(4.0, Math.min(40.0, Number(rawDims.width) || 10.0));
   const length = Math.max(4.0, Math.min(40.0, Number(rawDims.length) || 8.0));
-  const wallHeight = Math.max(2.0, Math.min(5.0, Number(rawDims.wallHeight) || 2.8));
-  const wallThickness = Math.max(0.12, Math.min(0.4, Number(rawDims.wallThickness) || 0.2));
+  const wallHeight = Math.max(2.2, Math.min(4.5, Number(rawDims.wallHeight) || 2.8));
+  const wallThickness = Math.max(0.12, Math.min(0.35, Number(rawDims.wallThickness) || 0.22));
 
   const dimensions: BuildingDimensions = {
     width: Math.round(width * 10) / 10,
@@ -35,25 +37,39 @@ export function validateAndNormalizeFloorPlan(raw: Partial<RawAIPlanOutput>): {
   const rawRooms = Array.isArray(raw.rooms) && raw.rooms.length > 0 ? raw.rooms : [];
 
   let rooms: RoomData[] = rawRooms.map((r, index) => {
-    const rawType = (r.type || 'living').toLowerCase();
-    const type: RoomType = (
-      ['living', 'bedroom', 'kitchen', 'bathroom', 'dining', 'hallway', 'office', 'balcony'].includes(rawType)
-        ? rawType
-        : 'living'
-    ) as RoomType;
+    const rawType = (r.type || '').toLowerCase();
+    const rawName = (r.name || '').toLowerCase();
 
-    let relX = Math.max(0, Math.min(0.95, Number(r.relX) || 0));
-    let relZ = Math.max(0, Math.min(0.95, Number(r.relZ) || 0));
-    let relW = Math.max(0.08, Math.min(1.0, Number(r.relW) || 0.3));
-    let relD = Math.max(0.08, Math.min(1.0, Number(r.relD) || 0.3));
+    // Smart semantic classification
+    let type: RoomType = 'living';
+    if (rawType.includes('bed') || rawName.includes('bed')) {
+      type = 'bedroom';
+    } else if (rawType.includes('bath') || rawName.includes('bath') || rawName.includes('toilet') || rawName.includes('wc')) {
+      type = 'bathroom';
+    } else if (rawType.includes('kitchen') || rawName.includes('kitchen')) {
+      type = 'kitchen';
+    } else if (rawType.includes('din') || rawName.includes('din')) {
+      type = 'dining';
+    } else if (rawType.includes('porch') || rawName.includes('porch') || rawType.includes('patio') || rawName.includes('patio') || rawType.includes('veranda')) {
+      type = 'porch';
+    } else if (rawType.includes('entry') || rawName.includes('entry') || rawType.includes('entrance') || rawName.includes('entrance') || rawName.includes('foyer')) {
+      type = 'entrance';
+    } else if (rawType.includes('balcony') || rawName.includes('balcony')) {
+      type = 'balcony';
+    } else if (rawType.includes('office') || rawName.includes('office') || rawName.includes('study')) {
+      type = 'office';
+    } else if (rawType.includes('hall') || rawName.includes('hall') || rawName.includes('corridor')) {
+      type = 'hallway';
+    }
 
-    // Clamp bounds to fit inside footprint
-    if (relX + relW > 1.0) {
-      relW = Math.max(0.08, 1.0 - relX);
-    }
-    if (relZ + relD > 1.0) {
-      relD = Math.max(0.08, 1.0 - relZ);
-    }
+    let relX = Math.max(0, Math.min(0.96, Number(r.relX) || 0));
+    let relZ = Math.max(0, Math.min(0.96, Number(r.relZ) || 0));
+    let relW = Math.max(0.06, Math.min(1.0, Number(r.relW) || 0.3));
+    let relD = Math.max(0.06, Math.min(1.0, Number(r.relD) || 0.3));
+
+    // Clamp bounds to fit inside 0..1 footprint
+    if (relX + relW > 1.0) relW = Math.max(0.06, 1.0 - relX);
+    if (relZ + relD > 1.0) relD = Math.max(0.06, 1.0 - relZ);
 
     const cleanOpenings: OpeningData[] = Array.isArray(r.openings)
       ? r.openings.map((op, opIdx) => ({
@@ -74,116 +90,152 @@ export function validateAndNormalizeFloorPlan(raw: Partial<RawAIPlanOutput>): {
       relZ: Math.round(relZ * 1000) / 1000,
       relW: Math.round(relW * 1000) / 1000,
       relD: Math.round(relD * 1000) / 1000,
+      dimensionsText: (r as any).dimensionsText || '',
+      furniture: Array.isArray((r as any).furniture) ? (r as any).furniture : [],
       openings: cleanOpenings,
     };
   });
 
-  // If no valid rooms were parsed, generate a standard studio/1BHK fallback
   if (rooms.length === 0) {
     rooms = [
-      {
-        id: 'room_fallback_living',
-        name: 'Living Room',
-        type: 'living',
-        color: ROOM_COLORS.living,
-        relX: 0.0,
-        relZ: 0.0,
-        relW: 0.6,
-        relD: 1.0,
-      },
-      {
-        id: 'room_fallback_bed',
-        name: 'Bedroom',
-        type: 'bedroom',
-        color: ROOM_COLORS.bedroom,
-        relX: 0.6,
-        relZ: 0.0,
-        relW: 0.4,
-        relD: 0.6,
-      },
-      {
-        id: 'room_fallback_bath',
-        name: 'Bathroom',
-        type: 'bathroom',
-        color: ROOM_COLORS.bathroom,
-        relX: 0.6,
-        relZ: 0.6,
-        relW: 0.4,
-        relD: 0.4,
-      },
+      { id: 'room_1', name: 'Living Room', type: 'living', color: ROOM_COLORS.living, relX: 0, relZ: 0.375, relW: 0.4, relD: 0.4375 },
+      { id: 'room_2', name: 'Bedroom 1', type: 'bedroom', color: ROOM_COLORS.bedroom, relX: 0, relZ: 0, relW: 0.35, relD: 0.375 },
+      { id: 'room_3', name: 'Bathroom', type: 'bathroom', color: ROOM_COLORS.bathroom, relX: 0.35, relZ: 0, relW: 0.2, relD: 0.25 },
+      { id: 'room_4', name: 'Bedroom 2', type: 'bedroom', color: ROOM_COLORS.bedroom, relX: 0.7, relZ: 0, relW: 0.3, relD: 0.375 },
     ];
   }
 
-  // 3. Coordinate Snapping (Flush Alignment)
-  // Snap rooms whose edges are within 2.5% tolerance
-  const SNAP_TOLERANCE = 0.025;
+  // 3. Grid Snapping for Flush Alignment
+  const SNAP_TOLERANCE = 0.03;
   for (let i = 0; i < rooms.length; i++) {
     for (let j = i + 1; j < rooms.length; j++) {
       const a = rooms[i];
       const b = rooms[j];
 
-      // Horizontal edge snapping (a's right edge near b's left edge)
-      const aRight = a.relX + a.relW;
-      if (Math.abs(aRight - b.relX) < SNAP_TOLERANCE) {
-        b.relX = aRight;
+      // Snap X edges
+      if (Math.abs(a.relX + a.relW - b.relX) < SNAP_TOLERANCE) {
+        b.relX = a.relX + a.relW;
       } else if (Math.abs(b.relX + b.relW - a.relX) < SNAP_TOLERANCE) {
         a.relX = b.relX + b.relW;
       }
 
-      // Vertical edge snapping (a's bottom edge near b's top edge)
-      const aBottom = a.relZ + a.relD;
-      if (Math.abs(aBottom - b.relZ) < SNAP_TOLERANCE) {
-        b.relZ = aBottom;
+      // Snap Z edges
+      if (Math.abs(a.relZ + a.relD - b.relZ) < SNAP_TOLERANCE) {
+        b.relZ = a.relZ + a.relD;
       } else if (Math.abs(b.relZ + b.relD - a.relZ) < SNAP_TOLERANCE) {
         a.relZ = b.relZ + b.relD;
       }
     }
   }
 
-  // 4. Generate Deterministic Walls
+  // 4. Generate Clean Non-Overlapping Wall Segments from Room Topologies
   const walls: WallData[] = [];
-  const halfW = dimensions.width / 2;
-  const halfL = dimensions.length / 2;
+  const W = dimensions.width;
+  const L = dimensions.length;
+  const halfW = W / 2;
+  const halfL = L / 2;
 
-  // Exterior Perimeter Walls
-  walls.push(
-    { id: 'wall_ext_north', startX: -halfW, startZ: -halfL, endX: halfW, endZ: -halfL, isExterior: true },
-    { id: 'wall_ext_south', startX: -halfW, startZ: halfL, endX: halfW, endZ: halfL, isExterior: true },
-    { id: 'wall_ext_west', startX: -halfW, startZ: -halfL, endX: -halfW, endZ: halfL, isExterior: true },
-    { id: 'wall_ext_east', startX: halfW, startZ: -halfL, endX: halfW, endZ: halfL, isExterior: true }
-  );
+  // Helper: converts normalized coord to world metric
+  const toWorldX = (relX: number) => relX * W - halfW;
+  const toWorldZ = (relZ: number) => relZ * L - halfL;
 
-  // Interior Divider Walls (generated from room boundaries)
-  rooms.forEach((r, idx) => {
-    const roomLeft = r.relX * dimensions.width - halfW;
-    const roomRight = (r.relX + r.relW) * dimensions.width - halfW;
-    const roomTop = r.relZ * dimensions.length - halfL;
-    const roomBottom = (r.relZ + r.relD) * dimensions.length - halfL;
+  // We collect all 4 edges of every enclosed room
+  interface RawEdge {
+    startX: number;
+    startZ: number;
+    endX: number;
+    endZ: number;
+    roomId: string;
+    roomType: RoomType;
+    side: 'N' | 'S' | 'W' | 'E';
+  }
 
-    // Internal vertical right wall if not at outer boundary
-    if (r.relX + r.relW < 0.98) {
-      walls.push({
-        id: `wall_div_v_${idx}`,
-        startX: roomRight,
-        startZ: roomTop,
-        endX: roomRight,
-        endZ: roomBottom,
-        isExterior: false,
-      });
-    }
+  const rawEdges: RawEdge[] = [];
 
-    // Internal horizontal bottom wall if not at outer boundary
-    if (r.relZ + r.relD < 0.98) {
-      walls.push({
-        id: `wall_div_h_${idx}`,
-        startX: roomLeft,
-        startZ: roomBottom,
-        endX: roomRight,
-        endZ: roomBottom,
-        isExterior: false,
-      });
-    }
+  rooms.forEach(room => {
+    // Skip full height walls for open porch
+    if (room.type === 'porch') return;
+
+    const left = toWorldX(room.relX);
+    const right = toWorldX(room.relX + room.relW);
+    const top = toWorldZ(room.relZ);
+    const bottom = toWorldZ(room.relZ + room.relD);
+
+    // North edge
+    rawEdges.push({ startX: left, startZ: top, endX: right, endZ: top, roomId: room.id, roomType: room.type, side: 'N' });
+    // South edge
+    rawEdges.push({ startX: left, startZ: bottom, endX: right, endZ: bottom, roomId: room.id, roomType: room.type, side: 'S' });
+    // West edge
+    rawEdges.push({ startX: left, startZ: top, endX: left, endZ: bottom, roomId: room.id, roomType: room.type, side: 'W' });
+    // East edge
+    rawEdges.push({ startX: right, startZ: top, endX: right, endZ: bottom, roomId: room.id, roomType: room.type, side: 'E' });
   });
+
+  // Deduplicate and classify interior vs exterior walls
+  const used = new Set<number>();
+
+  for (let i = 0; i < rawEdges.length; i++) {
+    if (used.has(i)) continue;
+    const e1 = rawEdges[i];
+
+    // Look for matching coincident edge (opposite orientation or collinear)
+    let isSharedInternal = false;
+    for (let j = i + 1; j < rawEdges.length; j++) {
+      if (used.has(j)) continue;
+      const e2 = rawEdges[j];
+
+      // Check collinearity & overlap
+      const sameH = Math.abs(e1.startZ - e1.endZ) < 0.05 && Math.abs(e2.startZ - e2.endZ) < 0.05 && Math.abs(e1.startZ - e2.startZ) < 0.15;
+      const sameV = Math.abs(e1.startX - e1.endX) < 0.05 && Math.abs(e2.startX - e2.endX) < 0.05 && Math.abs(e1.startX - e2.startX) < 0.15;
+
+      if (sameH) {
+        // Horizontal overlap
+        const min1 = Math.min(e1.startX, e1.endX);
+        const max1 = Math.max(e1.startX, e1.endX);
+        const min2 = Math.min(e2.startX, e2.endX);
+        const max2 = Math.max(e2.startX, e2.endX);
+
+        if (Math.abs(min1 - min2) < 0.25 && Math.abs(max1 - max2) < 0.25) {
+          isSharedInternal = true;
+          used.add(j);
+          break;
+        }
+      } else if (sameV) {
+        // Vertical overlap
+        const min1 = Math.min(e1.startZ, e1.endZ);
+        const max1 = Math.max(e1.startZ, e1.endZ);
+        const min2 = Math.min(e2.startZ, e2.endZ);
+        const max2 = Math.max(e2.startZ, e2.endZ);
+
+        if (Math.abs(min1 - min2) < 0.25 && Math.abs(max1 - max2) < 0.25) {
+          isSharedInternal = true;
+          used.add(j);
+          break;
+        }
+      }
+    }
+
+    used.add(i);
+
+    // Determine if exterior: is it on outer perimeter or facing porch?
+    const isPerimeterN = Math.abs(e1.startZ - (-halfL)) < 0.2 && Math.abs(e1.endZ - (-halfL)) < 0.2;
+    const isPerimeterS = Math.abs(e1.startZ - halfL) < 0.2 && Math.abs(e1.endZ - halfL) < 0.2;
+    const isPerimeterW = Math.abs(e1.startX - (-halfW)) < 0.2 && Math.abs(e1.endX - (-halfW)) < 0.2;
+    const isPerimeterE = Math.abs(e1.startX - halfW) < 0.2 && Math.abs(e1.endX - halfW) < 0.2;
+
+    const isExterior = !isSharedInternal && (isPerimeterN || isPerimeterS || isPerimeterW || isPerimeterE);
+
+    walls.push({
+      id: `wall_${walls.length + 1}`,
+      startX: e1.startX,
+      startZ: e1.startZ,
+      endX: e1.endX,
+      endZ: e1.endZ,
+      isExterior,
+      height: dimensions.wallHeight,
+      thickness: dimensions.wallThickness,
+    });
+  }
 
   return { dimensions, rooms, walls };
 }

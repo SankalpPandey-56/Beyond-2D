@@ -1,7 +1,7 @@
 export type EnvironmentMode = 'day' | 'night' | 'studio';
 export type ShadingMode = 'solid' | 'wireframe' | 'rendered';
 export type TransformTool = 'select' | 'move' | 'rotate' | 'scale';
-export type RoomType = 'living' | 'bedroom' | 'kitchen' | 'bathroom' | 'hallway' | 'balcony' | 'office' | 'dining';
+export type RoomType = 'living' | 'bedroom' | 'kitchen' | 'bathroom' | 'hallway' | 'balcony' | 'office' | 'dining' | 'entrance' | 'porch';
 
 export interface OpeningData {
   id: string;
@@ -21,6 +21,8 @@ export interface RoomData {
   relZ: number;
   relW: number;
   relD: number;
+  dimensionsText?: string;
+  furniture?: string[];
   openings?: OpeningData[];
 }
 
