@@ -1,11 +1,32 @@
+import fs from 'fs';
+import path from 'path';
 import { IFloorPlanProvider, RawAIPlanOutput } from './types';
 
 export class GeminiFloorPlanProvider implements IFloorPlanProvider {
   name = 'Gemini';
-  defaultModel = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+  defaultModel = process.env.GEMINI_MODEL || 'gemini-3-flash-preview';
 
   private getApiKey(): string {
-    const key = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+    let key = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+
+    if (!key) {
+      try {
+        const envLocalPath = path.join(process.cwd(), '.env.local');
+        if (fs.existsSync(envLocalPath)) {
+          const content = fs.readFileSync(envLocalPath, 'utf-8');
+          const match = content.match(/(?:GEMINI_API_KEY|GOOGLE_API_KEY)\s*=\s*([^\r\n]+)/);
+          if (match && match[1]) {
+            key = match[1].trim().replace(/^['"]|['"]$/g, '');
+          } else {
+            const lines = content.split('\n').map(l => l.trim()).filter(l => l.length > 10 && !l.startsWith('#'));
+            if (lines.length > 0) key = lines[0];
+          }
+        }
+      } catch (e) {
+        console.warn('[Beyond-2D API] Error reading .env.local from disk:', e);
+      }
+    }
+
     if (!key) {
       throw new Error(
         'Missing API Key for Gemini. Set GEMINI_API_KEY or GOOGLE_API_KEY in your environment or .env.local file.'

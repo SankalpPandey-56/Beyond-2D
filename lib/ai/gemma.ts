@@ -1,3 +1,5 @@
+import fs from 'fs';
+import path from 'path';
 import { IFloorPlanProvider, RawAIPlanOutput } from './types';
 
 export class GemmaFloorPlanProvider implements IFloorPlanProvider {
@@ -5,7 +7,27 @@ export class GemmaFloorPlanProvider implements IFloorPlanProvider {
   defaultModel = process.env.GEMMA_MODEL || 'gemma-4-31b-it';
 
   private getApiKey(): string {
-    const key = process.env.GEMMA_API_KEY || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+    let key = process.env.GEMMA_API_KEY || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+
+    if (!key) {
+      try {
+        const envLocalPath = path.join(process.cwd(), '.env.local');
+        if (fs.existsSync(envLocalPath)) {
+          const content = fs.readFileSync(envLocalPath, 'utf-8');
+          const match = content.match(/(?:GEMINI_API_KEY|GOOGLE_API_KEY|GEMMA_API_KEY)\s*=\s*([^\r\n]+)/);
+          if (match && match[1]) {
+            key = match[1].trim().replace(/^['"]|['"]$/g, '');
+          } else {
+            // Raw token fallback if saved without variable name
+            const lines = content.split('\n').map(l => l.trim()).filter(l => l.length > 10 && !l.startsWith('#'));
+            if (lines.length > 0) key = lines[0];
+          }
+        }
+      } catch (e) {
+        console.warn('[Beyond-2D API] Error reading .env.local from disk:', e);
+      }
+    }
+
     if (!key) {
       throw new Error(
         'Missing API Key for Gemma 4. Set GEMINI_API_KEY or GOOGLE_API_KEY in your environment or .env.local file.'
