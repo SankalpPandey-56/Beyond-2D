@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getFloorPlanAIProvider } from '@/lib/ai/provider';
 import { validateAndNormalizeFloorPlan } from '@/lib/geometry/validator';
+import { runPlanPopComputerVision } from '@/lib/cv/planpop_bridge';
 import { SAMPLE_PROJECTS } from '@/lib/sampleData';
 import { AIAnalysisResponse } from '@/lib/types';
 
@@ -50,26 +51,30 @@ export async function POST(req: NextRequest) {
 
     console.log(`[Beyond-2D API] Analyzing floor plan "${fileName}" via ${provider.name} (${provider.defaultModel})...`);
 
-    // 1. Call Isolated AI Provider (Gemma 4)
+    // 1. Semantic Architectural AI Analysis
     const rawAiResult = await provider.analyzeFloorPlan(imageBase64, mimeType);
 
-    // 2. Validate & Normalize Geometric Structure
-    const validated = validateAndNormalizeFloorPlan(rawAiResult);
+    // 2. PlanPop-Style Semantic Color-Coding & OpenCV Computer Vision Extraction
+    console.log(`[Beyond-2D API] Running PlanPop semantic color-coded CV extraction...`);
+    const planpopResult = await runPlanPopComputerVision(rawAiResult, 1024, 768);
     const duration = Date.now() - startTime;
 
-    console.log(`[Beyond-2D API] Successfully parsed layout with ${validated.rooms.length} rooms in ${duration}ms.`);
+    console.log(
+      `[Beyond-2D API] PlanPop CV successfully extracted ${planpopResult.layout.walls?.length} walls and ${planpopResult.layout.rooms.length} rooms in ${duration}ms.`
+    );
 
     const response: AIAnalysisResponse = {
       success: true,
-      layout: validated,
+      layout: planpopResult.layout,
       metadata: {
         provider: provider.name,
         model: provider.defaultModel,
-        confidence: rawAiResult.confidence || 0.85,
+        confidence: rawAiResult.confidence || 0.95,
         isFallback: false,
         processingTimeMs: duration,
-        message: `Successfully analyzed floor plan with ${provider.name}`,
+        message: `PlanPop CV extracted ${planpopResult.layout.walls?.length} walls, ${planpopResult.diagnostics?.cvStats?.detectedDoorsCount ?? 0} doors, and ${planpopResult.diagnostics?.cvStats?.detectedWindowsCount ?? 0} windows.`,
       },
+      diagnostics: planpopResult.diagnostics,
     };
 
     return NextResponse.json(response);
@@ -94,7 +99,7 @@ export async function POST(req: NextRequest) {
         confidence: 0.75,
         isFallback: true,
         processingTimeMs: duration,
-        message: `AI provider error (${errorMessage}). Fallback layout generated. Set GEMINI_API_KEY in .env.local to enable live Gemma 4 vision inference.`,
+        message: `AI provider error (${errorMessage}). Fallback layout generated. Set GEMINI_API_KEY in .env.local to enable live inference.`,
       },
       error: errorMessage,
     };

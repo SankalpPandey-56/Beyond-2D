@@ -26,6 +26,20 @@ interface SidebarRightProps {
   selectedRoomId: string | null;
   onSelectRoom: (roomId: string | null) => void;
   previewUrl: string;
+  semanticPreviewUrl?: string;
+  diagnostics?: {
+    semanticImageBase64?: string;
+    cvStats?: {
+      semanticResolution: string;
+      wallMaskPixelCount: number;
+      totalExtractedWalls: number;
+      recoveredRoomsCount: number;
+      detectedDoorsCount: number;
+      detectedWindowsCount: number;
+      pipeline: string;
+    };
+    warnings?: string[];
+  };
 }
 
 export default function SidebarRight({
@@ -35,9 +49,12 @@ export default function SidebarRight({
   selectedRoomId,
   onSelectRoom,
   previewUrl,
+  semanticPreviewUrl,
+  diagnostics,
 }: SidebarRightProps) {
   const [activeTab, setActiveTab] = useState<'inspector' | 'outliner'>('inspector');
   const [isPreviewExpanded, setIsPreviewExpanded] = useState(false);
+  const [previewMode, setPreviewMode] = useState<'original' | 'semantic'>('original');
 
   const handleDimChange = (key: keyof BuildingDimensions, value: number) => {
     onDimensionsChange({
@@ -79,35 +96,83 @@ export default function SidebarRight({
       </div>
 
       <div className="flex-1 overflow-y-auto p-3 space-y-4">
-        {/* 2. 2D Image Preview Section (Directly from hand-drawn layout: "2D Image Preview") */}
+        {/* 2. 2D Image Preview Section with PlanPop Semantic Toggle */}
         <div className="bg-[#202020] border border-[#383838] rounded-lg overflow-hidden">
           <div className="p-2 border-b border-[#333] flex items-center justify-between text-[11px] font-semibold text-[#ddd]">
             <span className="flex items-center gap-1.5">
               <ImageIcon size={13} className="text-[#eb7724]" />
               2D Image Preview
             </span>
-            <button
-              onClick={() => setIsPreviewExpanded(!isPreviewExpanded)}
-              className="text-[#888] hover:text-white p-0.5 rounded"
-              title={isPreviewExpanded ? "Minimize preview" : "Expand preview"}
-            >
-              <Maximize2 size={12} />
-            </button>
+            <div className="flex items-center gap-1.5">
+              {semanticPreviewUrl && (
+                <div className="flex rounded bg-[#181818] p-0.5 border border-[#333] text-[9px] font-mono">
+                  <button
+                    onClick={() => setPreviewMode('original')}
+                    className={`px-1.5 py-0.5 rounded transition-colors ${
+                      previewMode === 'original'
+                        ? 'bg-[#eb7724] text-white font-bold'
+                        : 'text-[#888] hover:text-[#ccc]'
+                    }`}
+                  >
+                    2D Plan
+                  </button>
+                  <button
+                    onClick={() => setPreviewMode('semantic')}
+                    className={`px-1.5 py-0.5 rounded transition-colors ${
+                      previewMode === 'semantic'
+                        ? 'bg-[#eb7724] text-white font-bold'
+                        : 'text-[#888] hover:text-[#ccc]'
+                    }`}
+                  >
+                    PlanPop CV
+                  </button>
+                </div>
+              )}
+              <button
+                onClick={() => setIsPreviewExpanded(!isPreviewExpanded)}
+                className="text-[#888] hover:text-white p-0.5 rounded"
+                title={isPreviewExpanded ? "Minimize preview" : "Expand preview"}
+              >
+                <Maximize2 size={12} />
+              </button>
+            </div>
           </div>
 
           <div className="relative p-2 bg-[#181818] flex items-center justify-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={previewUrl}
+              src={previewMode === 'semantic' && semanticPreviewUrl ? semanticPreviewUrl : previewUrl}
               alt="2D Architectural Floor Plan"
               className={`w-full object-contain rounded border border-[#333] transition-all ${
                 isPreviewExpanded ? 'h-64' : 'h-32'
               }`}
             />
-            <div className="absolute bottom-3 right-3 text-[9px] bg-black/70 backdrop-blur px-1.5 py-0.5 rounded font-mono text-[#aaa]">
-              Source 2D
+            <div className="absolute bottom-3 right-3 text-[9px] bg-black/80 backdrop-blur px-1.5 py-0.5 rounded font-mono text-[#aaa] border border-[#333]">
+              {previewMode === 'semantic' ? 'PlanPop Semantic' : 'Source 2D'}
             </div>
           </div>
+
+          {/* PlanPop Palette Legend & CV Diagnostics */}
+          {semanticPreviewUrl && previewMode === 'semantic' && (
+            <div className="p-2 border-t border-[#2a2a2a] bg-[#1a1a1a] space-y-1.5">
+              <div className="flex items-center justify-between text-[9px] font-mono text-[#888]">
+                <span>Palette:</span>
+                <span className="flex items-center gap-1.5">
+                  <span className="inline-flex items-center gap-0.5"><span className="w-2 h-2 rounded-full bg-[#ff0000]"></span>Wall</span>
+                  <span className="inline-flex items-center gap-0.5"><span className="w-2 h-2 rounded-full bg-[#0000ff]"></span>Door</span>
+                  <span className="inline-flex items-center gap-0.5"><span className="w-2 h-2 rounded-full bg-[#00ffff]"></span>Window</span>
+                  <span className="inline-flex items-center gap-0.5"><span className="w-2 h-2 rounded-full bg-[#00ff00]"></span>Text</span>
+                </span>
+              </div>
+              {diagnostics?.cvStats && (
+                <div className="text-[9px] font-mono text-emerald-400/90 bg-[#222] px-1.5 py-0.5 rounded border border-[#333] flex items-center justify-between">
+                  <span>CV: {diagnostics.cvStats.totalExtractedWalls} Walls</span>
+                  <span>{diagnostics.cvStats.detectedDoorsCount} Doors</span>
+                  <span>{diagnostics.cvStats.detectedWindowsCount} Windows</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {activeTab === 'inspector' ? (

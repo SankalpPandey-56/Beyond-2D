@@ -53,6 +53,20 @@ export interface ProjectData {
   rooms: RoomData[];
   walls?: WallData[];
   previewUrl: string; // 2D floor plan image URL or SVG data
+  semanticPreviewUrl?: string; // PlanPop color-coded semantic image
+  diagnostics?: {
+    semanticImageBase64?: string;
+    cvStats?: {
+      semanticResolution: string;
+      wallMaskPixelCount: number;
+      totalExtractedWalls: number;
+      recoveredRoomsCount: number;
+      detectedDoorsCount: number;
+      detectedWindowsCount: number;
+      pipeline: string;
+    };
+    warnings?: string[];
+  };
   aiMetadata?: {
     provider: string;
     model: string;
@@ -83,6 +97,19 @@ export interface AIAnalysisResponse {
     isFallback: boolean;
     processingTimeMs: number;
     message?: string;
+  };
+  diagnostics?: {
+    semanticImageBase64?: string;
+    cvStats?: {
+      semanticResolution: string;
+      wallMaskPixelCount: number;
+      totalExtractedWalls: number;
+      recoveredRoomsCount: number;
+      detectedDoorsCount: number;
+      detectedWindowsCount: number;
+      pipeline: string;
+    };
+    warnings?: string[];
   };
   error?: string;
 }
