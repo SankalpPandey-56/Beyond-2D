@@ -303,3 +303,189 @@ def generate_wall_network_from_rooms(
                     wall_idx += 1
 
     return walls, window_defs, door_defs
+
+def build_walls_from_ai_vectors(
+    ai_walls: List[Dict[str, Any]],
+    ai_doors: List[Dict[str, Any]],
+    ai_windows: List[Dict[str, Any]],
+    width_m: float,
+    length_m: float,
+    bbox: Tuple[int, int, int, int]
+) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """
+    Constructs 100% rectilinear, collinear architectural walls directly from AI-extracted CAD vectors:
+    - Snaps near-horizontal and near-vertical segments to exact 90-degree lines.
+    - Clustered collinear snapping ensures intersecting T-junctions meet at identical coordinates.
+    - Positions doors and windows along wall segments with pixel coordinates for the PlanPop semantic map.
+    """
+    bx, by, bw, bh = bbox
+
+    # 1. Clean and normalize wall vectors
+    raw_lines = []
+    for w in ai_walls:
+        s = w.get("start_norm") or w.get("start")
+        e = w.get("end_norm") or w.get("end")
+        if not s or not e or len(s) < 2 or len(e) < 2:
+            continue
+        x1, z1 = float(s[0]), float(s[1])
+        x2, z2 = float(e[0]), float(e[1])
+
+        # Axis snapping
+        if abs(z1 - z2) < 0.035:
+            avg_z = (z1 + z2) / 2.0
+            z1 = avg_z
+            z2 = avg_z
+        elif abs(x1 - x2) < 0.035:
+            avg_x = (x1 + x2) / 2.0
+            x1 = avg_x
+            x2 = avg_x
+
+        is_ext = bool(w.get("isExterior", w.get("type") == "exterior"))
+        thick = float(w.get("thickness", DEFAULT_EXTERIOR_WALL_THICKNESS if is_ext else DEFAULT_INTERIOR_WALL_THICKNESS))
+        raw_lines.append({
+            "id": w.get("id") or f"wall_{len(raw_lines)+1}",
+            "x1": x1, "z1": z1, "x2": x2, "z2": z2,
+            "isExterior": is_ext,
+            "thickness": thick,
+            "openings": w.get("openings", [])
+        })
+
+    if len(raw_lines) < 4:
+        # Not enough walls to form a building; let caller fall back
+        return [], [], []
+
+    # 2. Collinear axis cluster snapping
+    # Gather horizontal lines (z1 == z2) and snap Z to cluster means
+    h_z_vals = [line["z1"] for line in raw_lines if abs(line["z1"] - line["z2"]) < 0.001]
+    v_x_vals = [line["x1"] for line in raw_lines if abs(line["x1"] - line["x2"]) < 0.001]
+
+    def cluster_vals(vals: List[float], tol: float = 0.02) -> Dict[float, float]:
+        mapping = {}
+        sorted_vals = sorted(vals)
+        clusters = []
+        for v in sorted_vals:
+            if not clusters or abs(v - clusters[-1][-1]) > tol:
+                clusters.append([v])
+            else:
+                clusters[-1].append(v)
+        for cluster in clusters:
+            c_mean = sum(cluster) / len(cluster)
+            for v in cluster:
+                mapping[v] = c_mean
+        return mapping
+
+    h_map = cluster_vals(h_z_vals)
+    v_map = cluster_vals(v_x_vals)
+
+    for line in raw_lines:
+        if abs(line["z1"] - line["z2"]) < 0.001 and line["z1"] in h_map:
+            line["z1"] = h_map[line["z1"]]
+            line["z2"] = h_map[line["z2"]]
+        if abs(line["x1"] - line["x2"]) < 0.001 and line["x1"] in v_map:
+            line["x1"] = v_map[line["x1"]]
+            line["x2"] = v_map[line["x2"]]
+
+    # 3. Build metric walls and PlanPop definitions
+    walls: List[Dict[str, Any]] = []
+    window_defs: List[Dict[str, Any]] = []
+    door_defs: List[Dict[str, Any]] = []
+
+    for line in raw_lines:
+        x1, z1, x2, z2 = line["x1"], line["z1"], line["x2"], line["z2"]
+        sx = round((x1 - 0.5) * width_m, 2)
+        sz = round((z1 - 0.5) * length_m, 2)
+        ex = round((x2 - 0.5) * width_m, 2)
+        ez = round((z2 - 0.5) * length_m, 2)
+
+        p1_px = (int(bx + x1 * bw), int(by + z1 * bh))
+        p2_px = (int(bx + x2 * bw), int(by + z2 * bh))
+
+        seg_len_m = math.hypot(ex - sx, ez - sz)
+        if seg_len_m < 0.2:
+            continue
+
+        w_openings = []
+
+        # Associate doors
+        for d in ai_doors:
+            c = d.get("center_norm") or d.get("center")
+            if not c or len(c) < 2:
+                continue
+            dcx, dcz = float(c[0]), float(c[1])
+            # Check distance from point to line segment
+            dist = point_to_segment_dist(dcx, dcz, x1, z1, x2, z2)
+            if dist < 0.035:
+                pos = project_point_on_segment(dcx, dcz, x1, z1, x2, z2)
+                if 0.1 <= pos <= 0.9:
+                    dr_w = float(d.get("width_m", 0.9))
+                    w_openings.append({
+                        "id": f"door_{d.get('id', line['id'])}",
+                        "type": "door",
+                        "position": round(pos, 2),
+                        "width": dr_w
+                    })
+                    px = int(bx + (x1 + (x2 - x1) * pos) * bw)
+                    pz = int(by + (z1 + (z2 - z1) * pos) * bh)
+                    door_defs.append({
+                        "p1": (px - 6, pz - 6),
+                        "p2": (px + 6, pz + 6)
+                    })
+
+        # Associate windows
+        for win in ai_windows:
+            c = win.get("center_norm") or win.get("center")
+            if not c or len(c) < 2:
+                continue
+            wcx, wcz = float(c[0]), float(c[1])
+            dist = point_to_segment_dist(wcx, wcz, x1, z1, x2, z2)
+            if dist < 0.035:
+                pos = project_point_on_segment(wcx, wcz, x1, z1, x2, z2)
+                if 0.1 <= pos <= 0.9:
+                    win_w = float(win.get("width_m", 1.2))
+                    w_openings.append({
+                        "id": f"win_{win.get('id', line['id'])}",
+                        "type": "window",
+                        "position": round(pos, 2),
+                        "width": win_w
+                    })
+                    px = int(bx + (x1 + (x2 - x1) * pos) * bw)
+                    pz = int(by + (z1 + (z2 - z1) * pos) * bh)
+                    window_defs.append({
+                        "p1": (px - 8, pz - 8),
+                        "p2": (px + 8, pz + 8)
+                    })
+
+        walls.append({
+            "id": line["id"],
+            "startX": sx,
+            "startZ": sz,
+            "endX": ex,
+            "endZ": ez,
+            "isExterior": line["isExterior"],
+            "thickness": line["thickness"],
+            "height": DEFAULT_WALL_HEIGHT,
+            "openings": w_openings,
+            "_p1_px": p1_px,
+            "_p2_px": p2_px,
+        })
+
+    return walls, window_defs, door_defs
+
+def point_to_segment_dist(px: float, pz: float, x1: float, z1: float, x2: float, z2: float) -> float:
+    dx = x2 - x1
+    dz = z2 - z1
+    L2 = dx*dx + dz*dz
+    if L2 < 1e-6:
+        return math.hypot(px - x1, pz - z1)
+    t = max(0.0, min(1.0, ((px - x1) * dx + (pz - z1) * dz) / L2))
+    proj_x = x1 + t * dx
+    proj_z = z1 + t * dz
+    return math.hypot(px - proj_x, pz - proj_z)
+
+def project_point_on_segment(px: float, pz: float, x1: float, z1: float, x2: float, z2: float) -> float:
+    dx = x2 - x1
+    dz = z2 - z1
+    L2 = dx*dx + dz*dz
+    if L2 < 1e-6:
+        return 0.5
+    return max(0.05, min(0.95, ((px - x1) * dx + (pz - z1) * dz) / L2))

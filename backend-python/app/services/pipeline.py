@@ -2,7 +2,11 @@ import time
 from typing import Dict, Any, List, Tuple
 from .image_preprocessing import preprocess_floor_plan_image
 from .ai_interpretation import query_vision_ai_interpretation
-from .dynamic_geometry import calibrate_and_normalize_rooms, generate_wall_network_from_rooms
+from .dynamic_geometry import (
+    calibrate_and_normalize_rooms,
+    generate_wall_network_from_rooms,
+    build_walls_from_ai_vectors
+)
 from .semantic_segmentation import generate_planpop_semantic_and_overlay
 from .geometry_validation import validate_architectural_geometry
 from .mesh_generation import generate_building_scene
@@ -127,13 +131,35 @@ def execute_floor_plan_pipeline(image_bytes: bytes, file_name: str = "uploaded_p
 
     calibrated_rooms = calibrate_and_normalize_rooms(raw_rooms, real_width_m, real_length_m)
 
-    # 5. Dynamically Generate Wall Network, Doors & Windows
-    walls, window_defs, door_defs = generate_wall_network_from_rooms(
-        rooms=calibrated_rooms,
-        width_m=real_width_m,
-        length_m=real_length_m,
-        bbox=bbox
-    )
+    # 5. Dynamically Generate Wall Network, Doors & Windows (Approach 2: Collinear CAD Vectors)
+    walls = []
+    window_defs = []
+    door_defs = []
+
+    ai_walls = ai_result.get("walls", []) if ai_result else []
+    ai_doors = ai_result.get("doors", []) if ai_result else []
+    ai_windows = ai_result.get("windows", []) if ai_result else []
+
+    # Check if AI returned a complete wall network (both exterior + interior partitions)
+    int_count = sum(1 for w in ai_walls if not w.get("isExterior") and w.get("type") != "exterior")
+    if ai_walls and len(ai_walls) >= 8 and int_count >= 2:
+        walls, window_defs, door_defs = build_walls_from_ai_vectors(
+            ai_walls=ai_walls,
+            ai_doors=ai_doors,
+            ai_windows=ai_windows,
+            width_m=real_width_m,
+            length_m=real_length_m,
+            bbox=bbox
+        )
+
+    # If AI returned only perimeter or too few walls, use the Shapely room planar graph
+    if not walls or len(walls) < 8:
+        walls, window_defs, door_defs = generate_wall_network_from_rooms(
+            rooms=calibrated_rooms,
+            width_m=real_width_m,
+            length_m=real_length_m,
+            bbox=bbox
+        )
 
     # 6. Validate Architectural Geometry
     validated_walls, validated_rooms, val_warnings = validate_architectural_geometry(
