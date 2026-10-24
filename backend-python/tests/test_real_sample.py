@@ -27,7 +27,7 @@ class TestRealFloorPlanSample(unittest.TestCase):
 
         diag = result["diagnostics"]
         self.assertEqual(diag["footprint"]["resolution"], "1024x682")
-        self.assertEqual(diag["footprint"]["aspectRatio"], 1.081)
+        self.assertAlmostEqual(diag["footprint"]["aspectRatio"], 1.262, places=2)
         self.assertTrue(diag["footprint"]["porchBayPreserved"])
         self.assertGreater(len(diag["semanticImageBase64"]), 1000)
         self.assertGreater(len(diag["overlayImageBase64"]), 1000)

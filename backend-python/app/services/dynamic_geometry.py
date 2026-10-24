@@ -51,31 +51,6 @@ def calibrate_and_normalize_rooms(
     if not raw_rooms:
         return []
 
-    # 1. Rescale rooms to fill building footprint if AI coordinates included image margins
-    if len(raw_rooms) >= 3:
-        min_x = min(float(r.get("relX", 0)) for r in raw_rooms)
-        min_z = min(float(r.get("relZ", 0)) for r in raw_rooms)
-        max_x = max(float(r.get("relX", 0)) + float(r.get("relW", 0.3)) for r in raw_rooms)
-        max_z = max(float(r.get("relZ", 0)) + float(r.get("relD", 0.3)) for r in raw_rooms)
-        span_x = max(0.1, max_x - min_x)
-        span_z = max(0.1, max_z - min_z)
-
-        if (span_x < 0.92 or span_z < 0.92 or min_x > 0.06 or min_z > 0.06):
-            normalized_raw = []
-            for r in raw_rooms:
-                rx = (float(r.get("relX", 0)) - min_x) / span_x
-                rz = (float(r.get("relZ", 0)) - min_z) / span_z
-                rw = float(r.get("relW", 0.3)) / span_x
-                rd = float(r.get("relD", 0.3)) / span_z
-                normalized_raw.append({
-                    **r,
-                    "relX": max(0.0, min(0.95, rx)),
-                    "relZ": max(0.0, min(0.95, rz)),
-                    "relW": max(0.05, min(1.0 - rx, rw)),
-                    "relD": max(0.05, min(1.0 - rz, rd)),
-                })
-            raw_rooms = normalized_raw
-
     cleaned: List[Dict[str, Any]] = []
 
     for idx, r in enumerate(raw_rooms):
@@ -125,31 +100,38 @@ def calibrate_and_normalize_rooms(
             "openings": r.get("openings", [])
         })
 
-    # Flush adjacent boundaries (if gap < 0.08, snap to midpoint)
-    for i in range(len(cleaned)):
-        for j in range(i + 1, len(cleaned)):
-            rA = cleaned[i]
-            rB = cleaned[j]
+    # Flush adjacent boundaries with 2D interval overlap awareness
+    for _ in range(2):
+        for i in range(len(cleaned)):
+            for j in range(len(cleaned)):
+                if i == j:
+                    continue
+                rA = cleaned[i]
+                rB = cleaned[j]
 
-            # X-adjacency: rA East touches rB West
-            rightA = rA["relX"] + rA["relW"]
-            leftB = rB["relX"]
-            if abs(rightA - leftB) < 0.08:
-                mid_x = (rightA + leftB) / 2.0
-                rA["relW"] = round(mid_x - rA["relX"], 3)
-                old_rightB = rB["relX"] + rB["relW"]
-                rB["relX"] = round(mid_x, 3)
-                rB["relW"] = round(max(0.05, old_rightB - mid_x), 3)
+                # Check vertical Z overlap for X adjacency (rA East touches rB West)
+                z_overlap = min(rA["relZ"] + rA["relD"], rB["relZ"] + rB["relD"]) - max(rA["relZ"], rB["relZ"])
+                if z_overlap > 0.05:
+                    rightA = rA["relX"] + rA["relW"]
+                    leftB = rB["relX"]
+                    if 0 < (leftB - rightA) < 0.08 or 0 < (rightA - leftB) < 0.08:
+                        mid_x = round((rightA + leftB) / 2.0, 3)
+                        rA["relW"] = round(mid_x - rA["relX"], 3)
+                        old_rightB = round(rB["relX"] + rB["relW"], 3)
+                        rB["relX"] = mid_x
+                        rB["relW"] = round(max(0.05, old_rightB - mid_x), 3)
 
-            # Z-adjacency: rA South touches rB North
-            bottomA = rA["relZ"] + rA["relD"]
-            topB = rB["relZ"]
-            if abs(bottomA - topB) < 0.08:
-                mid_z = (bottomA + topB) / 2.0
-                rA["relD"] = round(mid_z - rA["relZ"], 3)
-                old_bottomB = rB["relZ"] + rB["relD"]
-                rB["relZ"] = round(mid_z, 3)
-                rB["relD"] = round(max(0.05, old_bottomB - mid_z), 3)
+                # Check horizontal X overlap for Z adjacency (rA South touches rB North)
+                x_overlap = min(rA["relX"] + rA["relW"], rB["relX"] + rB["relW"]) - max(rA["relX"], rB["relX"])
+                if x_overlap > 0.05:
+                    bottomA = rA["relZ"] + rA["relD"]
+                    topB = rB["relZ"]
+                    if 0 < (topB - bottomA) < 0.08 or 0 < (bottomA - topB) < 0.08:
+                        mid_z = round((bottomA + topB) / 2.0, 3)
+                        rA["relD"] = round(mid_z - rA["relZ"], 3)
+                        old_bottomB = round(rB["relZ"] + rB["relD"], 3)
+                        rB["relZ"] = mid_z
+                        rB["relD"] = round(max(0.05, old_bottomB - mid_z), 3)
 
     return cleaned
 

@@ -77,16 +77,20 @@ def extract_building_footprint_bbox(clean_gray: np.ndarray, binary_inv: np.ndarr
     num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(binary_strict, connectivity=8)
     wall_mask = np.zeros((h, w), dtype=np.uint8)
     for i in range(1, num_labels):
-        if stats[i, cv2.CC_STAT_AREA] > 120:
+        if stats[i, cv2.CC_STAT_AREA] > 80:
             wall_mask[labels == i] = 255
 
-    contours, _ = cv2.findContours(wall_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    if not contours:
+    wall_pts = np.argwhere(wall_mask > 0)
+    if len(wall_pts) == 0:
         return 0, 0, w, h
 
-    # Choose largest cohesive architectural wall contour
-    main_contour = max(contours, key=cv2.contourArea)
-    bx, by, bw, bh = cv2.boundingRect(main_contour)
+    y_min, x_min = wall_pts.min(axis=0)
+    y_max, x_max = wall_pts.max(axis=0)
+    bx = int(x_min)
+    by = int(y_min)
+    bw = int(x_max - x_min)
+    bh = int(y_max - y_min)
+
     if bw < w * 0.2 or bh < h * 0.2:
         return 0, 0, w, h
 

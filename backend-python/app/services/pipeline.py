@@ -126,7 +126,31 @@ def execute_floor_plan_pipeline(image_bytes: bytes, file_name: str = "uploaded_p
 
     # 4. Extract and Calibrate Rooms for THIS specific plan
     raw_rooms = ai_result.get("rooms", []) if ai_result else []
-    if not raw_rooms:
+    if raw_rooms:
+        bx, by, bw, bh = bbox
+        # Transform room coordinates from full image coordinate space to drawing bounding box space
+        # This eliminates margin offsets and ensures 1:1 pixel overlay alignment
+        transformed_rooms = []
+        for r in raw_rooms:
+            rx = float(r.get("relX", 0.0))
+            rz = float(r.get("relZ", 0.0))
+            rw = float(r.get("relW", 0.3))
+            rd = float(r.get("relD", 0.3))
+
+            mx = (rx * w_px - bx) / float(bw)
+            mz = (rz * h_px - by) / float(bh)
+            mw = (rw * w_px) / float(bw)
+            md = (rd * h_px) / float(bh)
+
+            transformed_rooms.append({
+                **r,
+                "relX": max(0.0, min(0.95, mx)),
+                "relZ": max(0.0, min(0.95, mz)),
+                "relW": max(0.05, min(1.0 - max(0.0, mx), mw)),
+                "relD": max(0.05, min(1.0 - max(0.0, mz), md)),
+            })
+        raw_rooms = transformed_rooms
+    else:
         raw_rooms = extract_rooms_from_image_cv(prep_res.clean_gray, bbox, real_width_m, real_length_m)
 
     calibrated_rooms = calibrate_and_normalize_rooms(raw_rooms, real_width_m, real_length_m)
