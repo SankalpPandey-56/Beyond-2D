@@ -126,11 +126,21 @@ export default function Beyond2DApp() {
         });
       }, 5000);
 
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || '';
-      const response = await fetch(`${apiBaseUrl}/api/analyze-floorplan`, {
-        method: 'POST',
-        body: formData,
-      });
+      let response: Response;
+      try {
+        const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8001';
+        response = await fetch(`${apiBaseUrl}/api/analyze-floorplan`, {
+          method: 'POST',
+          body: formData,
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      } catch (errApi) {
+        console.warn('Direct port 8001 fetch failed, falling back to Next.js route proxy:', errApi);
+        response = await fetch('/api/analyze-floorplan', {
+          method: 'POST',
+          body: formData,
+        });
+      }
 
       clearInterval(progressInterval);
       setAnalyzingStep('3/3 Building 3D dollhouse & furniture...');

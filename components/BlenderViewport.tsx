@@ -542,36 +542,40 @@ export default function BlenderViewport({
     }
 
     if (environment === 'studio') {
-      scene.background = new THREE.Color(0x1e1e1e);
-      const ambLight = new THREE.AmbientLight(0xffffff, 0.85);
-      const keyLight = new THREE.DirectionalLight(0xffffff, 1.4);
-      keyLight.position.set(12, 18, 10);
-      keyLight.castShadow = true;
-      keyLight.shadow.mapSize.width = 2048;
-      keyLight.shadow.mapSize.height = 2048;
+      scene.background = new THREE.Color(0x181a1e);
+      // Clean, evenly distributed architectural lighting with zero harsh diagonal shadows
+      const ambLight = new THREE.AmbientLight(0xffffff, 1.25);
+      const hemiLight = new THREE.HemisphereLight(0xffffff, 0x475569, 0.75);
+      
+      const topLight = new THREE.DirectionalLight(0xffffff, 0.85);
+      topLight.position.set(0, 24, 0); // Directly overhead
+      topLight.castShadow = false;
 
-      const fillLight = new THREE.DirectionalLight(0x90b0e0, 0.65);
-      fillLight.position.set(-10, 8, -10);
+      const fillLight1 = new THREE.DirectionalLight(0xdbeafe, 0.45);
+      fillLight1.position.set(12, 16, 12);
+      fillLight1.castShadow = false;
 
-      const rimLight = new THREE.DirectionalLight(0xffeedd, 0.5);
-      rimLight.position.set(0, -5, -10);
+      const fillLight2 = new THREE.DirectionalLight(0xfef3c7, 0.35);
+      fillLight2.position.set(-12, 14, -12);
+      fillLight2.castShadow = false;
 
-      lights.add(ambLight, keyLight, fillLight, rimLight);
+      lights.add(ambLight, hemiLight, topLight, fillLight1, fillLight2);
     } else if (environment === 'day') {
       scene.background = new THREE.Color(0x28323e);
-      const sunLight = new THREE.DirectionalLight(0xfffaed, 2.2);
-      sunLight.position.set(16, 22, 14);
-      sunLight.castShadow = true;
-      const skyLight = new THREE.HemisphereLight(0x87ceeb, 0x332211, 0.85);
-      lights.add(sunLight, skyLight);
+      const ambLight = new THREE.AmbientLight(0xffffff, 1.1);
+      const sunLight = new THREE.DirectionalLight(0xfffaed, 1.6);
+      sunLight.position.set(10, 22, 10);
+      sunLight.castShadow = false;
+      const skyLight = new THREE.HemisphereLight(0x87ceeb, 0x334155, 0.85);
+      lights.add(ambLight, sunLight, skyLight);
     } else if (environment === 'night') {
       scene.background = new THREE.Color(0x0c1017);
-      const moonLight = new THREE.DirectionalLight(0x406090, 0.7);
-      moonLight.position.set(-10, 15, -10);
-      const amb = new THREE.AmbientLight(0x182030, 0.6);
-      
-      const warm1 = new THREE.PointLight(0xffaa44, 3.0, 12);
-      warm1.position.set(0, 2.2, 0);
+      const moonLight = new THREE.DirectionalLight(0x60a5fa, 0.9);
+      moonLight.position.set(-10, 18, -10);
+      moonLight.castShadow = false;
+      const amb = new THREE.AmbientLight(0x1e293b, 0.85);
+      const warm1 = new THREE.PointLight(0xffaa44, 3.5, 16);
+      warm1.position.set(0, 2.5, 0);
       lights.add(moonLight, amb, warm1);
     }
   }, [environment]);
@@ -765,17 +769,7 @@ export default function BlenderViewport({
         group.add(labelMesh);
       }
 
-      // Porch Architectural Columns & Outdoor Railing
-      if (isPorch && shadingMode !== 'wireframe') {
-        const colMat = new THREE.MeshStandardMaterial({ color: 0xd6d3d1, roughness: 0.4 });
-        const col1 = new THREE.Mesh(new THREE.BoxGeometry(0.18, H, 0.18), colMat);
-        col1.position.set(roomCenterX - roomW / 2 + 0.12, floorY + H / 2, roomCenterZ + roomD / 2 - 0.12);
-        col1.castShadow = true;
-        const col2 = new THREE.Mesh(new THREE.BoxGeometry(0.18, H, 0.18), colMat);
-        col2.position.set(roomCenterX + roomW / 2 - 0.12, floorY + H / 2, roomCenterZ + roomD / 2 - 0.12);
-        col2.castShadow = true;
-        group.add(col1, col2);
-      }
+
 
       // Selection Wireframe Outline
       if (isSelected) {
@@ -1369,7 +1363,7 @@ export default function BlenderViewport({
           title="Toggle 3D Model Color Schematic (PlanPop Red Walls, Blue Doors, Cyan Windows, Room-colored Floors)"
         >
           <span className="w-2 h-2 rounded-full bg-[#ef4444]"></span>
-          <span>Schematic: {colorMode === 'schematic' ? 'ON' : 'OFF'}</span>
+          <span>Color: {colorMode === 'schematic' ? 'PlanPop CAD' : 'Realistic'}</span>
         </button>
 
         {/* Furniture Staging Toggle */}
@@ -1443,9 +1437,9 @@ export default function BlenderViewport({
         <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#131c2e] border border-[#2563eb]/40 text-[#60a5fa] text-[11px] font-mono shadow-sm">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
           <span className="font-semibold text-slate-200">
-            {process.env.NEXT_PUBLIC_API_BASE_URL ? 'Version B (FastAPI:8001)' : 'Version A (Next.js:3000)'}
+            Version B (FastAPI:8001 Engine)
           </span>
-          <span className="text-[#94a3b8] text-[10px]">Architecture Engine</span>
+          <span className="text-[#94a3b8] text-[10px]">OpenCV + Shapely</span>
         </div>
 
         {/* Right: Shading Modes & Export Button */}

@@ -49,6 +49,30 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Priority 1: Version B Python FastAPI + OpenCV + Shapely Engine (port 8001)
+    try {
+      const fastApiUrl = 'http://localhost:8001/api/analyze-floorplan';
+      const pyFormData = new FormData();
+      const buffer = Buffer.from(imageBase64, 'base64');
+      const blob = new Blob([buffer], { type: mimeType });
+      pyFormData.append('file', blob, fileName);
+
+      const pyRes = await fetch(fastApiUrl, {
+        method: 'POST',
+        body: pyFormData,
+      });
+
+      if (pyRes.ok) {
+        const pyData = await pyRes.json();
+        if (pyData && pyData.success && pyData.layout) {
+          console.log(`[Beyond-2D API] Successfully processed via Version B FastAPI in ${Date.now() - startTime}ms.`);
+          return NextResponse.json(pyData);
+        }
+      }
+    } catch (fastApiErr) {
+      console.warn('[Beyond-2D API] FastAPI 8001 not reachable, falling back to Next.js pipeline:', fastApiErr);
+    }
+
     console.log(`[Beyond-2D API] Analyzing floor plan "${fileName}" via ${provider.name} (${provider.defaultModel})...`);
 
     // 1. Semantic Architectural AI Analysis
