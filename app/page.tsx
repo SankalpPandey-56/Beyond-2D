@@ -126,7 +126,8 @@ export default function Beyond2DApp() {
         });
       }, 5000);
 
-      const response = await fetch('/api/analyze-floorplan', {
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || '';
+      const response = await fetch(`${apiBaseUrl}/api/analyze-floorplan`, {
         method: 'POST',
         body: formData,
       });

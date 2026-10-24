@@ -1291,11 +1291,13 @@ export default function BlenderViewport({
           <span>HUD: {showDiagnostics ? 'ON' : 'OFF'}</span>
         </button>
 
-        {/* Center-Right: Gemma 4 AI Engine Status Badge */}
+        {/* Center-Right: Active Engine Version Badge */}
         <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#131c2e] border border-[#2563eb]/40 text-[#60a5fa] text-[11px] font-mono shadow-sm">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span className="font-semibold text-slate-200">Gemma 4</span>
-          <span className="text-[#94a3b8] text-[10px]">Architectural Co-Processor Active</span>
+          <span className="font-semibold text-slate-200">
+            {process.env.NEXT_PUBLIC_API_BASE_URL ? 'Version B (FastAPI:8001)' : 'Version A (Next.js:3000)'}
+          </span>
+          <span className="text-[#94a3b8] text-[10px]">Architecture Engine</span>
         </div>
 
         {/* Right: Shading Modes & Export Button */}

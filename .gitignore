@@ -26,6 +26,13 @@ yarn-error.log*
 .env
 .env.local
 .env*.local
+backend-python/.env
+
+# python
+__pycache__/
+*.py[cod]
+*$py.class
+backend-python/temp_runs/
 
 # vercel
 .vercel
