@@ -75,6 +75,7 @@ Guidelines for coordinate normalization:
 - relW: width fraction of room (0.05 to 1.0).
 - relD: depth/length fraction of room (0.05 to 1.0).
 - Room types: "living", "bedroom", "kitchen", "bathroom", "hallway", "dining", "porch", "balcony".
+- Distinguish openings: "type": "window" for exterior windows (with sill above floor), and "type": "door" for doorways. Do not mark windows as doors.
 - Output pure JSON with no markdown wrapping or preamble.
 `.trim();
 

@@ -246,6 +246,7 @@ export default function BlenderViewport({
   const lightsGroupRef = useRef<THREE.Group | null>(null);
 
   const [stats, setStats] = useState({ verts: 450, faces: 220, objects: 18, fps: 60 });
+  const [showFurniture, setShowFurniture] = useState(false); // Default false for clean unfurnished blueprints
 
   // 1. Initialize Three.js Scene
   useEffect(() => {
@@ -588,7 +589,7 @@ export default function BlenderViewport({
       }
 
       // 4.2 Architectural 3D Furniture Proxies (Bed, Sofa, Table, Kitchen, Toilet)
-      if (shadingMode !== 'wireframe') {
+      if (showFurniture && shadingMode !== 'wireframe') {
         const furnGroup = new THREE.Group();
         furnGroup.position.set(roomCenterX, floorY + 0.04, roomCenterZ);
 
@@ -722,12 +723,54 @@ export default function BlenderViewport({
 
       const currentMat = isExt ? exteriorWallMat : wallMat;
 
-      // Check if wall has a doorway opening
-      const hasDoorway = (!isExt && len > 1.3) || (isExt && Math.abs(midZ - L/2) < 1.0 && Math.abs(midX) < 2.0); // Entrance door
+      // Check for explicit window or door openings from validated geometry
+      const winOp = w.openings?.find(op => op.type === 'window');
+      const doorOp = w.openings?.find(op => op.type === 'door');
 
-      if (hasDoorway) {
-        const doorWidth = 0.95;
-        const remainingLen = Math.max(0.2, len - doorWidth);
+      if (winOp && len > 1.1) {
+        // --- 1. TRUE ARCHITECTURAL WINDOW WITH SILL & GLASS ---
+        const winWidth = Math.min(len * 0.55, winOp.width || 1.3);
+        const wallGroup = new THREE.Group();
+        wallGroup.position.set(midX, wallY, midZ);
+        wallGroup.rotation.y = -angle;
+
+        const sideSegLen = (len - winWidth) / 2;
+        const side1 = new THREE.Mesh(new THREE.BoxGeometry(sideSegLen, H, T), currentMat);
+        side1.position.set(-len / 2 + sideSegLen / 2, 0, 0);
+        side1.castShadow = true;
+
+        const side2 = new THREE.Mesh(new THREE.BoxGeometry(sideSegLen, H, T), currentMat);
+        side2.position.set(len / 2 - sideSegLen / 2, 0, 0);
+        side2.castShadow = true;
+
+        // Window Sill (Wall up to 0.9m)
+        const sillH = 0.9;
+        const sill = new THREE.Mesh(new THREE.BoxGeometry(winWidth, sillH, T), currentMat);
+        sill.position.set(0, -H / 2 + sillH / 2, 0);
+        sill.castShadow = true;
+
+        // Window Top Lintel (Wall above 2.1m)
+        const topLintelH = Math.max(0.2, H - 2.1);
+        const topLintel = new THREE.Mesh(new THREE.BoxGeometry(winWidth, topLintelH, T), currentMat);
+        topLintel.position.set(0, H / 2 - topLintelH / 2, 0);
+        topLintel.castShadow = true;
+
+        // Glass Pane in center (Between 0.9m and 2.1m)
+        const glassH = H - sillH - topLintelH;
+        const glass = new THREE.Mesh(new THREE.BoxGeometry(winWidth, glassH, T * 0.2), glassMat);
+        glass.position.set(0, -H / 2 + sillH + glassH / 2, 0);
+
+        // Window Frame Border (Black Aluminum)
+        const frameMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.4, metalness: 0.8 });
+        const frameBarH = new THREE.Mesh(new THREE.BoxGeometry(winWidth, 0.04, T * 0.3), frameMat);
+        frameBarH.position.set(0, -H / 2 + sillH + glassH / 2, 0);
+
+        wallGroup.add(side1, side2, sill, topLintel, glass, frameBarH);
+        group.add(wallGroup);
+      } else if (doorOp && len > 0.9) {
+        // --- 2. TRUE ARCHITECTURAL DOORWAY (Door leaf + threshold, no sill) ---
+        const doorWidth = Math.min(len * 0.75, doorOp.width || 0.95);
+        const remainingLen = Math.max(0.15, len - doorWidth);
         const seg1Len = remainingLen * 0.5;
         const seg2Len = remainingLen * 0.5;
 
@@ -735,18 +778,16 @@ export default function BlenderViewport({
         wallGroup.position.set(midX, wallY, midZ);
         wallGroup.rotation.y = -angle;
 
-        // Wall segment 1
         const seg1 = new THREE.Mesh(new THREE.BoxGeometry(seg1Len, H, T), currentMat);
         seg1.position.set(-len / 2 + seg1Len / 2, 0, 0);
         seg1.castShadow = true;
 
-        // Wall segment 2
         const seg2 = new THREE.Mesh(new THREE.BoxGeometry(seg2Len, H, T), currentMat);
         seg2.position.set(len / 2 - seg2Len / 2, 0, 0);
         seg2.castShadow = true;
 
-        // Lintel above door
-        const lintelH = H * 0.3;
+        // Lintel above door (H - 2.1m)
+        const lintelH = Math.max(0.2, H - 2.1);
         const lintel = new THREE.Mesh(new THREE.BoxGeometry(doorWidth, lintelH, T), currentMat);
         lintel.position.set(0, H / 2 - lintelH / 2, 0);
         lintel.castShadow = true;
@@ -763,55 +804,17 @@ export default function BlenderViewport({
           wireframe: isWireframe,
         });
         const doorLeaf = new THREE.Mesh(
-          new THREE.BoxGeometry(doorWidth * 0.92, H * 0.74, 0.04),
+          new THREE.BoxGeometry(doorWidth * 0.92, 2.06, 0.04),
           doorLeafMat
         );
-        doorLeaf.position.set(-doorWidth / 2 + 0.04, -H / 2 + (H * 0.74) / 2, 0.32);
+        doorLeaf.position.set(-doorWidth / 2 + 0.04, -H / 2 + 1.03, 0.32);
         doorLeaf.rotation.y = Math.PI / 3.2; // Swung open
         doorLeaf.castShadow = true;
 
         wallGroup.add(seg1, seg2, lintel, thresh, doorLeaf);
         group.add(wallGroup);
-      } else if (isExt && len > 1.8) {
-        // Exterior wall with an architectural window!
-        const winWidth = Math.min(len * 0.45, 1.4);
-        const wallGroup = new THREE.Group();
-        wallGroup.position.set(midX, wallY, midZ);
-        wallGroup.rotation.y = -angle;
-
-        const sideSegLen = (len - winWidth) / 2;
-        const side1 = new THREE.Mesh(new THREE.BoxGeometry(sideSegLen, H, T), currentMat);
-        side1.position.set(-len / 2 + sideSegLen / 2, 0, 0);
-        side1.castShadow = true;
-
-        const side2 = new THREE.Mesh(new THREE.BoxGeometry(sideSegLen, H, T), currentMat);
-        side2.position.set(len / 2 - sideSegLen / 2, 0, 0);
-        side2.castShadow = true;
-
-        // Window Sill (bottom)
-        const sillH = H * 0.32;
-        const sill = new THREE.Mesh(new THREE.BoxGeometry(winWidth, sillH, T), currentMat);
-        sill.position.set(0, -H / 2 + sillH / 2, 0);
-
-        // Window Lintel (top)
-        const topLintelH = H * 0.28;
-        const topLintel = new THREE.Mesh(new THREE.BoxGeometry(winWidth, topLintelH, T), currentMat);
-        topLintel.position.set(0, H / 2 - topLintelH / 2, 0);
-
-        // Glass Pane in center
-        const glass = new THREE.Mesh(new THREE.BoxGeometry(winWidth, H - sillH - topLintelH, T * 0.2), glassMat);
-        glass.position.set(0, (-H / 2 + sillH + H / 2 - topLintelH) / 2, 0);
-
-        // Dark aluminum window frame border
-        const frameMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.5, metalness: 0.8 });
-        const frameH = H - sillH - topLintelH;
-        const frameBar = new THREE.Mesh(new THREE.BoxGeometry(winWidth, 0.04, T * 0.35), frameMat);
-        frameBar.position.set(0, (-H / 2 + sillH + H / 2 - topLintelH) / 2, 0);
-
-        wallGroup.add(side1, side2, sill, topLintel, glass, frameBar);
-        group.add(wallGroup);
       } else {
-        // Solid wall segment
+        // --- 3. SOLID CONTINUOUS WALL (No openings) ---
         const solidMesh = new THREE.Mesh(new THREE.BoxGeometry(len, H, T), currentMat);
         solidMesh.position.set(midX, wallY, midZ);
         solidMesh.rotation.y = -angle;
@@ -887,7 +890,7 @@ export default function BlenderViewport({
       faces: group.children.length * 18,
       objects: group.children.length,
     }));
-  }, [dimensions, rooms, walls, selectedRoomId, shadingMode]);
+  }, [dimensions, rooms, walls, selectedRoomId, shadingMode, showFurniture]);
 
   // Raycaster for Room Selection
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
@@ -1026,6 +1029,19 @@ export default function BlenderViewport({
             3D Dollhouse
           </button>
         </div>
+
+        {/* Furniture Staging Toggle */}
+        <button
+          onClick={() => setShowFurniture(!showFurniture)}
+          className={`px-2 py-0.5 rounded text-[11px] font-mono border transition-colors ${
+            showFurniture 
+              ? 'bg-[#2563eb]/30 border-[#3b82f6] text-[#93c5fd]' 
+              : 'bg-[#202020] border-[#383838] text-[#808080] hover:text-[#bbb]'
+          }`}
+          title="Toggle Furniture Staging (Default: Off for clean blueprint models)"
+        >
+          {showFurniture ? 'Furniture: ON' : 'Furniture: OFF'}
+        </button>
 
         {/* Center-Right: Gemma 4 AI Engine Status Badge */}
         <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#131c2e] border border-[#2563eb]/40 text-[#60a5fa] text-[11px] font-mono shadow-sm">

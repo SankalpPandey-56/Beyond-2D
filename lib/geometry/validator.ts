@@ -173,6 +173,12 @@ export function validateAndNormalizeFloorPlan(raw: Partial<RawAIPlanOutput>): {
 
   // Deduplicate and classify interior vs exterior walls
   const used = new Set<number>();
+  const sideMap: Record<'N' | 'S' | 'W' | 'E', 'north' | 'south' | 'west' | 'east'> = {
+    N: 'north',
+    S: 'south',
+    W: 'west',
+    E: 'east',
+  };
 
   for (let i = 0; i < rawEdges.length; i++) {
     if (used.has(i)) continue;
@@ -180,6 +186,8 @@ export function validateAndNormalizeFloorPlan(raw: Partial<RawAIPlanOutput>): {
 
     // Look for matching coincident edge (opposite orientation or collinear)
     let isSharedInternal = false;
+    let matchedE2: RawEdge | null = null;
+
     for (let j = i + 1; j < rawEdges.length; j++) {
       if (used.has(j)) continue;
       const e2 = rawEdges[j];
@@ -197,6 +205,7 @@ export function validateAndNormalizeFloorPlan(raw: Partial<RawAIPlanOutput>): {
 
         if (Math.abs(min1 - min2) < 0.25 && Math.abs(max1 - max2) < 0.25) {
           isSharedInternal = true;
+          matchedE2 = e2;
           used.add(j);
           break;
         }
@@ -209,6 +218,7 @@ export function validateAndNormalizeFloorPlan(raw: Partial<RawAIPlanOutput>): {
 
         if (Math.abs(min1 - min2) < 0.25 && Math.abs(max1 - max2) < 0.25) {
           isSharedInternal = true;
+          matchedE2 = e2;
           used.add(j);
           break;
         }
@@ -225,6 +235,54 @@ export function validateAndNormalizeFloorPlan(raw: Partial<RawAIPlanOutput>): {
 
     const isExterior = !isSharedInternal && (isPerimeterN || isPerimeterS || isPerimeterW || isPerimeterE);
 
+    // Extract openings belonging strictly to this wall
+    const wallOpenings: OpeningData[] = [];
+    const checkRoomOpenings = (roomId: string, side: 'N' | 'S' | 'W' | 'E') => {
+      const room = rooms.find(r => r.id === roomId);
+      if (!room || !room.openings) return;
+      const targetSide = sideMap[side];
+      for (const op of room.openings) {
+        if (op.wallSide === targetSide) {
+          // Prevent duplicates
+          if (!wallOpenings.some(o => o.type === op.type && Math.abs(o.position - op.position) < 0.2)) {
+            wallOpenings.push(op);
+          }
+        }
+      }
+    };
+
+    checkRoomOpenings(e1.roomId, e1.side);
+    if (isSharedInternal && matchedE2) {
+      checkRoomOpenings(matchedE2.roomId, matchedE2.side);
+    }
+
+    // Fallback: If exterior wall has no window opening specified by AI, but belongs to an exterior bedroom/living/kitchen/dining, add a window!
+    if (isExterior && wallOpenings.length === 0) {
+      const room = rooms.find(r => r.id === e1.roomId);
+      if (room && (room.type === 'bedroom' || room.type === 'living' || room.type === 'kitchen' || room.type === 'dining')) {
+        wallOpenings.push({
+          id: `win_${walls.length}`,
+          type: 'window',
+          wallSide: sideMap[e1.side],
+          position: 0.5,
+          width: 1.3,
+        });
+      }
+    }
+
+    // Fallback: If it is the main entrance on south perimeter, ensure it has the main entry door!
+    if (isPerimeterS && Math.abs(e1.startX - (-halfW)) > 2.0 && Math.abs(e1.endX - halfW) > 2.0) {
+      if (!wallOpenings.some(o => o.type === 'door')) {
+        wallOpenings.push({
+          id: `door_main_entry`,
+          type: 'door',
+          wallSide: 'south',
+          position: 0.5,
+          width: 1.0,
+        });
+      }
+    }
+
     walls.push({
       id: `wall_${walls.length + 1}`,
       startX: e1.startX,
@@ -234,6 +292,7 @@ export function validateAndNormalizeFloorPlan(raw: Partial<RawAIPlanOutput>): {
       isExterior,
       height: dimensions.wallHeight,
       thickness: dimensions.wallThickness,
+      openings: wallOpenings,
     });
   }
 

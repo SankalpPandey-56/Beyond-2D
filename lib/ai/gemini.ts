@@ -57,7 +57,11 @@ Instructions:
    - relX, relZ: top-left corner normalized position.
    - relW, relD: width and depth fractions.
    - For example: if total width is 10.0m and Bedroom 1 is 3.5m wide, relW = 0.35, relX = 0.0.
-4. Detect doors (curved swing arcs) and windows (double lines on exterior walls).
+4. Accurately distinguish DOORS vs WINDOWS:
+   - Doors have a swing arc or doorway gap indicating entry/passage. Specify "type": "door".
+   - Windows are double parallel lines or gaps on exterior walls, or labeled 'W' / 'V'. Specify "type": "window".
+   - Never classify an exterior window as a door!
+   - Detect all exterior windows on North, East, South, and West perimeter walls.
 5. Detect furniture present in each room (bed, closet, desk, sofa, coffee table, tv, dining table, kitchen counter, sink, stove, toilet, vanity).
 
 Return ONLY a valid JSON object matching this schema:

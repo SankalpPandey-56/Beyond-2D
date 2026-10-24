@@ -35,6 +35,7 @@ export interface WallData {
   isExterior: boolean;
   thickness?: number;
   height?: number;
+  openings?: OpeningData[];
 }
 
 export interface BuildingDimensions {
