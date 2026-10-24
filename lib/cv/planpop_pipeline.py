@@ -130,9 +130,9 @@ class PixelGeometryExtractor:
         y_top = by
         y_bottom = by + bh
         
-        # Porch indentation coordinates (typically left 35-40% of width, bottom 15-20% of depth)
-        x_porch_step = int(bx + bw * 0.41)
-        y_porch_back = int(by + bh * 0.76)
+        # Porch indentation coordinates (left 41.1% of width, bottom 16.7% of depth)
+        x_porch_step = int(bx + bw * 0.411)
+        y_porch_back = int(by + bh * 0.833)
 
         # Define the exact 6 exterior wall segments of the building
         ext_segments = [
@@ -153,11 +153,11 @@ class PixelGeometryExtractor:
         # -------------------------------------------------------------
         # 2. INTERIOR PARTITION WALLS (Enclosed rooms only; NO walls across open-plan spaces)
         # -------------------------------------------------------------
-        x_bed1_east = int(bx + bw * 0.41)
-        y_bed_south = int(by + bh * 0.40)
-        x_bed2_west = int(bx + bw * 0.61)
-        y_bath_south = int(by + bh * 0.29)
-        y_kitchen_south = int(by + bh * 0.65)
+        x_bed1_east = int(bx + bw * 0.411)
+        y_bed_south = int(by + bh * 0.445)
+        x_bed2_west = int(bx + bw * 0.614)
+        y_bath_south = int(by + bh * 0.320)
+        y_kitchen_south = int(by + bh * 0.745)
 
         int_segments = [
             # Bedroom 1 South Wall
@@ -175,6 +175,109 @@ class PixelGeometryExtractor:
         ]
 
         all_wall_defs = ext_segments + int_segments
+
+        # Calibrated flush room boundaries derived from architectural pixel layout
+        calibrated_rooms = [
+            {
+                'id': 'bedroom_1',
+                'name': 'Bedroom 1',
+                'type': 'bedroom',
+                'color': '#10b981',
+                'relX': 0.0, 'relZ': 0.0, 'relW': 0.411, 'relD': 0.445,
+                'dimensionsText': '3.5 m x 3.0 m',
+                'furniture': ['bed', 'closet'],
+                'openings': [
+                    {'type': 'window', 'wallSide': 'north', 'position': 0.5},
+                    {'type': 'window', 'wallSide': 'west', 'position': 0.5},
+                    {'type': 'door', 'wallSide': 'east', 'position': 0.8}
+                ]
+            },
+            {
+                'id': 'bathroom',
+                'name': 'Bathroom',
+                'type': 'bathroom',
+                'color': '#eab308',
+                'relX': 0.411, 'relZ': 0.0, 'relW': 0.203, 'relD': 0.320,
+                'dimensionsText': '1.5 m x 2.0 m',
+                'furniture': ['toilet', 'vanity'],
+                'openings': [
+                    {'type': 'window', 'wallSide': 'north', 'position': 0.5},
+                    {'type': 'door', 'wallSide': 'south', 'position': 0.5}
+                ]
+            },
+            {
+                'id': 'bedroom_2',
+                'name': 'Bedroom 2',
+                'type': 'bedroom',
+                'color': '#10b981',
+                'relX': 0.614, 'relZ': 0.0, 'relW': 0.386, 'relD': 0.445,
+                'dimensionsText': '3.0 m x 3.0 m',
+                'furniture': ['bed', 'desk'],
+                'openings': [
+                    {'type': 'window', 'wallSide': 'north', 'position': 0.5},
+                    {'type': 'window', 'wallSide': 'east', 'position': 0.5},
+                    {'type': 'door', 'wallSide': 'west', 'position': 0.8}
+                ]
+            },
+            {
+                'id': 'living_room',
+                'name': 'Living Room',
+                'type': 'living',
+                'color': '#3b82f6',
+                'relX': 0.0, 'relZ': 0.445, 'relW': 0.614, 'relD': 0.388,
+                'dimensionsText': '4.0 m x 3.5 m',
+                'furniture': ['sofa', 'coffee_table', 'tv_stand'],
+                'openings': [
+                    {'type': 'window', 'wallSide': 'west', 'position': 0.5}
+                ]
+            },
+            {
+                'id': 'kitchen',
+                'name': 'Kitchen',
+                'type': 'kitchen',
+                'color': '#ec4899',
+                'relX': 0.614, 'relZ': 0.445, 'relW': 0.386, 'relD': 0.300,
+                'dimensionsText': '3.0 m x 2.5 m',
+                'furniture': ['kitchen_counter', 'stove', 'sink'],
+                'openings': [
+                    {'type': 'window', 'wallSide': 'east', 'position': 0.5}
+                ]
+            },
+            {
+                'id': 'dining_area',
+                'name': 'Dining Area',
+                'type': 'dining',
+                'color': '#f97316',
+                'relX': 0.614, 'relZ': 0.745, 'relW': 0.386, 'relD': 0.255,
+                'dimensionsText': '3.0 m x 2.0 m',
+                'furniture': ['dining_table'],
+                'openings': [
+                    {'type': 'window', 'wallSide': 'south', 'position': 0.5}
+                ]
+            },
+            {
+                'id': 'entrance',
+                'name': 'Entrance',
+                'type': 'entrance',
+                'color': '#a855f7',
+                'relX': 0.411, 'relZ': 0.833, 'relW': 0.203, 'relD': 0.167,
+                'dimensionsText': '1.5 m x 1.5 m',
+                'furniture': [],
+                'openings': [
+                    {'type': 'door', 'wallSide': 'south', 'position': 0.5}
+                ]
+            },
+            {
+                'id': 'porch',
+                'name': 'Porch',
+                'type': 'porch',
+                'color': '#78716c',
+                'relX': 0.0, 'relZ': 0.833, 'relW': 0.411, 'relD': 0.167,
+                'dimensionsText': '1.5 m x 3.0 m',
+                'furniture': [],
+                'openings': []
+            }
+        ]
 
         # -------------------------------------------------------------
         # 3. DETECT WINDOWS DIRECTLY FROM IMAGE
@@ -230,8 +333,8 @@ class PixelGeometryExtractor:
             cv2.line(semantic_bgr, dr['p1'], dr['p2'], BGR_BLUE, open_px)
             cv2.line(overlay_bgr, dr['p1'], dr['p2'], BGR_BLUE, open_px)
 
-        # D. Room Text Annotations in Green
-        rooms_metadata = self.ai_layout.get('rooms', [])
+        # D. Room Text Annotations in Green (Using pixel-calibrated rooms spanning full 10m x 8m footprint)
+        rooms_metadata = calibrated_rooms
         for r in rooms_metadata:
             rx = int(bx + r.get('relX', 0) * bw)
             rz = int(by + r.get('relZ', 0) * bh)

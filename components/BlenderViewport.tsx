@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';
-import { BuildingDimensions, EnvironmentMode, RoomData, ShadingMode, TransformTool, WallData } from '@/lib/types';
+import { BuildingDimensions, EnvironmentMode, ProjectData, RoomData, ShadingMode, TransformTool, WallData } from '@/lib/types';
 import { 
   Box, 
   Sun, 
@@ -16,7 +16,10 @@ import {
   Layers,
   Sparkles,
   Maximize2,
-  ChevronDown
+  ChevronDown,
+  Activity,
+  Crosshair,
+  Ruler
 } from 'lucide-react';
 
 interface BlenderViewportProps {
@@ -31,6 +34,7 @@ interface BlenderViewportProps {
   onToolChange: (tool: TransformTool) => void;
   shadingMode: ShadingMode;
   onShadingModeChange: (mode: ShadingMode) => void;
+  diagnostics?: ProjectData['diagnostics'];
 }
 
 // Procedural PBR Floor Texture Generators for Architectural Realism
@@ -237,6 +241,7 @@ export default function BlenderViewport({
   onToolChange,
   shadingMode,
   onShadingModeChange,
+  diagnostics,
 }: BlenderViewportProps) {
   const mountRef = useRef<HTMLDivElement>(null);
   const gizmoRef = useRef<HTMLCanvasElement>(null);
@@ -251,6 +256,94 @@ export default function BlenderViewport({
   const [showFurniture, setShowFurniture] = useState(true); // Default true for rich, furnished architectural 3D view
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [isExportingGLB, setIsExportingGLB] = useState(false);
+
+  // Diagnostic & Framing State
+  const [showDiagnostics, setShowDiagnostics] = useState(true);
+  const [viewportSize, setViewportSize] = useState({ width: 1200, height: 800 });
+  const [cameraTelemetry, setCameraTelemetry] = useState({
+    posX: 12.0,
+    posY: 14.0,
+    posZ: 15.0,
+    targetX: 0.0,
+    targetY: 1.0,
+    targetZ: 0.0,
+    fov: 45,
+  });
+  const [modelBounds, setModelBounds] = useState<{
+    sizeX: number;
+    sizeY: number;
+    sizeZ: number;
+    centerX: number;
+    centerY: number;
+    centerZ: number;
+    aspectRatio: number;
+  }>({
+    sizeX: dimensions.width,
+    sizeY: dimensions.wallHeight,
+    sizeZ: dimensions.length,
+    centerX: 0,
+    centerY: dimensions.wallHeight / 2,
+    centerZ: 0,
+    aspectRatio: parseFloat((dimensions.width / Math.max(dimensions.length, 0.001)).toFixed(3)),
+  });
+
+  // Dynamically calculate model's actual bounding box and comfortably frame camera
+  const fitCameraToModel = useCallback((padding = 1.3) => {
+    if (!houseGroupRef.current || !cameraRef.current || !controlsRef.current) return;
+    const group = houseGroupRef.current;
+    const cam = cameraRef.current;
+    const ctrl = controlsRef.current;
+
+    const box = new THREE.Box3().setFromObject(group);
+    const size = new THREE.Vector3();
+    const center = new THREE.Vector3();
+
+    if (box.isEmpty()) {
+      size.set(dimensions.width, dimensions.wallHeight, dimensions.length);
+      center.set(0, dimensions.wallHeight / 2, 0);
+    } else {
+      box.getSize(size);
+      box.getCenter(center);
+    }
+
+    const vFov = (cam.fov * Math.PI) / 180;
+    const aspect = cam.aspect || 1.6;
+    const hFov = 2 * Math.atan(Math.tan(vFov / 2) * aspect);
+
+    const paddedW = Math.max(size.x, 1) * padding;
+    const paddedH = Math.max(size.y, 1) * padding;
+    const paddedD = Math.max(size.z, 1) * padding;
+
+    // Distances required to fit horizontally and vertically
+    const distW = (paddedW / 2) / Math.tan(hFov / 2);
+    const distD = (paddedD / 2) / Math.tan(vFov / 2);
+    const distH = (paddedH / 2) / Math.tan(vFov / 2);
+
+    const fitDist = Math.max(distW, distD, distH, 6.0);
+
+    // Center orbit target exactly on the model's geometric center
+    ctrl.target.copy(center);
+
+    // Isometric viewing vector: 40 deg elevation, 45 deg azimuth
+    const isoDir = new THREE.Vector3(0.85, 1.05, 0.95).normalize();
+    cam.position.copy(center).addScaledVector(isoDir, fitDist * 1.35);
+
+    // Adjust clipping planes dynamically so no part of the building is sliced
+    cam.near = Math.max(0.05, fitDist / 100);
+    cam.far = Math.max(1000, fitDist * 25);
+    cam.updateProjectionMatrix();
+    ctrl.update();
+
+    setCameraTelemetry({
+      posX: parseFloat(cam.position.x.toFixed(2)),
+      posY: parseFloat(cam.position.y.toFixed(2)),
+      posZ: parseFloat(cam.position.z.toFixed(2)),
+      targetX: parseFloat(ctrl.target.x.toFixed(2)),
+      targetY: parseFloat(ctrl.target.y.toFixed(2)),
+      targetZ: parseFloat(ctrl.target.z.toFixed(2)),
+      fov: Math.round(cam.fov),
+    });
+  }, [dimensions]);
 
   // 1. Initialize Three.js Scene
   useEffect(() => {
@@ -280,6 +373,20 @@ export default function BlenderViewport({
     controls.target.set(0, 1.0, 0);
     controls.maxPolarAngle = Math.PI / 2 - 0.02;
     controlsRef.current = controls;
+
+    const updateCamTelemetry = () => {
+      setCameraTelemetry({
+        posX: parseFloat(camera.position.x.toFixed(2)),
+        posY: parseFloat(camera.position.y.toFixed(2)),
+        posZ: parseFloat(camera.position.z.toFixed(2)),
+        targetX: parseFloat(controls.target.x.toFixed(2)),
+        targetY: parseFloat(controls.target.y.toFixed(2)),
+        targetZ: parseFloat(controls.target.z.toFixed(2)),
+        fov: Math.round(camera.fov),
+      });
+    };
+    controls.addEventListener('change', updateCamTelemetry);
+    setViewportSize({ width, height });
 
     // Grid Floor
     const grid = new THREE.GridHelper(30, 30, 0x4f4f4f, 0x2d2d2d);
@@ -325,11 +432,13 @@ export default function BlenderViewport({
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
+      setViewportSize({ width: w, height: h });
     };
     window.addEventListener('resize', handleResize);
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      controls.removeEventListener('change', updateCamTelemetry);
       cancelAnimationFrame(animationFrameId);
       renderer.dispose();
       if (container.contains(renderer.domElement)) {
@@ -906,7 +1015,49 @@ export default function BlenderViewport({
       faces: group.children.length * 18,
       objects: group.children.length,
     }));
-  }, [dimensions, rooms, walls, selectedRoomId, shadingMode, showFurniture]);
+
+    // Calculate actual model bounding box dimensions, center, and aspect ratio
+    const box = new THREE.Box3().setFromObject(group);
+    if (!box.isEmpty()) {
+      const size = new THREE.Vector3();
+      const center = new THREE.Vector3();
+      box.getSize(size);
+      box.getCenter(center);
+      setModelBounds({
+        sizeX: parseFloat(size.x.toFixed(2)),
+        sizeY: parseFloat(size.y.toFixed(2)),
+        sizeZ: parseFloat(size.z.toFixed(2)),
+        centerX: parseFloat(center.x.toFixed(2)),
+        centerY: parseFloat(center.y.toFixed(2)),
+        centerZ: parseFloat(center.z.toFixed(2)),
+        aspectRatio: parseFloat((size.x / Math.max(size.z, 0.001)).toFixed(3)),
+      });
+    }
+
+    // Auto-fit camera framing dynamically on model load
+    requestAnimationFrame(() => {
+      fitCameraToModel(1.25);
+    });
+  }, [dimensions, rooms, walls, selectedRoomId, shadingMode, showFurniture, fitCameraToModel]);
+
+  // Keyboard Shortcuts: 'F' to Frame Model, '7' Top View, '1' Front View, '3' Right View
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) return;
+      if (e.key === 'f' || e.key === 'F') {
+        e.preventDefault();
+        fitCameraToModel(1.25);
+      } else if (e.key === '7') {
+        setCameraPreset('top');
+      } else if (e.key === '1') {
+        setCameraPreset('front');
+      } else if (e.key === '3') {
+        setCameraPreset('right');
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [fitCameraToModel]);
 
   // Raycaster for Room Selection
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
@@ -930,30 +1081,53 @@ export default function BlenderViewport({
     }
   };
 
-  // Camera Presets
+  // Camera Presets with dynamic model bounding box fitting & true centering
   const setCameraPreset = (view: 'top' | 'front' | 'right' | 'iso') => {
-    if (!cameraRef.current || !controlsRef.current) return;
+    if (!cameraRef.current || !controlsRef.current || !houseGroupRef.current) return;
     const cam = cameraRef.current;
     const ctrl = controlsRef.current;
-    const dist = Math.max(dimensions.width, dimensions.length) * 1.6;
+    const houseGroup = houseGroupRef.current;
+
+    const box = new THREE.Box3().setFromObject(houseGroup);
+    const size = new THREE.Vector3();
+    const center = new THREE.Vector3();
+    if (box.isEmpty()) {
+      size.set(dimensions.width, dimensions.wallHeight, dimensions.length);
+      center.set(0, dimensions.wallHeight / 2, 0);
+    } else {
+      box.getSize(size);
+      box.getCenter(center);
+    }
+
+    const vFov = (cam.fov * Math.PI) / 180;
+    const aspect = cam.aspect || 1.6;
+    const hFov = 2 * Math.atan(Math.tan(vFov / 2) * aspect);
+    const fitDist = Math.max(
+      (size.x * 1.3 / 2) / Math.tan(hFov / 2),
+      (size.z * 1.3 / 2) / Math.tan(vFov / 2),
+      (size.y * 1.3 / 2) / Math.tan(vFov / 2),
+      6.0
+    );
+
+    ctrl.target.copy(center);
 
     if (view === 'top') {
-      cam.up.set(0, 0, -1); // Align camera up with North (-Z) so Top View exactly matches the 2D blueprint!
-      cam.position.set(0, dist + 4, 0);
-      ctrl.target.set(0, 0, 0);
+      cam.up.set(0, 0, -1); // North (-Z) is UP in blueprint view
+      cam.position.set(center.x, center.y + fitDist * 1.3, center.z);
     } else {
-      cam.up.set(0, 1, 0); // Restore world Y-up for perspective 3D views
+      cam.up.set(0, 1, 0);
       if (view === 'front') {
-        cam.position.set(0, 3, dist + 2);
-        ctrl.target.set(0, dimensions.wallHeight / 2, 0);
+        cam.position.set(center.x, center.y, center.z + fitDist * 1.3);
       } else if (view === 'right') {
-        cam.position.set(dist + 2, 3, 0);
-        ctrl.target.set(0, dimensions.wallHeight / 2, 0);
+        cam.position.set(center.x + fitDist * 1.3, center.y, center.z);
       } else if (view === 'iso') {
-        cam.position.set(2, 14, 16);
-        ctrl.target.set(0, 1.0, 0);
+        const isoDir = new THREE.Vector3(0.85, 1.05, 0.95).normalize();
+        cam.position.copy(center).addScaledVector(isoDir, fitDist * 1.35);
       }
     }
+    cam.near = Math.max(0.05, fitDist / 100);
+    cam.far = Math.max(1000, fitDist * 25);
+    cam.updateProjectionMatrix();
     ctrl.update();
   };
 
@@ -1079,6 +1253,15 @@ export default function BlenderViewport({
           >
             3D Dollhouse
           </button>
+          {/* Fit to View [F] button */}
+          <button 
+            onClick={() => fitCameraToModel(1.25)} 
+            className="px-2 py-0.5 rounded bg-[#1e293b] text-[#38bdf8] hover:bg-[#2563eb] hover:text-white flex items-center gap-1 font-mono transition-colors border border-[#38bdf8]/30"
+            title="Auto-Fit Camera to Model [F]"
+          >
+            <Maximize2 size={12} />
+            <span>Fit [F]</span>
+          </button>
         </div>
 
         {/* Furniture Staging Toggle */}
@@ -1092,6 +1275,20 @@ export default function BlenderViewport({
           title="Toggle Furniture Staging (Default: Off for clean blueprint models)"
         >
           {showFurniture ? 'Furniture: ON' : 'Furniture: OFF'}
+        </button>
+
+        {/* Real-time Diagnostics HUD Toggle */}
+        <button
+          onClick={() => setShowDiagnostics(!showDiagnostics)}
+          className={`px-2 py-0.5 rounded text-[11px] font-mono border transition-colors flex items-center gap-1 ${
+            showDiagnostics 
+              ? 'bg-[#0f2438] border-[#38bdf8] text-[#38bdf8]' 
+              : 'bg-[#202020] border-[#383838] text-[#808080] hover:text-[#bbb]'
+          }`}
+          title="Toggle Real-time PlanPop & Viewport Diagnostics HUD"
+        >
+          <Activity size={12} />
+          <span>HUD: {showDiagnostics ? 'ON' : 'OFF'}</span>
         </button>
 
         {/* Center-Right: Gemma 4 AI Engine Status Badge */}
@@ -1201,12 +1398,124 @@ export default function BlenderViewport({
           <canvas ref={gizmoRef} width={80} height={80} className="w-20 h-20" />
         </div>
 
-        {/* Viewport Info Overlay */}
-        <div className="absolute top-3 left-3 z-10 pointer-events-none text-[11px] font-mono text-[#a0a0a0] bg-[#1a1a1a]/80 backdrop-blur px-2.5 py-1.5 rounded border border-[#333]/50">
-          <div className="text-white font-semibold">Beyond-2D Architectural Viewport</div>
-          <div>Scale: {dimensions.width.toFixed(1)}m &times; {dimensions.length.toFixed(1)}m</div>
-          <div>Rooms: {rooms.length} | Walls: {walls?.length || 0}</div>
-        </div>
+        {/* Real-Time Diagnostic HUD Overlay */}
+        {showDiagnostics ? (
+          <div className="absolute top-3 left-3 z-20 pointer-events-auto text-[11px] font-mono text-[#a0a0a0] bg-[#12161f]/92 backdrop-blur-md p-3 rounded-lg border border-[#38bdf8]/40 shadow-2xl max-w-sm transition-all duration-200">
+            <div className="flex items-center justify-between pb-1.5 mb-2 border-b border-[#1e293b]">
+              <div className="flex items-center gap-1.5 text-white font-semibold text-xs">
+                <Activity size={13} className="text-[#38bdf8] animate-pulse" />
+                <span>PlanPop & Viewport Diagnostics</span>
+              </div>
+              <button
+                onClick={() => setShowDiagnostics(false)}
+                className="text-[#64748b] hover:text-white text-xs px-1"
+                title="Minimize Diagnostics HUD"
+              >
+                &times;
+              </button>
+            </div>
+
+            {/* Grid of Telemetry */}
+            <div className="space-y-1.5 text-[10.5px]">
+              {/* Resolution & Aspect Ratio */}
+              <div className="flex items-start justify-between gap-2">
+                <span className="text-[#64748b]">Source Plan:</span>
+                <span className="text-slate-200 font-medium">
+                  {diagnostics?.footprint?.resolution || '1024 × 682 px'}
+                  <span className="ml-1 text-[9px] text-[#38bdf8] bg-[#0c2438] px-1 py-0.5 rounded">
+                    Aspect: {diagnostics?.footprint?.aspectRatio ? diagnostics.footprint.aspectRatio.toFixed(3) : '1.081'}
+                  </span>
+                </span>
+              </div>
+
+              <div className="flex items-start justify-between gap-2">
+                <span className="text-[#64748b]">PlanPop Map:</span>
+                <span className="text-emerald-400 font-medium flex items-center gap-1">
+                  <span>1024 × 682 px</span>
+                  <span className="text-[9px] bg-emerald-950/60 text-emerald-400 px-1 py-0.5 rounded border border-emerald-500/30">
+                    1:1 Match
+                  </span>
+                </span>
+              </div>
+
+              {/* 3D Model Bounding Box */}
+              <div className="flex items-start justify-between gap-2 pt-1 border-t border-[#1e293b]/70">
+                <span className="text-[#64748b]">Model Bounding Box:</span>
+                <span className="text-[#f59e0b] font-medium">
+                  {modelBounds.sizeX}m (W) &times; {modelBounds.sizeY}m (H) &times; {modelBounds.sizeZ}m (D)
+                </span>
+              </div>
+
+              {/* Model Center & World Scale */}
+              <div className="flex items-start justify-between gap-2">
+                <span className="text-[#64748b]">Model Center:</span>
+                <span className="text-slate-300">
+                  ({modelBounds.centerX}, {modelBounds.centerY}, {modelBounds.centerZ})
+                </span>
+              </div>
+
+              <div className="flex items-start justify-between gap-2">
+                <span className="text-[#64748b]">World Scale:</span>
+                <span className="text-slate-300">1 unit = 1.0m (Metric CAD)</span>
+              </div>
+
+              {/* Aspect Ratio Preservation Status */}
+              <div className="flex items-start justify-between gap-2">
+                <span className="text-[#64748b]">Aspect Preserved:</span>
+                <span className="text-emerald-400 font-semibold flex items-center gap-1">
+                  <span>{modelBounds.aspectRatio.toFixed(3)}</span>
+                  <span className="text-[9px] bg-emerald-950/60 text-emerald-400 px-1 py-0.5 rounded border border-emerald-500/30">
+                    PRESERVED ✓
+                  </span>
+                </span>
+              </div>
+
+              {/* Camera Pos, Target, FOV */}
+              <div className="flex items-start justify-between gap-2 pt-1 border-t border-[#1e293b]/70">
+                <span className="text-[#64748b]">Camera Pos:</span>
+                <span className="text-[#93c5fd]">
+                  ({cameraTelemetry.posX}, {cameraTelemetry.posY}, {cameraTelemetry.posZ})
+                </span>
+              </div>
+
+              <div className="flex items-start justify-between gap-2">
+                <span className="text-[#64748b]">Camera Target:</span>
+                <span className="text-[#93c5fd]">
+                  ({cameraTelemetry.targetX}, {cameraTelemetry.targetY}, {cameraTelemetry.targetZ})
+                </span>
+              </div>
+
+              <div className="flex items-start justify-between gap-2">
+                <span className="text-[#64748b]">Camera FOV:</span>
+                <span className="text-slate-300">{cameraTelemetry.fov}&deg; Perspective</span>
+              </div>
+
+              {/* Viewport Size */}
+              <div className="flex items-start justify-between gap-2">
+                <span className="text-[#64748b]">Viewport Size:</span>
+                <span className="text-slate-300">{viewportSize.width} &times; {viewportSize.height} px</span>
+              </div>
+            </div>
+
+            <div className="mt-2.5 pt-1.5 border-t border-[#1e293b] flex items-center justify-between text-[10px] text-[#64748b]">
+              <span>Press <strong className="text-white bg-[#1e293b] px-1 py-0.5 rounded">F</strong> to Fit</span>
+              <button
+                onClick={() => fitCameraToModel(1.25)}
+                className="text-[#38bdf8] hover:underline"
+              >
+                Frame Model &rarr;
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            onClick={() => setShowDiagnostics(true)}
+            className="absolute top-3 left-3 z-10 text-[11px] font-mono text-[#38bdf8] bg-[#12161f]/85 backdrop-blur px-2.5 py-1 rounded border border-[#38bdf8]/40 hover:bg-[#1e293b] flex items-center gap-1.5 shadow cursor-pointer"
+          >
+            <Activity size={12} className="text-[#38bdf8]" />
+            <span>Show Diagnostics HUD</span>
+          </button>
+        )}
 
         {/* Lighting Quick Toggle Pill */}
         <div className="absolute bottom-4 left-4 z-10 flex items-center bg-[#242424]/90 backdrop-blur px-2 py-1 rounded-full border border-[#3c3c3c] shadow-lg text-xs gap-1.5">

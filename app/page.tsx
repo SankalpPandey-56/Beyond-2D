@@ -255,6 +255,7 @@ export default function Beyond2DApp() {
           onToolChange={setActiveTool}
           shadingMode={shadingMode}
           onShadingModeChange={setShadingMode}
+          diagnostics={currentProject.diagnostics}
         />
       </main>
 
