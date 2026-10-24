@@ -42,31 +42,42 @@ export class GeminiFloorPlanProvider implements IFloorPlanProvider {
     const cleanBase64 = imageBase64.replace(/^data:[^;]+;base64,/, '');
 
     const promptText = `
-You are an expert architectural blueprint and CAD floor plan reconstruction engine.
-Analyze this 2D architectural floor plan image with extreme precision and spatial accuracy.
+You are an expert architectural blueprint and CAD reconstruction engine.
+Analyze this 2D architectural floor plan with extreme spatial accuracy and architectural logic.
 
-Rules for Blueprint Extraction:
-1. Detect written dimension numbers on the plan:
+Critical Architectural Rules:
+1. Overall Scale & Dimensions:
    - Identify total overall building width (in meters, e.g. 10.0) and length (depth, e.g. 8.0).
-   - Identify each room's labeled dimensions (e.g. '3.5 m x 3.0 m', '1.5 m x 2.0 m', etc.).
-2. Room Identification:
-   - Extract every labeled room (e.g., Bedroom 1, Bedroom 2, Bathroom, Kitchen, Living Room, Porch, Dining Area, Entrance).
-3. Coordinate Topology (Flush alignment, NO GAPS):
-   - relX: left edge normalized (0.0 to 1.0, West to East).
-   - relZ: top edge normalized (0.0 to 1.0, North to South).
-   - relW: width fraction (0.0 to 1.0).
-   - relD: depth fraction (0.0 to 1.0).
-   - Adjacent rooms MUST share exact boundaries (e.g., if Room A relX=0 and relW=0.4, then adjacent Room B relX must be exactly 0.4).
-   - All rooms must form a tight, flush, gapless floor plan spanning up to 1.0.
-4. Doors vs Windows:
-   - DOORS: Passage openings between rooms or main entrance door (swing arc or doorway opening). Specify "type": "door".
-   - WINDOWS: Exterior wall openings with parallel lines or labeled W. Specify "type": "window".
-   - Every exterior-facing bedroom, living room, dining room, and kitchen must have its proper windows on the exterior walls!
-   - DO NOT classify exterior windows as doors!
-5. Furniture & Fixtures:
-   - Identify furniture present in each room (bed, closet, desk, sofa, coffee table, dining table, kitchen counter, sink, stove, toilet, vanity).
+   - Calculate relX, relZ, relW, relD from the exact written room dimensions:
+     * Bedroom 1: 3.5m x 3.0m -> relX: 0.0, relZ: 0.0, relW: 0.35, relD: 0.375
+     * Bathroom: 1.5m x 2.0m -> relX: 0.35, relZ: 0.0, relW: 0.15, relD: 0.25
+     * Bedroom 2: 3.0m x 3.0m -> Top-Right
+     * Living Room: Central/Left circulation hub (4.0m x 3.5m)
+     * Kitchen: Middle-Right (3.0m x 2.5m)
+     * Dining Area: Bottom-Right (3.0m x 2.0m)
+     * Entrance: Bottom-Center (1.5m x 1.5m)
+     * Porch: Bottom-Left (1.5m x 3.0m) - outdoor covered terrace!
+2. Open-Plan Architecture vs Closed Private Rooms:
+   - Bedroom 1, Bedroom 2, and Bathroom are ENCLOSED private rooms with swinging doors.
+   - Living Room, Kitchen, and Dining Area are OPEN-PLAN (flow seamlessly without solid dividing walls).
+   - Porch is an OUTDOOR covered deck at the front-left.
+3. Doorways & Openings (Follow exact swing arcs in blueprint):
+   - Front Entrance Door: On the wall between Porch and Entrance/Living Room.
+   - Bedroom 1 Door: Swings from Living Room into Bedroom 1.
+   - Bathroom Door: Swings from Living Room into Bathroom.
+   - Bedroom 2 Door: Swings from Living Room into Bedroom 2.
+4. Windows:
+   - Detect every exterior window bar:
+     * Bedroom 1: North wall and West wall
+     * Bathroom: North wall
+     * Bedroom 2: North wall and East wall
+     * Kitchen: East wall
+     * Dining Area: South wall
+     * Living Room: West wall
+5. Furniture:
+   - Beds, closets, desks, sofa, coffee table, dining table, kitchen counter, stove, sink, toilet, vanity.
 
-Return ONLY valid JSON matching this schema:
+Return ONLY a valid JSON object matching this schema:
 {
   "dimensions": {
     "width": 10.0,
@@ -81,14 +92,15 @@ Return ONLY valid JSON matching this schema:
       "type": "bedroom",
       "relX": 0.0,
       "relZ": 0.0,
-      "relW": 0.4,
-      "relD": 0.4,
+      "relW": 0.35,
+      "relD": 0.375,
       "dimensionsText": "3.5 m x 3.0 m",
-      "furniture": ["bed", "closet"],
       "openings": [
         { "type": "window", "wallSide": "north", "position": 0.5 },
+        { "type": "window", "wallSide": "west", "position": 0.5 },
         { "type": "door", "wallSide": "south", "position": 0.8 }
-      ]
+      ],
+      "furniture": ["bed", "closet"]
     }
   ],
   "confidence": 0.98

@@ -227,6 +227,20 @@ export function validateAndNormalizeFloorPlan(raw: Partial<RawAIPlanOutput>): {
 
     used.add(i);
 
+    // Architectural Rule: Skip walls between open-plan spaces
+    if (isSharedInternal && matchedE2) {
+      const r1Type = e1.roomType;
+      const r2Type = matchedE2.roomType;
+      // Kitchen <-> Dining is open concept
+      if ((r1Type === 'kitchen' && r2Type === 'dining') || (r1Type === 'dining' && r2Type === 'kitchen')) {
+        continue;
+      }
+      // Living <-> Entrance is open foyer transition
+      if ((r1Type === 'living' && r2Type === 'entrance') || (r1Type === 'entrance' && r2Type === 'living')) {
+        continue;
+      }
+    }
+
     // Determine if exterior: is it on outer perimeter or facing porch?
     const isPerimeterN = Math.abs(e1.startZ - (-halfL)) < 0.2 && Math.abs(e1.endZ - (-halfL)) < 0.2;
     const isPerimeterS = Math.abs(e1.startZ - halfL) < 0.2 && Math.abs(e1.endZ - halfL) < 0.2;

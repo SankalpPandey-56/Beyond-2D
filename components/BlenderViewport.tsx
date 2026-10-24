@@ -248,7 +248,7 @@ export default function BlenderViewport({
   const lightsGroupRef = useRef<THREE.Group | null>(null);
 
   const [stats, setStats] = useState({ verts: 450, faces: 220, objects: 18, fps: 60 });
-  const [showFurniture, setShowFurniture] = useState(false); // Default false for clean unfurnished blueprints
+  const [showFurniture, setShowFurniture] = useState(true); // Default true for rich, furnished architectural 3D view
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [isExportingGLB, setIsExportingGLB] = useState(false);
 
@@ -561,8 +561,8 @@ export default function BlenderViewport({
       (floorMesh as any).userData = { roomId: room.id, roomName: room.name };
       group.add(floorMesh);
 
-      // Room Floor Label Badge (Placed on the floor slab)
-      if (shadingMode !== 'wireframe' && roomW > 1.2 && roomD > 1.2) {
+      // Room Floor Label Badge (Shown when furniture is off to prevent visual overlap)
+      if (!showFurniture && shadingMode !== 'wireframe' && roomW > 1.2 && roomD > 1.2) {
         const areaM2 = (roomW * roomD).toFixed(1);
         const labelTexture = createRoomFloorLabelTexture(room.name, `${roomW.toFixed(1)}m × ${roomD.toFixed(1)}m (${areaM2} m²)`);
         const labelW = Math.min(roomW * 0.75, 2.2);
@@ -578,6 +578,18 @@ export default function BlenderViewport({
         labelMesh.rotation.x = -Math.PI / 2;
         labelMesh.position.set(roomCenterX, floorY + 0.045, roomCenterZ);
         group.add(labelMesh);
+      }
+
+      // Porch Architectural Columns & Outdoor Railing
+      if (isPorch && shadingMode !== 'wireframe') {
+        const colMat = new THREE.MeshStandardMaterial({ color: 0xd6d3d1, roughness: 0.4 });
+        const col1 = new THREE.Mesh(new THREE.BoxGeometry(0.18, H, 0.18), colMat);
+        col1.position.set(roomCenterX - roomW / 2 + 0.12, floorY + H / 2, roomCenterZ + roomD / 2 - 0.12);
+        col1.castShadow = true;
+        const col2 = new THREE.Mesh(new THREE.BoxGeometry(0.18, H, 0.18), colMat);
+        col2.position.set(roomCenterX + roomW / 2 - 0.12, floorY + H / 2, roomCenterZ + roomD / 2 - 0.12);
+        col2.castShadow = true;
+        group.add(col1, col2);
       }
 
       // Selection Wireframe Outline

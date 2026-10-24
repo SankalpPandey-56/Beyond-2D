@@ -258,6 +258,18 @@ class ComputerVisionExtractor:
                         used.add(j)
                         break
 
+            # Architectural Rule: Open-plan transitions should NEVER have solid dividing walls
+            r1_t = e1['room'].get('type', '')
+            r2_t = matched_e2['room'].get('type', '') if matched_e2 else ''
+            
+            # 1. Kitchen <-> Dining Area is an open floor plan
+            if (r1_t == 'kitchen' and r2_t in ('dining', 'dining_area')) or (r1_t in ('dining', 'dining_area') and r2_t == 'kitchen'):
+                continue
+
+            # 2. Living Room <-> Entrance foyer is an open hallway transition
+            if (r1_t in ('living', 'living_room') and r2_t == 'entrance') or (r1_t == 'entrance' and r2_t in ('living', 'living_room')):
+                continue
+
             # Check if this edge is confirmed by red pixels in the wall_mask
             px1, pz1 = int(e1['x1'] * self.width), int(e1['z1'] * self.height)
             px2, pz2 = int(e1['x2'] * self.width), int(e1['z2'] * self.height)
