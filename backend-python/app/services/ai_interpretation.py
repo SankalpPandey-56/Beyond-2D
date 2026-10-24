@@ -51,7 +51,7 @@ CRITICAL GEOMETRY RULES:
 - Exterior boundaries must reflect the true building footprint, including porches or bay step-backs.
 - Output ONLY valid JSON matching this structure."""
 
-    candidate_models = ["gemini-3.1-flash-lite-preview", "gemini-3.5-flash", "gemini-1.5-flash"]
+    candidate_models = ["gemini-3.1-flash-lite-preview", "gemini-3.1-flash-lite"]
     
     for model in candidate_models:
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
@@ -75,7 +75,7 @@ CRITICAL GEOMETRY RULES:
         )
         
         try:
-            with urllib.request.urlopen(req, timeout=18) as resp:
+            with urllib.request.urlopen(req, timeout=12) as resp:
                 res = json.loads(resp.read().decode("utf-8"))
                 text = res["candidates"][0]["content"]["parts"][0]["text"]
                 parsed = json.loads(text)
