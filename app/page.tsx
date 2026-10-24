@@ -258,6 +258,8 @@ export default function Beyond2DApp() {
           onShadingModeChange={setShadingMode}
           diagnostics={currentProject.diagnostics}
           blueprintUrl={currentProject.previewUrl}
+          semanticBlueprintUrl={currentProject.semanticPreviewUrl}
+          overlayBlueprintUrl={currentProject.overlayPreviewUrl}
         />
       </main>
 

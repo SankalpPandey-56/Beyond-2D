@@ -3,9 +3,15 @@ import numpy as np
 from typing import List, Dict, Any, Tuple
 from shapely.geometry import box as shapely_box
 
+def hex_to_rgba(hex_str: str, alpha: int = 255) -> List[int]:
+    hex_str = str(hex_str).lstrip('#')
+    if len(hex_str) == 6:
+        return [int(hex_str[i:i+2], 16) for i in (0, 2, 4)] + [alpha]
+    return [59, 130, 246, alpha]
+
 def build_floor_mesh(rooms: List[Dict[str, Any]], width_m: float, length_m: float) -> trimesh.Trimesh:
     """
-    Creates 3D floor slabs for each room using trimesh extrusion.
+    Creates 3D floor slabs for each room using trimesh extrusion with room semantic colors.
     """
     meshes = []
     slab_thickness = 0.08
@@ -22,6 +28,8 @@ def build_floor_mesh(rooms: List[Dict[str, Any]], width_m: float, length_m: floa
         
         # Position slab so top is at Y = 0
         slab.apply_translation([0, -slab_thickness, 0])
+        color_rgba = hex_to_rgba(r.get("color", "#3b82f6"))
+        slab.visual.vertex_colors = color_rgba
         meshes.append(slab)
 
     if not meshes:
@@ -31,7 +39,7 @@ def build_floor_mesh(rooms: List[Dict[str, Any]], width_m: float, length_m: floa
 
 def build_walls_mesh(walls: List[Dict[str, Any]]) -> trimesh.Trimesh:
     """
-    Creates 3D extruded wall prisms along start -> end segments.
+    Creates 3D extruded wall prisms along start -> end segments using PlanPop Red CAD color schematic.
     """
     meshes = []
 
@@ -64,12 +72,14 @@ def build_walls_mesh(walls: List[Dict[str, Any]]) -> trimesh.Trimesh:
 
         wall_mesh = trimesh.creation.extrude_polygon(poly, height=height)
         # In Three.js / OpenGL coordinates, Y is UP.
-        # Trimesh extrude creates prism along Z; rotate to Y-up
-        # Default trimesh extrude_polygon extrudes along Z: [x, y, z] -> we want [x, z, y]
         R = trimesh.transformations.rotation_matrix(np.pi / 2, [1, 0, 0])
         wall_mesh.apply_transform(R)
         # Shift so bottom is at Y = 0
         wall_mesh.apply_translation([0, 0, 0])
+
+        # PlanPop CAD Red Schematic: [239, 68, 68, 255] exterior, [220, 38, 38, 255] interior
+        wall_color = [239, 68, 68, 255] if w.get("isExterior") else [220, 38, 38, 255]
+        wall_mesh.visual.vertex_colors = wall_color
 
         meshes.append(wall_mesh)
 

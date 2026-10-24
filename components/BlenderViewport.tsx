@@ -37,6 +37,8 @@ interface BlenderViewportProps {
   onShadingModeChange: (mode: ShadingMode) => void;
   diagnostics?: ProjectData['diagnostics'];
   blueprintUrl?: string;
+  semanticBlueprintUrl?: string;
+  overlayBlueprintUrl?: string;
 }
 
 // Procedural PBR Floor Texture Generators for Architectural Realism
@@ -245,6 +247,8 @@ export default function BlenderViewport({
   onShadingModeChange,
   diagnostics,
   blueprintUrl,
+  semanticBlueprintUrl,
+  overlayBlueprintUrl,
 }: BlenderViewportProps) {
   const mountRef = useRef<HTMLDivElement>(null);
   const gizmoRef = useRef<HTMLCanvasElement>(null);
@@ -258,6 +262,8 @@ export default function BlenderViewport({
   const [stats, setStats] = useState({ verts: 450, faces: 220, objects: 18, fps: 60 });
   const [showFurniture, setShowFurniture] = useState(true); // Default true for rich, furnished architectural 3D view
   const [showBlueprint, setShowBlueprint] = useState(false); // PlanPop-style 2D floor plan overlay
+  const [blueprintLayer, setBlueprintLayer] = useState<'off' | 'semantic' | 'overlay' | 'source'>('off');
+  const [colorMode, setColorMode] = useState<'schematic' | 'realistic'>('schematic'); // Default to 'schematic' so 3D model uses the PlanPop & room color schematics!
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [isExportingGLB, setIsExportingGLB] = useState(false);
   const [isExportingOBJ, setIsExportingOBJ] = useState(false);
@@ -604,17 +610,26 @@ export default function BlenderViewport({
     group.add(slabMesh);
 
     // PlanPop-Style 2D Floor Plan Blueprint Texture Overlay
-    if (showBlueprint && blueprintUrl) {
+    const activeBlueprintUrl =
+      blueprintLayer === 'semantic' && semanticBlueprintUrl
+        ? semanticBlueprintUrl
+        : blueprintLayer === 'overlay' && overlayBlueprintUrl
+        ? overlayBlueprintUrl
+        : blueprintLayer === 'source' && blueprintUrl
+        ? blueprintUrl
+        : (showBlueprint ? (semanticBlueprintUrl || overlayBlueprintUrl || blueprintUrl) : null);
+
+    if (activeBlueprintUrl) {
       const texLoader = new THREE.TextureLoader();
       texLoader.load(
-        blueprintUrl,
+        activeBlueprintUrl,
         (texture) => {
           texture.colorSpace = THREE.SRGBColorSpace;
           const overlayGeo = new THREE.PlaneGeometry(W, L);
           const overlayMat = new THREE.MeshBasicMaterial({
             map: texture,
             transparent: true,
-            opacity: 0.85,
+            opacity: 0.88,
             side: THREE.DoubleSide,
             depthWrite: false,
           });
@@ -629,35 +644,59 @@ export default function BlenderViewport({
       );
     }
 
-    // Materials
-    const wallColor = shadingMode === 'rendered' ? 0xe5e7eb : (shadingMode === 'solid' ? 0x9ca3af : 0xd1d5db);
-    const wallMat = new THREE.MeshStandardMaterial({
-      color: wallColor,
-      roughness: 0.85,
-      metalness: 0.05,
+    // 3D Model Materials: PlanPop Color Schematic vs Realistic Architectural PBR
+    const isSchematic = colorMode === 'schematic';
+
+    // 1. Walls: In Schematic mode -> PlanPop Solid Red (#ef4444 / #dc2626)
+    const extWallColor = isSchematic
+      ? 0xef4444
+      : (shadingMode === 'rendered' ? 0xd1d5db : (shadingMode === 'solid' ? 0x9ca3af : 0x6b7280));
+    const intWallColor = isSchematic
+      ? 0xdc2626
+      : (shadingMode === 'rendered' ? 0xe5e7eb : (shadingMode === 'solid' ? 0xa8a29e : 0xd1d5db));
+
+    const exteriorWallMat = new THREE.MeshStandardMaterial({
+      color: extWallColor,
+      roughness: isSchematic ? 0.45 : 0.8,
+      metalness: isSchematic ? 0.05 : 0.1,
       wireframe: isWireframe,
     });
 
-    const exteriorWallMat = new THREE.MeshStandardMaterial({
-      color: shadingMode === 'rendered' ? 0xd1d5db : 0x6b7280,
-      roughness: 0.8,
+    const wallMat = new THREE.MeshStandardMaterial({
+      color: intWallColor,
+      roughness: isSchematic ? 0.45 : 0.85,
+      metalness: isSchematic ? 0.05 : 0.05,
+      wireframe: isWireframe,
+    });
+
+    // 2. Doors: In Schematic mode -> PlanPop Solid Blue (#2563eb / #1d4ed8)
+    const doorLeafMat = new THREE.MeshStandardMaterial({
+      color: isSchematic ? 0x2563eb : 0x92400e,
+      roughness: isSchematic ? 0.35 : 0.6,
       metalness: 0.1,
       wireframe: isWireframe,
     });
 
     const doorThresholdMat = new THREE.MeshStandardMaterial({
-      color: 0x854d0e, // warm wood
+      color: isSchematic ? 0x1d4ed8 : 0x854d0e,
       roughness: 0.5,
       metalness: 0.1,
       wireframe: isWireframe,
     });
 
+    // 3. Windows: In Schematic mode -> PlanPop Solid Cyan (#06b6d4 / #0891b2)
     const glassMat = new THREE.MeshStandardMaterial({
-      color: 0x93c5fd,
+      color: isSchematic ? 0x06b6d4 : 0x93c5fd,
       roughness: 0.1,
-      metalness: 0.8,
+      metalness: 0.6,
       transparent: true,
-      opacity: 0.45,
+      opacity: isSchematic ? 0.8 : 0.45,
+    });
+
+    const windowFrameMat = new THREE.MeshStandardMaterial({
+      color: isSchematic ? 0x0891b2 : 0x0f172a,
+      roughness: 0.35,
+      metalness: 0.7,
     });
 
     // 4.1 Build Room Floor Slabs + Text Labels + Furniture Proxies
@@ -675,7 +714,7 @@ export default function BlenderViewport({
 
       // PBR Floor Material Assignment with procedural textures
       let floorMap: THREE.Texture | null = null;
-      if (shadingMode === 'rendered' && !isWireframe) {
+      if (shadingMode === 'rendered' && !isWireframe && !isSchematic) {
         if (room.type === 'living' || room.type === 'bedroom' || room.type === 'dining' || room.type === 'office') {
           floorMap = createWoodFloorTexture();
         } else if (room.type === 'kitchen') {
@@ -687,11 +726,17 @@ export default function BlenderViewport({
         }
       }
 
+      // 4. Room Floor Slabs: In Schematic mode -> Vibrant Room Semantic Color (#10b981, #3b82f6, #ec4899, etc.)
+      const roomColor = room.color || '#3b82f6';
       const floorGeo = new THREE.BoxGeometry(roomW - 0.02, floorThickness, roomD - 0.02);
       const floorMat = new THREE.MeshStandardMaterial({
-        color: isSelected ? 0xeb7724 : (isPorch ? 0x78716c : (shadingMode === 'rendered' ? (floorMap ? 0xffffff : room.color) : 0x555555)),
-        map: floorMap,
-        roughness: isPorch ? 0.95 : (room.type === 'bathroom' ? 0.2 : 0.65),
+        color: isSelected
+          ? 0xeb7724
+          : (isSchematic
+              ? roomColor
+              : (isPorch ? 0x78716c : (shadingMode === 'rendered' ? (floorMap ? 0xffffff : roomColor) : 0x555555))),
+        map: isSchematic ? null : floorMap,
+        roughness: isSchematic ? 0.4 : (isPorch ? 0.95 : (room.type === 'bathroom' ? 0.2 : 0.65)),
         metalness: 0.05,
         wireframe: isWireframe,
       });
@@ -901,30 +946,31 @@ export default function BlenderViewport({
 
         // Window Sill (Wall up to 0.9m)
         const sillH = 0.9;
-        const sill = new THREE.Mesh(new THREE.BoxGeometry(winWidth, sillH, T), currentMat);
+        const sillMat = isSchematic ? new THREE.MeshStandardMaterial({ color: 0x0891b2, roughness: 0.4, metalness: 0.2 }) : currentMat;
+        const sill = new THREE.Mesh(new THREE.BoxGeometry(winWidth, sillH, T), sillMat);
         sill.position.set(0, -H / 2 + sillH / 2, 0);
         sill.castShadow = true;
 
         // Window Top Lintel (Wall above 2.1m)
         const topLintelH = Math.max(0.2, H - 2.1);
-        const topLintel = new THREE.Mesh(new THREE.BoxGeometry(winWidth, topLintelH, T), currentMat);
+        const topLintelMat = isSchematic ? new THREE.MeshStandardMaterial({ color: 0x0891b2, roughness: 0.4, metalness: 0.2 }) : currentMat;
+        const topLintel = new THREE.Mesh(new THREE.BoxGeometry(winWidth, topLintelH, T), topLintelMat);
         topLintel.position.set(0, H / 2 - topLintelH / 2, 0);
         topLintel.castShadow = true;
 
-        // Glass Pane in center (Between 0.9m and 2.1m)
+        // Glass Pane in center (Between 0.9m and 2.1m) - PlanPop Cyan
         const glassH = H - sillH - topLintelH;
         const glass = new THREE.Mesh(new THREE.BoxGeometry(winWidth, glassH, T * 0.2), glassMat);
         glass.position.set(0, -H / 2 + sillH + glassH / 2, 0);
 
-        // Window Frame Border (Black Aluminum)
-        const frameMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.4, metalness: 0.8 });
-        const frameBarH = new THREE.Mesh(new THREE.BoxGeometry(winWidth, 0.04, T * 0.3), frameMat);
+        // Window Frame Border
+        const frameBarH = new THREE.Mesh(new THREE.BoxGeometry(winWidth, 0.04, T * 0.3), windowFrameMat);
         frameBarH.position.set(0, -H / 2 + sillH + glassH / 2, 0);
 
         wallGroup.add(side1, side2, sill, topLintel, glass, frameBarH);
         group.add(wallGroup);
       } else if (doorOp && len > 0.9) {
-        // --- 2. TRUE ARCHITECTURAL DOORWAY (Door leaf + threshold, no sill) ---
+        // --- 2. TRUE ARCHITECTURAL DOORWAY (Door leaf + threshold, no sill) - PlanPop Blue ---
         const doorWidth = Math.min(len * 0.75, doorOp.width || 0.95);
         const remainingLen = Math.max(0.15, len - doorWidth);
         const seg1Len = remainingLen * 0.5;
@@ -948,17 +994,11 @@ export default function BlenderViewport({
         lintel.position.set(0, H / 2 - lintelH / 2, 0);
         lintel.castShadow = true;
 
-        // Wooden Door Threshold on floor
+        // Door Threshold on floor
         const thresh = new THREE.Mesh(new THREE.BoxGeometry(doorWidth, 0.04, T * 1.3), doorThresholdMat);
         thresh.position.set(0, -H / 2 + 0.02, 0);
 
-        // Realistic 3D Wood Door Leaf swung open at 55 degrees into the room
-        const doorLeafMat = new THREE.MeshStandardMaterial({
-          color: 0x92400e,
-          roughness: 0.6,
-          metalness: 0.1,
-          wireframe: isWireframe,
-        });
+        // 3D Door Leaf swung open at 55 degrees into the room
         const doorLeaf = new THREE.Mesh(
           new THREE.BoxGeometry(doorWidth * 0.92, 2.06, 0.04),
           doorLeafMat
@@ -981,7 +1021,7 @@ export default function BlenderViewport({
 
       // Architectural Wall Top Cap (Coping Trim for authentic CAD dollhouse finish)
       const capMat = new THREE.MeshStandardMaterial({
-        color: 0x334155,
+        color: isSchematic ? 0xb91c1c : 0x334155,
         roughness: 0.5,
         metalness: 0.1,
         wireframe: isWireframe,
@@ -1069,7 +1109,7 @@ export default function BlenderViewport({
     requestAnimationFrame(() => {
       fitCameraToModel(1.25);
     });
-  }, [dimensions, rooms, walls, selectedRoomId, shadingMode, showFurniture, showBlueprint, blueprintUrl, fitCameraToModel]);
+  }, [dimensions, rooms, walls, selectedRoomId, shadingMode, showFurniture, showBlueprint, blueprintLayer, colorMode, blueprintUrl, semanticBlueprintUrl, overlayBlueprintUrl, fitCameraToModel]);
 
   // Keyboard Shortcuts: 'F' to Frame Model, '7' Top View, '1' Front View, '3' Right View
   useEffect(() => {
@@ -1318,6 +1358,20 @@ export default function BlenderViewport({
           </button>
         </div>
 
+        {/* PlanPop CAD Color Schematic Toggle */}
+        <button
+          onClick={() => setColorMode(colorMode === 'schematic' ? 'realistic' : 'schematic')}
+          className={`px-2.5 py-0.5 rounded text-[11px] font-mono border transition-colors flex items-center gap-1.5 ${
+            colorMode === 'schematic' 
+              ? 'bg-[#ef4444]/20 border-[#ef4444] text-[#fca5a5] font-semibold shadow-sm' 
+              : 'bg-[#202020] border-[#383838] text-[#808080] hover:text-[#bbb]'
+          }`}
+          title="Toggle 3D Model Color Schematic (PlanPop Red Walls, Blue Doors, Cyan Windows, Room-colored Floors)"
+        >
+          <span className="w-2 h-2 rounded-full bg-[#ef4444]"></span>
+          <span>Schematic: {colorMode === 'schematic' ? 'ON' : 'OFF'}</span>
+        </button>
+
         {/* Furniture Staging Toggle */}
         <button
           onClick={() => setShowFurniture(!showFurniture)}
@@ -1332,18 +1386,42 @@ export default function BlenderViewport({
         </button>
 
         {/* PlanPop 2D Blueprint Overlay Toggle */}
-        {blueprintUrl && (
+        {(blueprintUrl || semanticBlueprintUrl || overlayBlueprintUrl) && (
           <button
-            onClick={() => setShowBlueprint(!showBlueprint)}
-            className={`px-2 py-0.5 rounded text-[11px] font-mono border transition-colors flex items-center gap-1 ${
-              showBlueprint 
-                ? 'bg-[#10b981]/25 border-[#10b981] text-[#6ee7b7]' 
+            onClick={() => {
+              if (blueprintLayer === 'off') {
+                setBlueprintLayer(semanticBlueprintUrl ? 'semantic' : 'source');
+                setShowBlueprint(true);
+              } else if (blueprintLayer === 'semantic' && overlayBlueprintUrl) {
+                setBlueprintLayer('overlay');
+                setShowBlueprint(true);
+              } else if ((blueprintLayer === 'semantic' || blueprintLayer === 'overlay') && blueprintUrl) {
+                setBlueprintLayer('source');
+                setShowBlueprint(true);
+              } else {
+                setBlueprintLayer('off');
+                setShowBlueprint(false);
+              }
+            }}
+            className={`px-2.5 py-0.5 rounded text-[11px] font-mono border transition-colors flex items-center gap-1.5 ${
+              blueprintLayer !== 'off' 
+                ? 'bg-[#10b981]/25 border-[#10b981] text-[#6ee7b7] font-semibold' 
                 : 'bg-[#202020] border-[#383838] text-[#808080] hover:text-[#bbb]'
             }`}
-            title="Toggle PlanPop-Style 2D Blueprint Texture Overlay onto the 3D Floor"
+            title="Cycle 3D Floor Blueprint Overlay: PlanPop Semantic -> CAD Overlay -> 2D Plan -> OFF"
           >
             <Layers size={12} />
-            <span>Blueprint: {showBlueprint ? 'ON' : 'OFF'}</span>
+            <span>
+              Blueprint: {
+                blueprintLayer === 'semantic' 
+                  ? 'PlanPop' 
+                  : blueprintLayer === 'overlay' 
+                  ? 'CAD' 
+                  : blueprintLayer === 'source' 
+                  ? '2D Plan' 
+                  : 'OFF'
+              }
+            </span>
           </button>
         )}
 
@@ -1586,6 +1664,25 @@ export default function BlenderViewport({
                 <span className="text-[#64748b]">Viewport Size:</span>
                 <span className="text-slate-300">{viewportSize.width} &times; {viewportSize.height} px</span>
               </div>
+
+              {/* 3D Color Schematic Palette Legend */}
+              {colorMode === 'schematic' && (
+                <div className="pt-2 border-t border-[#1e293b] space-y-1">
+                  <div className="text-[10px] text-[#38bdf8] font-semibold flex items-center justify-between">
+                    <span>3D CAD Color Schematic:</span>
+                    <span className="text-[9px] bg-red-950/70 text-red-400 px-1 py-0.2 rounded border border-red-500/30">Active</span>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[9.5px]">
+                    <span className="inline-flex items-center gap-1 text-[#f87171]"><span className="w-2 h-2 rounded-full bg-[#ef4444]"></span>Red Wall</span>
+                    <span className="inline-flex items-center gap-1 text-[#60a5fa]"><span className="w-2 h-2 rounded-full bg-[#2563eb]"></span>Blue Door</span>
+                    <span className="inline-flex items-center gap-1 text-[#22d3ee]"><span className="w-2 h-2 rounded-full bg-[#06b6d4]"></span>Cyan Window</span>
+                    <span className="inline-flex items-center gap-1 text-[#34d399]"><span className="w-2 h-2 rounded-full bg-[#10b981]"></span>Bedrooms</span>
+                    <span className="inline-flex items-center gap-1 text-[#60a5fa]"><span className="w-2 h-2 rounded-full bg-[#3b82f6]"></span>Living</span>
+                    <span className="inline-flex items-center gap-1 text-[#f472b6]"><span className="w-2 h-2 rounded-full bg-[#ec4899]"></span>Kitchen</span>
+                    <span className="inline-flex items-center gap-1 text-[#fbbf24]"><span className="w-2 h-2 rounded-full bg-[#eab308]"></span>Bath</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="mt-2.5 pt-1.5 border-t border-[#1e293b] flex items-center justify-between text-[10px] text-[#64748b]">
