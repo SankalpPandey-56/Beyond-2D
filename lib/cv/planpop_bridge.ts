@@ -6,6 +6,14 @@ import { BuildingDimensions, RoomData, WallData } from '@/lib/types';
 
 export interface PlanPopDiagnostics {
   semanticImageBase64: string;
+  overlayImageBase64?: string;
+  footprint?: {
+    bbox_pixels: [number, number, number, number];
+    resolution: string;
+    aspectRatio: number;
+    porchBayPreserved: boolean;
+    exteriorSegmentsCount: number;
+  };
   cvStats: {
     semanticResolution: string;
     wallMaskPixelCount: number;
@@ -31,8 +39,9 @@ export interface PlanPopResult {
 
 export async function runPlanPopComputerVision(
   aiOutput: RawAIPlanOutput,
+  imageBase64?: string,
   imageWidth = 1024,
-  imageHeight = 768
+  imageHeight = 682
 ): Promise<PlanPopResult> {
   return new Promise((resolve) => {
     try {
@@ -40,6 +49,7 @@ export async function runPlanPopComputerVision(
       const pyProcess = spawn('python3', [scriptPath]);
 
       const inputPayload = JSON.stringify({
+        image_base64: imageBase64 || '',
         image_dims: { width: imageWidth, height: imageHeight },
         ai_layout: aiOutput,
       });

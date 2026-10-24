@@ -27,8 +27,17 @@ interface SidebarRightProps {
   onSelectRoom: (roomId: string | null) => void;
   previewUrl: string;
   semanticPreviewUrl?: string;
+  overlayPreviewUrl?: string;
   diagnostics?: {
     semanticImageBase64?: string;
+    overlayImageBase64?: string;
+    footprint?: {
+      bbox_pixels: [number, number, number, number];
+      resolution: string;
+      aspectRatio: number;
+      porchBayPreserved: boolean;
+      exteriorSegmentsCount: number;
+    };
     cvStats?: {
       semanticResolution: string;
       wallMaskPixelCount: number;
@@ -50,11 +59,12 @@ export default function SidebarRight({
   onSelectRoom,
   previewUrl,
   semanticPreviewUrl,
+  overlayPreviewUrl,
   diagnostics,
 }: SidebarRightProps) {
   const [activeTab, setActiveTab] = useState<'inspector' | 'outliner'>('inspector');
   const [isPreviewExpanded, setIsPreviewExpanded] = useState(false);
-  const [previewMode, setPreviewMode] = useState<'original' | 'semantic'>('original');
+  const [previewMode, setPreviewMode] = useState<'original' | 'semantic' | 'overlay'>('original');
 
   const handleDimChange = (key: keyof BuildingDimensions, value: number) => {
     onDimensionsChange({
@@ -124,8 +134,20 @@ export default function SidebarRight({
                         : 'text-[#888] hover:text-[#ccc]'
                     }`}
                   >
-                    PlanPop CV
+                    PlanPop
                   </button>
+                  {overlayPreviewUrl && (
+                    <button
+                      onClick={() => setPreviewMode('overlay')}
+                      className={`px-1.5 py-0.5 rounded transition-colors ${
+                        previewMode === 'overlay'
+                          ? 'bg-[#eb7724] text-white font-bold'
+                          : 'text-[#888] hover:text-[#ccc]'
+                      }`}
+                    >
+                      CAD Overlay
+                    </button>
+                  )}
                 </div>
               )}
               <button
@@ -141,19 +163,29 @@ export default function SidebarRight({
           <div className="relative p-2 bg-[#181818] flex items-center justify-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={previewMode === 'semantic' && semanticPreviewUrl ? semanticPreviewUrl : previewUrl}
+              src={
+                previewMode === 'overlay' && overlayPreviewUrl
+                  ? overlayPreviewUrl
+                  : previewMode === 'semantic' && semanticPreviewUrl
+                  ? semanticPreviewUrl
+                  : previewUrl
+              }
               alt="2D Architectural Floor Plan"
               className={`w-full object-contain rounded border border-[#333] transition-all ${
                 isPreviewExpanded ? 'h-64' : 'h-32'
               }`}
             />
             <div className="absolute bottom-3 right-3 text-[9px] bg-black/80 backdrop-blur px-1.5 py-0.5 rounded font-mono text-[#aaa] border border-[#333]">
-              {previewMode === 'semantic' ? 'PlanPop Semantic' : 'Source 2D'}
+              {previewMode === 'overlay'
+                ? 'CAD Geometry Overlay'
+                : previewMode === 'semantic'
+                ? 'PlanPop Semantic'
+                : 'Source 2D'}
             </div>
           </div>
 
           {/* PlanPop Palette Legend & CV Diagnostics */}
-          {semanticPreviewUrl && previewMode === 'semantic' && (
+          {semanticPreviewUrl && previewMode !== 'original' && (
             <div className="p-2 border-t border-[#2a2a2a] bg-[#1a1a1a] space-y-1.5">
               <div className="flex items-center justify-between text-[9px] font-mono text-[#888]">
                 <span>Palette:</span>
@@ -164,6 +196,13 @@ export default function SidebarRight({
                   <span className="inline-flex items-center gap-0.5"><span className="w-2 h-2 rounded-full bg-[#00ff00]"></span>Text</span>
                 </span>
               </div>
+              {diagnostics?.footprint && (
+                <div className="text-[9px] font-mono text-cyan-400/90 bg-[#222] px-1.5 py-0.5 rounded border border-[#333] flex items-center justify-between">
+                  <span>Footprint: {diagnostics.footprint.resolution}</span>
+                  <span>Porch Bay: {diagnostics.footprint.porchBayPreserved ? 'Preserved' : 'None'}</span>
+                  <span>Ratio: {diagnostics.footprint.aspectRatio}</span>
+                </div>
+              )}
               {diagnostics?.cvStats && (
                 <div className="text-[9px] font-mono text-emerald-400/90 bg-[#222] px-1.5 py-0.5 rounded border border-[#333] flex items-center justify-between">
                   <span>CV: {diagnostics.cvStats.totalExtractedWalls} Walls</span>

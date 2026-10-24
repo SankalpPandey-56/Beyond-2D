@@ -55,8 +55,8 @@ export async function POST(req: NextRequest) {
     const rawAiResult = await provider.analyzeFloorPlan(imageBase64, mimeType);
 
     // 2. PlanPop-Style Semantic Color-Coding & OpenCV Computer Vision Extraction
-    console.log(`[Beyond-2D API] Running PlanPop semantic color-coded CV extraction...`);
-    const planpopResult = await runPlanPopComputerVision(rawAiResult, 1024, 768);
+    console.log(`[Beyond-2D API] Running PlanPop semantic color-coded CV extraction with real image pixels...`);
+    const planpopResult = await runPlanPopComputerVision(rawAiResult, imageBase64);
     const duration = Date.now() - startTime;
 
     console.log(

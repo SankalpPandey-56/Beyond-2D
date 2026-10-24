@@ -54,8 +54,17 @@ export interface ProjectData {
   walls?: WallData[];
   previewUrl: string; // 2D floor plan image URL or SVG data
   semanticPreviewUrl?: string; // PlanPop color-coded semantic image
+  overlayPreviewUrl?: string; // CAD geometry overlay on original image
   diagnostics?: {
     semanticImageBase64?: string;
+    overlayImageBase64?: string;
+    footprint?: {
+      bbox_pixels: [number, number, number, number];
+      resolution: string;
+      aspectRatio: number;
+      porchBayPreserved: boolean;
+      exteriorSegmentsCount: number;
+    };
     cvStats?: {
       semanticResolution: string;
       wallMaskPixelCount: number;
@@ -100,6 +109,14 @@ export interface AIAnalysisResponse {
   };
   diagnostics?: {
     semanticImageBase64?: string;
+    overlayImageBase64?: string;
+    footprint?: {
+      bbox_pixels: [number, number, number, number];
+      resolution: string;
+      aspectRatio: number;
+      porchBayPreserved: boolean;
+      exteriorSegmentsCount: number;
+    };
     cvStats?: {
       semanticResolution: string;
       wallMaskPixelCount: number;

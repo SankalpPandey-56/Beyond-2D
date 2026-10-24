@@ -143,6 +143,7 @@ export default function Beyond2DApp() {
           updatedAt: 'Just now',
           previewUrl: imageUrl,
           semanticPreviewUrl: data.diagnostics?.semanticImageBase64,
+          overlayPreviewUrl: data.diagnostics?.overlayImageBase64,
           diagnostics: data.diagnostics,
           dimensions: data.layout.dimensions,
           rooms: data.layout.rooms,
@@ -266,6 +267,7 @@ export default function Beyond2DApp() {
         onSelectRoom={setSelectedRoomId}
         previewUrl={currentProject.previewUrl}
         semanticPreviewUrl={currentProject.semanticPreviewUrl}
+        overlayPreviewUrl={currentProject.overlayPreviewUrl}
         diagnostics={currentProject.diagnostics}
       />
     </div>
