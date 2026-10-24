@@ -31,6 +31,151 @@ interface BlenderViewportProps {
   onShadingModeChange: (mode: ShadingMode) => void;
 }
 
+// Procedural PBR Floor Texture Generators for Architectural Realism
+function createWoodFloorTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 512;
+  const ctx = canvas.getContext('2d')!;
+
+  ctx.fillStyle = '#bfa17c'; // Warm light oak base
+  ctx.fillRect(0, 0, 512, 512);
+
+  const plankH = 32;
+  const plankW = 128;
+  ctx.strokeStyle = 'rgba(80, 50, 25, 0.45)';
+  ctx.lineWidth = 1.5;
+
+  for (let y = 0; y < 512; y += plankH) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(512, y);
+    ctx.stroke();
+
+    const offset = (Math.floor(y / plankH) % 3) * 42;
+    for (let x = offset; x < 512; x += plankW) {
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x, y + plankH);
+      ctx.stroke();
+    }
+  }
+
+  // Subtle wood grain streaks
+  ctx.fillStyle = 'rgba(120, 75, 35, 0.06)';
+  for (let i = 0; i < 300; i++) {
+    const rx = Math.random() * 512;
+    const ry = Math.random() * 512;
+    ctx.fillRect(rx, ry, 25 + Math.random() * 35, 1);
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(3, 3);
+  return texture;
+}
+
+function createTileFloorTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 512;
+  const ctx = canvas.getContext('2d')!;
+
+  ctx.fillStyle = '#cbd5e1'; // Polished porcelain
+  ctx.fillRect(0, 0, 512, 512);
+
+  const tileSize = 64;
+  ctx.strokeStyle = 'rgba(71, 85, 105, 0.5)';
+  ctx.lineWidth = 2;
+
+  for (let p = 0; p <= 512; p += tileSize) {
+    ctx.beginPath();
+    ctx.moveTo(p, 0);
+    ctx.lineTo(p, 512);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(0, p);
+    ctx.lineTo(512, p);
+    ctx.stroke();
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(2, 2);
+  return texture;
+}
+
+function createSlateFloorTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 512;
+  const ctx = canvas.getContext('2d')!;
+
+  ctx.fillStyle = '#334155'; // Deep slate
+  ctx.fillRect(0, 0, 512, 512);
+
+  const tileSize = 32;
+  ctx.strokeStyle = 'rgba(15, 23, 42, 0.8)';
+  ctx.lineWidth = 1.5;
+
+  for (let p = 0; p <= 512; p += tileSize) {
+    ctx.beginPath();
+    ctx.moveTo(p, 0);
+    ctx.lineTo(p, 512);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(0, p);
+    ctx.lineTo(512, p);
+    ctx.stroke();
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(3, 3);
+  return texture;
+}
+
+function createPaverFloorTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 512;
+  const ctx = canvas.getContext('2d')!;
+
+  ctx.fillStyle = '#78716c'; // Stone pavers
+  ctx.fillRect(0, 0, 512, 512);
+
+  const paverW = 64;
+  const paverH = 32;
+  ctx.strokeStyle = 'rgba(41, 37, 36, 0.7)';
+  ctx.lineWidth = 2;
+
+  for (let y = 0; y <= 512; y += paverH) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(512, y);
+    ctx.stroke();
+
+    const offset = (Math.floor(y / paverH) % 2) * (paverW / 2);
+    for (let x = offset; x <= 512; x += paverW) {
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x, y + paverH);
+      ctx.stroke();
+    }
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(2, 2);
+  return texture;
+}
+
 // Helper: Creates high-resolution 2D canvas texture for 3D room floor text labels
 function createRoomFloorLabelTexture(name: string, dimsText?: string): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
@@ -41,8 +186,8 @@ function createRoomFloorLabelTexture(name: string, dimsText?: string): THREE.Can
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // Subtle rounded tag badge background
-  ctx.fillStyle = 'rgba(20, 20, 20, 0.75)';
-  const pad = 20;
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+  const pad = 16;
   const rw = canvas.width - pad * 2;
   const rh = canvas.height - pad * 2;
   const r = 16;
@@ -55,7 +200,7 @@ function createRoomFloorLabelTexture(name: string, dimsText?: string): THREE.Can
   ctx.closePath();
   ctx.fill();
 
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+  ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
   ctx.lineWidth = 4;
   ctx.stroke();
 
@@ -383,10 +528,25 @@ export default function BlenderViewport({
       const floorY = isPorch ? 0.15 : 0.24;
       const floorThickness = isPorch ? 0.1 : 0.08;
 
+      // PBR Floor Material Assignment with procedural textures
+      let floorMap: THREE.Texture | null = null;
+      if (shadingMode === 'rendered' && !isWireframe) {
+        if (room.type === 'living' || room.type === 'bedroom' || room.type === 'dining' || room.type === 'office') {
+          floorMap = createWoodFloorTexture();
+        } else if (room.type === 'kitchen') {
+          floorMap = createTileFloorTexture();
+        } else if (room.type === 'bathroom') {
+          floorMap = createSlateFloorTexture();
+        } else if (isPorch) {
+          floorMap = createPaverFloorTexture();
+        }
+      }
+
       const floorGeo = new THREE.BoxGeometry(roomW - 0.02, floorThickness, roomD - 0.02);
       const floorMat = new THREE.MeshStandardMaterial({
-        color: isSelected ? 0xeb7724 : (isPorch ? 0x78716c : (shadingMode === 'rendered' ? room.color : 0x555555)),
-        roughness: isPorch ? 0.95 : 0.65,
+        color: isSelected ? 0xeb7724 : (isPorch ? 0x78716c : (shadingMode === 'rendered' ? (floorMap ? 0xffffff : room.color) : 0x555555)),
+        map: floorMap,
+        roughness: isPorch ? 0.95 : (room.type === 'bathroom' ? 0.2 : 0.65),
         metalness: 0.05,
         wireframe: isWireframe,
       });
@@ -398,14 +558,15 @@ export default function BlenderViewport({
 
       // Room Floor Label Badge (Placed on the floor slab)
       if (shadingMode !== 'wireframe' && roomW > 1.2 && roomD > 1.2) {
-        const labelTexture = createRoomFloorLabelTexture(room.name, room.dimensionsText || `${roomW.toFixed(1)}m x ${roomD.toFixed(1)}m`);
+        const areaM2 = (roomW * roomD).toFixed(1);
+        const labelTexture = createRoomFloorLabelTexture(room.name, `${roomW.toFixed(1)}m × ${roomD.toFixed(1)}m (${areaM2} m²)`);
         const labelW = Math.min(roomW * 0.75, 2.2);
         const labelH = labelW * 0.5;
         const labelGeo = new THREE.PlaneGeometry(labelW, labelH);
         const labelMat = new THREE.MeshBasicMaterial({
           map: labelTexture,
           transparent: true,
-          opacity: 0.88,
+          opacity: 0.92,
           depthWrite: false,
         });
         const labelMesh = new THREE.Mesh(labelGeo, labelMat);
@@ -594,7 +755,22 @@ export default function BlenderViewport({
         const thresh = new THREE.Mesh(new THREE.BoxGeometry(doorWidth, 0.04, T * 1.3), doorThresholdMat);
         thresh.position.set(0, -H / 2 + 0.02, 0);
 
-        wallGroup.add(seg1, seg2, lintel, thresh);
+        // Realistic 3D Wood Door Leaf swung open at 55 degrees into the room
+        const doorLeafMat = new THREE.MeshStandardMaterial({
+          color: 0x92400e,
+          roughness: 0.6,
+          metalness: 0.1,
+          wireframe: isWireframe,
+        });
+        const doorLeaf = new THREE.Mesh(
+          new THREE.BoxGeometry(doorWidth * 0.92, H * 0.74, 0.04),
+          doorLeafMat
+        );
+        doorLeaf.position.set(-doorWidth / 2 + 0.04, -H / 2 + (H * 0.74) / 2, 0.32);
+        doorLeaf.rotation.y = Math.PI / 3.2; // Swung open
+        doorLeaf.castShadow = true;
+
+        wallGroup.add(seg1, seg2, lintel, thresh, doorLeaf);
         group.add(wallGroup);
       } else if (isExt && len > 1.8) {
         // Exterior wall with an architectural window!
@@ -626,7 +802,13 @@ export default function BlenderViewport({
         const glass = new THREE.Mesh(new THREE.BoxGeometry(winWidth, H - sillH - topLintelH, T * 0.2), glassMat);
         glass.position.set(0, (-H / 2 + sillH + H / 2 - topLintelH) / 2, 0);
 
-        wallGroup.add(side1, side2, sill, topLintel, glass);
+        // Dark aluminum window frame border
+        const frameMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.5, metalness: 0.8 });
+        const frameH = H - sillH - topLintelH;
+        const frameBar = new THREE.Mesh(new THREE.BoxGeometry(winWidth, 0.04, T * 0.35), frameMat);
+        frameBar.position.set(0, (-H / 2 + sillH + H / 2 - topLintelH) / 2, 0);
+
+        wallGroup.add(side1, side2, sill, topLintel, glass, frameBar);
         group.add(wallGroup);
       } else {
         // Solid wall segment
@@ -637,7 +819,67 @@ export default function BlenderViewport({
         solidMesh.receiveShadow = true;
         group.add(solidMesh);
       }
+
+      // Architectural Wall Top Cap (Coping Trim for authentic CAD dollhouse finish)
+      const capMat = new THREE.MeshStandardMaterial({
+        color: 0x334155,
+        roughness: 0.5,
+        metalness: 0.1,
+        wireframe: isWireframe,
+      });
+      const capMesh = new THREE.Mesh(new THREE.BoxGeometry(len, 0.04, T + 0.03), capMat);
+      capMesh.position.set(midX, wallY + H / 2 + 0.02, midZ);
+      capMesh.rotation.y = -angle;
+      capMesh.castShadow = true;
+      group.add(capMesh);
     });
+
+    // 4.4 Architectural North Compass Rose (Gizmo on foundation floor)
+    const compassGroup = new THREE.Group();
+    compassGroup.position.set(W / 2 + 0.7, 0.22, -L / 2 - 0.2);
+
+    const ringGeo = new THREE.RingGeometry(0.45, 0.52, 32);
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, side: THREE.DoubleSide });
+    const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+    ringMesh.rotation.x = -Math.PI / 2;
+    compassGroup.add(ringMesh);
+
+    // North Needle (Red Arrow pointing -Z towards North)
+    const needleGeo = new THREE.ConeGeometry(0.14, 0.6, 4);
+    const needleMat = new THREE.MeshBasicMaterial({ color: 0xef4444 });
+    const needle = new THREE.Mesh(needleGeo, needleMat);
+    needle.rotation.x = -Math.PI / 2;
+    needle.position.set(0, 0.02, -0.28);
+    compassGroup.add(needle);
+
+    // South Needle (White Arrow pointing +Z towards South)
+    const southNeedleGeo = new THREE.ConeGeometry(0.1, 0.4, 4);
+    const southNeedleMat = new THREE.MeshBasicMaterial({ color: 0xe2e8f0 });
+    const southNeedle = new THREE.Mesh(southNeedleGeo, southNeedleMat);
+    southNeedle.rotation.x = Math.PI / 2;
+    southNeedle.position.set(0, 0.02, 0.18);
+    compassGroup.add(southNeedle);
+
+    // "N" Label Texture
+    const nCanvas = document.createElement('canvas');
+    nCanvas.width = 128;
+    nCanvas.height = 128;
+    const nCtx = nCanvas.getContext('2d')!;
+    nCtx.fillStyle = '#ef4444';
+    nCtx.font = 'bold 84px sans-serif';
+    nCtx.textAlign = 'center';
+    nCtx.textBaseline = 'middle';
+    nCtx.fillText('N', 64, 64);
+    const nTex = new THREE.CanvasTexture(nCanvas);
+    const nMesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.38, 0.38),
+      new THREE.MeshBasicMaterial({ map: nTex, transparent: true })
+    );
+    nMesh.rotation.x = -Math.PI / 2;
+    nMesh.position.set(0, 0.03, -0.68);
+    compassGroup.add(nMesh);
+
+    group.add(compassGroup);
 
     setStats(prev => ({
       ...prev,
@@ -674,20 +916,24 @@ export default function BlenderViewport({
     if (!cameraRef.current || !controlsRef.current) return;
     const cam = cameraRef.current;
     const ctrl = controlsRef.current;
-    const dist = Math.max(dimensions.width, dimensions.length) * 1.8;
+    const dist = Math.max(dimensions.width, dimensions.length) * 1.6;
 
     if (view === 'top') {
-      cam.position.set(0, dist + 4, 0.001);
+      cam.up.set(0, 0, -1); // Align camera up with North (-Z) so Top View exactly matches the 2D blueprint!
+      cam.position.set(0, dist + 4, 0);
       ctrl.target.set(0, 0, 0);
-    } else if (view === 'front') {
-      cam.position.set(0, 3, dist + 2);
-      ctrl.target.set(0, dimensions.wallHeight / 2, 0);
-    } else if (view === 'right') {
-      cam.position.set(dist + 2, 3, 0);
-      ctrl.target.set(0, dimensions.wallHeight / 2, 0);
-    } else if (view === 'iso') {
-      cam.position.set(12, 14, 15);
-      ctrl.target.set(0, 1.0, 0);
+    } else {
+      cam.up.set(0, 1, 0); // Restore world Y-up for perspective 3D views
+      if (view === 'front') {
+        cam.position.set(0, 3, dist + 2);
+        ctrl.target.set(0, dimensions.wallHeight / 2, 0);
+      } else if (view === 'right') {
+        cam.position.set(dist + 2, 3, 0);
+        ctrl.target.set(0, dimensions.wallHeight / 2, 0);
+      } else if (view === 'iso') {
+        cam.position.set(2, 14, 16);
+        ctrl.target.set(0, 1.0, 0);
+      }
     }
     ctrl.update();
   };
@@ -779,6 +1025,13 @@ export default function BlenderViewport({
           >
             3D Dollhouse
           </button>
+        </div>
+
+        {/* Center-Right: Gemma 4 AI Engine Status Badge */}
+        <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#131c2e] border border-[#2563eb]/40 text-[#60a5fa] text-[11px] font-mono shadow-sm">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span className="font-semibold text-slate-200">Gemma 4</span>
+          <span className="text-[#94a3b8] text-[10px]">Architectural Co-Processor Active</span>
         </div>
 
         {/* Right: Shading Modes & Export Button */}
