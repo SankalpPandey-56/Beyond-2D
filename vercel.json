@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "framework": null,
   "buildCommand": "mkdir -p public && cp frontend-form-studio/index.html public/ && cp -r frontend-form-studio/samples public/",
   "outputDirectory": "public",
   "cleanUrls": true,
