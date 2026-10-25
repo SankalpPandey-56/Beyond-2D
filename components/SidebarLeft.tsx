@@ -250,12 +250,18 @@ export default function SidebarLeft({
       </div>
 
       {/* Workspace Switcher */}
-      <div className="p-2.5 border-t border-[#3c3c3c] bg-[#1a1a1a]">
+      <div className="p-2.5 border-t border-[#3c3c3c] bg-[#1a1a1a] flex flex-col gap-1.5">
         <a
           href="/studio"
           className="w-full flex items-center justify-center gap-1.5 py-1.5 px-2 bg-[#2d3748] hover:bg-[#374151] text-[#e2e8f0] text-xs font-medium rounded border border-[#4a5568] transition-colors"
         >
-          <span>🏛️ Switch to FORM Studio</span>
+          <span>🏛️ FORM Studio (CAD Engine)</span>
+        </a>
+        <a
+          href="/maple"
+          className="w-full flex items-center justify-center gap-1.5 py-1.5 px-2 bg-[#1e2833] hover:bg-[#26323f] text-[#AE906C] text-xs font-medium rounded border border-[#2D3947] transition-colors"
+        >
+          <span>🏡 Maple Residence (Original)</span>
         </a>
       </div>
 
