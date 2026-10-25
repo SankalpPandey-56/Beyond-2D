@@ -4,6 +4,7 @@
   "private": true,
   "description": "BEYOND - 2D Architectural 3D Workspace & Vision AI Engine",
   "scripts": {
+    "build": "mkdir -p public && cp frontend-form-studio/index.html public/ && cp -r frontend-form-studio/samples public/",
     "start": "cd frontend-form-studio && node server.js",
     "dev": "cd frontend-form-studio && node server.js",
     "backend": "cd backend-python && python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload"

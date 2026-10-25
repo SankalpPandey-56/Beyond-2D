@@ -402,8 +402,8 @@ p.note{color:var(--mute);margin:14px 0 0;font-size:12px;line-height:1.6}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 // --- Configuration & Endpoints ---
-const API_BASE_URL = 'http://localhost:3001';
-const FASTAPI_BASE_URL = 'http://localhost:8001';
+const API_BASE_URL = window.API_BASE_URL || '';
+const FASTAPI_BASE_URL = window.FASTAPI_BASE_URL || localStorage.getItem('beyond2d_api_url') || 'http://localhost:8001';
 
 const $ = s => document.querySelector(s);
 const stage = $('#stage'), tip = $('#tip'), lab = $('#lab'), loader = $('#loader'), loaderText = $('#loader-text');
@@ -1705,8 +1705,10 @@ async function analyzeFloorPlanFile(file) {
 
   const endpoints = [
     '/api/analyze-floorplan',
-    `${FASTAPI_BASE_URL}/api/analyze-floorplan`,
-    `${API_BASE_URL}/api/analyze-floorplan`
+    ...(FASTAPI_BASE_URL ? [`${FASTAPI_BASE_URL}/api/analyze-floorplan`] : []),
+    ...(API_BASE_URL ? [`${API_BASE_URL}/api/analyze-floorplan`] : []),
+    'http://localhost:8001/api/analyze-floorplan',
+    'http://localhost:3000/api/analyze-floorplan'
   ];
 
   for (const url of endpoints) {
@@ -1777,8 +1779,8 @@ $('#btn-bench').onclick = async () => {
   try {
     loaderText.textContent = 'Loading 10.0m × 8.0m Benchmark Plan...';
     loader.classList.add('active');
-    $('#blueprint-img').src = `${API_BASE_URL}/samples/perfect_floorplan.png`;
-    const res = await fetch(`${API_BASE_URL}/samples/perfect_floorplan.png`);
+    $('#blueprint-img').src = '/samples/perfect_floorplan.png';
+    const res = await fetch('/samples/perfect_floorplan.png');
     const blob = await res.blob();
     const file = new File([blob], 'perfect_floorplan.png', { type: 'image/png' });
     await analyzeFloorPlanFile(file);
