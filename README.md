@@ -20,6 +20,10 @@
   <a href="docs/Beyond-2D_Architecture_Feasibility_Report.pdf">
     <img src="https://img.shields.io/badge/%F0%9F%93%84_Feasibility_Report-PDF-red?style=for-the-badge" alt="Feasibility Report">
   </a>
+  &nbsp;&nbsp;
+  <a href="docs/Beyond-2D_Python_Architecture_and_Logic_Guide.pdf">
+    <img src="https://img.shields.io/badge/%F0%9F%93%98_Python_Architecture_Guide-PDF-purple?style=for-the-badge" alt="Python Architecture Guide">
+  </a>
 </p>
 
 ---
