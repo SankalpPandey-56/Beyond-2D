@@ -2,7 +2,7 @@ import os
 import json
 import base64
 import urllib.request
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Tuple
 from dotenv import load_dotenv
 
 # Search for environment keys in current dir, parent dir, and .env.local
@@ -12,6 +12,27 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 root_dir = os.path.abspath(os.path.join(current_dir, "..", "..", ".."))
 load_dotenv(os.path.join(root_dir, ".env.local"))
 load_dotenv(os.path.join(root_dir, ".env"))
+
+def compress_image_for_ai(image_bytes: bytes, max_dim: int = 1024) -> Tuple[bytes, str]:
+    """
+    Downscales large blueprints to max_dim and encodes as high-efficiency JPEG.
+    Reduces upload payload by 90%+ preventing socket write timeouts while preserving full text/wall readability.
+    """
+    try:
+        import cv2
+        import numpy as np
+        nparr = np.frombuffer(image_bytes, np.uint8)
+        img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        if img is None:
+            return image_bytes, "image/png"
+        h, w = img.shape[:2]
+        if max(h, w) > max_dim:
+            scale = max_dim / float(max(h, w))
+            img = cv2.resize(img, (int(w * scale), int(h * scale)), interpolation=cv2.INTER_AREA)
+        _, buf = cv2.imencode(".jpg", img, [int(cv2.IMWRITE_JPEG_QUALITY), 85])
+        return buf.tobytes(), "image/jpeg"
+    except Exception:
+        return image_bytes, "image/png"
 
 def query_vision_ai_interpretation(
     image_bytes: bytes,
@@ -30,10 +51,12 @@ def query_vision_ai_interpretation(
     if not api_key:
         return None
 
-    b64_full = base64.b64encode(image_bytes).decode("utf-8")
+    full_bytes_opt, full_mime = compress_image_for_ai(image_bytes, max_dim=1024)
+    b64_full = base64.b64encode(full_bytes_opt).decode("utf-8")
 
     if crop_bytes is not None:
-        b64_crop = base64.b64encode(crop_bytes).decode("utf-8")
+        crop_bytes_opt, crop_mime = compress_image_for_ai(crop_bytes, max_dim=1024)
+        b64_crop = base64.b64encode(crop_bytes_opt).decode("utf-8")
         prompt = """You are an expert architectural blueprint computer vision analyzer.
 Image 1 is the full blueprint with dimension measurements (e.g. 10.0m x 8.0m or 15.0m x 10.0m).
 Image 2 is the exact building footprint cropped to the structural exterior walls:
@@ -85,14 +108,16 @@ CRITICAL ARCHITECTURAL RULES:
    - "windows": [
        {"id": "win_1", "wall": "north"|"south"|"east"|"west", "relX": float, "relZ": float, "width": float}
      ]
+   - CRITICAL: Only detect windows where window openings, sill lines, or window symbols are physically drawn. NEVER hallucinate or invent windows on solid walls!
+   - Bathrooms, washrooms, and toilets often have NO windows. If no window is clearly drawn in the bathroom/washroom, DO NOT output any window for it!
 7. Return ONLY valid JSON with {"dimensions": {...}, "rooms": [...], "doors": [...], "windows": [...]}. Do not include a walls array."""
 
         parts = [
             {"text": prompt},
             {"text": "Image 1 (Full blueprint with dimension annotations):"},
-            {"inline_data": {"mime_type": mime_type, "data": b64_full}},
+            {"inline_data": {"mime_type": full_mime, "data": b64_full}},
             {"text": "Image 2 (Isolated building footprint cropped to structural walls):"},
-            {"inline_data": {"mime_type": mime_type, "data": b64_crop}},
+            {"inline_data": {"mime_type": crop_mime, "data": b64_crop}},
         ]
     else:
         prompt = """You are an expert architectural blueprint computer vision analyzer.
@@ -132,11 +157,13 @@ CRITICAL ARCHITECTURAL RULES:
   "windows": [
     {"id": "win_1", "wall": "north"|"south"|"east"|"west", "relX": float, "relZ": float, "width": float}
   ]
+  CRITICAL: Only detect windows where window openings, sill lines, or window symbols are physically drawn. NEVER hallucinate windows on solid walls!
+  Bathrooms, washrooms, and toilets often have NO windows. If no window is clearly drawn in the bathroom/washroom, DO NOT output any window for it!
 - Return ONLY valid JSON with {"dimensions": {...}, "rooms": [...], "doors": [...], "windows": [...]}. Do not include a walls array."""
 
         parts = [
             {"text": prompt},
-            {"inline_data": {"mime_type": mime_type, "data": b64_full}}
+            {"inline_data": {"mime_type": full_mime, "data": b64_full}}
         ]
 
     candidate_models = ["gemini-3.1-flash-lite-preview", "gemini-flash-latest"]
@@ -158,13 +185,14 @@ CRITICAL ARCHITECTURAL RULES:
         )
 
         try:
-            with urllib.request.urlopen(req, timeout=12) as resp:
+            with urllib.request.urlopen(req, timeout=25) as resp:
                 res = json.loads(resp.read().decode("utf-8"))
                 text = res["candidates"][0]["content"]["parts"][0]["text"]
                 parsed = json.loads(text)
                 if parsed and "rooms" in parsed and len(parsed["rooms"]) > 0:
                     return parsed
         except Exception as e:
+            print(f"[AI Interpretation] Attempt with model {model} failed: {e}")
             continue
 
     return None

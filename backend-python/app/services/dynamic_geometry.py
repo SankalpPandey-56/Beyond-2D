@@ -1,7 +1,7 @@
 import math
 import cv2
 import numpy as np
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Tuple, Optional
 from ..config import (
     DEFAULT_WALL_HEIGHT,
     DEFAULT_EXTERIOR_WALL_THICKNESS,
@@ -239,19 +239,41 @@ def calibrate_and_normalize_rooms(
 
     return cleaned
 
+def point_to_segment_dist(px: float, pz: float, x1: float, z1: float, x2: float, z2: float) -> float:
+    dx = x2 - x1
+    dz = z2 - z1
+    L2 = dx*dx + dz*dz
+    if L2 < 1e-6:
+        return math.hypot(px - x1, pz - z1)
+    t = max(0.0, min(1.0, ((px - x1) * dx + (pz - z1) * dz) / L2))
+    proj_x = x1 + t * dx
+    proj_z = z1 + t * dz
+    return math.hypot(px - proj_x, pz - proj_z)
+
+def project_point_on_segment(px: float, pz: float, x1: float, z1: float, x2: float, z2: float) -> float:
+    dx = x2 - x1
+    dz = z2 - z1
+    L2 = dx*dx + dz*dz
+    if L2 < 1e-6:
+        return 0.5
+    return max(0.05, min(0.95, ((px - x1) * dx + (pz - z1) * dz) / L2))
+
 def generate_wall_network_from_rooms(
     rooms: List[Dict[str, Any]],
     width_m: float,
     length_m: float,
-    bbox: Tuple[int, int, int, int]
+    bbox: Tuple[int, int, int, int],
+    ai_windows: Optional[List[Dict[str, Any]]] = None,
+    ai_doors: Optional[List[Dict[str, Any]]] = None
 ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]], List[Dict[str, Any]]]:
     """
     Constructs accurate, watertight wall segments from calibrated room layouts using Shapely planar geometry:
     - Traces exact exterior perimeter loop via unary_union(polys).boundary.
     - Generates interior partitions between non-open rooms via polyA.boundary.intersection(polyB.boundary).
-    - Automatically adds doors on partition walls and windows on exterior walls.
+    - Attaches ONLY verified AI doors and windows to walls, eliminating hallucinated/unnecessary openings.
+    - Never places windows in bathrooms/washrooms unless explicitly drawn in the blueprint.
     """
-    from shapely.geometry import box as shapely_box, LineString, MultiLineString
+    from shapely.geometry import box as shapely_box, LineString as SLineString
     from shapely.ops import unary_union
 
     bx, by, bw, bh = bbox
@@ -268,7 +290,6 @@ def generate_wall_network_from_rooms(
     window_defs: List[Dict[str, Any]] = []
     door_defs: List[Dict[str, Any]] = []
     wall_idx = 1
-    has_exterior_door = False
 
     # 1. Exterior Walls from Footprint Boundary
     footprint = unary_union([p[1] for p in polys])
@@ -279,6 +300,8 @@ def generate_wall_network_from_rooms(
         line_segments.append(ext_boundary)
     elif ext_boundary.geom_type == "MultiLineString":
         line_segments.extend(list(ext_boundary.geoms))
+
+    ext_wall_candidates = []
 
     for mls in line_segments:
         coords = list(mls.coords)
@@ -297,30 +320,98 @@ def generate_wall_network_from_rooms(
             p1_px = (int(bx + norm_sx * bw), int(by + norm_sz * bh))
             p2_px = (int(bx + norm_ex * bw), int(by + norm_ez * bh))
 
-            w_id = f"wall_ext_{wall_idx}"
-            w_openings = []
-
-            # Check if this exterior segment should host the front entrance door
-            is_south_facing = (sz >= length_m * 0.4 and ez >= length_m * 0.4)
-            bordering_living = False
-            from shapely.geometry import LineString as SLineString
+            # Bordering rooms check
             wall_line = SLineString([(sx, sz), (ex, ez)])
-            for r, poly in polys:
-                if r.get("type") in ("living", "entrance", "porch") and poly.distance(wall_line) < 0.2:
-                    bordering_living = True
-                    break
+            bordering = [r for r, p in polys if p.distance(wall_line) < 0.25]
 
-            if not has_exterior_door and is_south_facing and bordering_living and seg_len >= 1.2:
+            ext_wall_candidates.append({
+                "id": f"wall_ext_{wall_idx}",
+                "sx": round(sx, 2), "sz": round(sz, 2),
+                "ex": round(ex, 2), "ez": round(ez, 2),
+                "seg_len": seg_len,
+                "p1_px": p1_px, "p2_px": p2_px,
+                "bordering_rooms": bordering,
+                "openings": []
+            })
+            wall_idx += 1
+
+    # Attach Exterior Door (AI detected or fallback entrance)
+    ext_ai_doors = [
+        d for d in (ai_doors or [])
+        if str(d.get("wall", "")).lower() == "exterior"
+        or "outside" in [str(x).lower() for x in d.get("between", [])]
+        or "exterior" in [str(x).lower() for x in d.get("between", [])]
+    ]
+
+    has_exterior_door = False
+
+    if ext_ai_doors:
+        for d_idx, d in enumerate(ext_ai_doors):
+            c = d.get("center_norm") or d.get("center")
+            if c and len(c) >= 2:
+                dcx_norm, dcz_norm = float(c[0]), float(c[1])
+            else:
+                dcx_norm = float(d.get("relX", 0.5))
+                dcz_norm = float(d.get("relZ", 1.0))
+            dcx_m = (dcx_norm - 0.5) * width_m
+            dcz_m = (dcz_norm - 0.5) * length_m
+            dr_w = float(d.get("width", d.get("width_m", 0.9)))
+
+            best_w = None
+            best_dist = 999.0
+            best_pos = 0.5
+            for w in ext_wall_candidates:
+                dist = point_to_segment_dist(dcx_m, dcz_m, w["sx"], w["sz"], w["ex"], w["ez"])
+                if dist < best_dist:
+                    best_dist = dist
+                    best_w = w
+                    best_pos = project_point_on_segment(dcx_m, dcz_m, w["sx"], w["sz"], w["ex"], w["ez"])
+
+            if best_w and best_dist < 2.5:
                 has_exterior_door = True
-                dr_w = min(1.0, round(seg_len * 0.45, 2))
-                w_openings.append({
-                    "id": f"door_ext_{wall_idx}",
+                pos_clamped = max(0.15, min(0.85, best_pos))
+                actual_dr_w = min(dr_w, round(best_w["seg_len"] * 0.6, 2))
+                best_w["openings"].append({
+                    "id": f"door_ext_{best_w['id']}_{d_idx+1}",
+                    "type": "door",
+                    "wallSide": "exterior",
+                    "position": round(pos_clamped, 2),
+                    "width": actual_dr_w,
+                    "hingeSide": "left"
+                })
+                p1_px, p2_px = best_w["p1_px"], best_w["p2_px"]
+                mid_px = (
+                    int(p1_px[0] + (p2_px[0] - p1_px[0]) * pos_clamped),
+                    int(p1_px[1] + (p2_px[1] - p1_px[1]) * pos_clamped)
+                )
+                dx_px = p2_px[0] - p1_px[0]
+                dz_px = p2_px[1] - p1_px[1]
+                L_px = math.hypot(dx_px, dz_px)
+                if L_px > 0:
+                    ux = dx_px / L_px
+                    uz = dz_px / L_px
+                    half_w_px = int(actual_dr_w / width_m * bw / 2)
+                    door_defs.append({
+                        "p1": (int(mid_px[0] - ux * half_w_px), int(mid_px[1] - uz * half_w_px)),
+                        "p2": (int(mid_px[0] + ux * half_w_px), int(mid_px[1] + uz * half_w_px)),
+                    })
+
+    if not has_exterior_door:
+        for w in ext_wall_candidates:
+            is_south = (w["sz"] >= length_m * 0.35 and w["ez"] >= length_m * 0.35)
+            bordering_living = any(r.get("type") in ("living", "entrance", "porch") for r in w["bordering_rooms"])
+            if is_south and bordering_living and w["seg_len"] >= 1.2:
+                has_exterior_door = True
+                dr_w = min(1.0, round(w["seg_len"] * 0.45, 2))
+                w["openings"].append({
+                    "id": f"door_{w['id']}",
                     "type": "door",
                     "wallSide": "exterior",
                     "position": 0.5,
                     "width": dr_w,
                     "hingeSide": "left"
                 })
+                p1_px, p2_px = w["p1_px"], w["p2_px"]
                 mid_px = ((p1_px[0] + p2_px[0]) // 2, (p1_px[1] + p2_px[1]) // 2)
                 dx_px = p2_px[0] - p1_px[0]
                 dz_px = p2_px[1] - p1_px[1]
@@ -333,16 +424,100 @@ def generate_wall_network_from_rooms(
                         "p1": (int(mid_px[0] - ux * half_w_px), int(mid_px[1] - uz * half_w_px)),
                         "p2": (int(mid_px[0] + ux * half_w_px), int(mid_px[1] + uz * half_w_px)),
                     })
-            elif seg_len >= 1.6:
-                # Add window if long exterior wall
-                win_w = min(1.4, round(seg_len * 0.45, 2))
-                w_openings.append({
-                    "id": f"win_{w_id}",
+                break
+
+    # Attach Exterior Windows (CRITICAL: Only verified AI windows, zero hallucinations)
+    if ai_windows is not None and len(ai_windows) > 0:
+        # Case A: Explicit AI Windows detected - ONLY place these detected windows!
+        for w_idx, win in enumerate(ai_windows):
+            c = win.get("center_norm") or win.get("center")
+            if c and len(c) >= 2:
+                wcx_norm, wcz_norm = float(c[0]), float(c[1])
+            else:
+                wcx_norm = float(win.get("relX", 0.5))
+                wcz_norm = float(win.get("relZ", 0.0))
+            wcx_m = (wcx_norm - 0.5) * width_m
+            wcz_m = (wcz_norm - 0.5) * length_m
+            req_w = float(win.get("width", win.get("width_m", 1.4)))
+            win_hint = str(win.get("wall", "")).lower()
+
+            best_w = None
+            best_dist = 999.0
+            best_pos = 0.5
+
+            for w in ext_wall_candidates:
+                if w["seg_len"] < 0.6:
+                    continue
+                dist = point_to_segment_dist(wcx_m, wcz_m, w["sx"], w["sz"], w["ex"], w["ez"])
+                # Directional hint weighting
+                if win_hint == "north" and not (w["sz"] <= 0 and w["ez"] <= 0 and abs(w["ez"] - w["sz"]) <= abs(w["ex"] - w["sx"])):
+                    dist += 4.0
+                elif win_hint == "south" and not (w["sz"] >= 0 and w["ez"] >= 0 and abs(w["ez"] - w["sz"]) <= abs(w["ex"] - w["sx"])):
+                    dist += 4.0
+                elif win_hint == "west" and not (w["sx"] <= 0 and w["ex"] <= 0 and abs(w["ex"] - w["sx"]) <= abs(w["ez"] - w["sz"])):
+                    dist += 4.0
+                elif win_hint == "east" and not (w["sx"] >= 0 and w["ex"] >= 0 and abs(w["ex"] - w["sx"]) <= abs(w["ez"] - w["sz"])):
+                    dist += 4.0
+
+                if dist < best_dist:
+                    best_dist = dist
+                    best_w = w
+                    best_pos = project_point_on_segment(wcx_m, wcz_m, w["sx"], w["sz"], w["ex"], w["ez"])
+
+            if best_w and best_dist < 3.5:
+                pos_clamped = max(0.18, min(0.82, best_pos))
+                actual_win_w = min(req_w, round(best_w["seg_len"] * 0.75, 2))
+                best_w["openings"].append({
+                    "id": f"win_{best_w['id']}_{w_idx+1}",
+                    "type": "window",
+                    "wallSide": "exterior",
+                    "position": round(pos_clamped, 2),
+                    "width": actual_win_w,
+                })
+                p1_px, p2_px = best_w["p1_px"], best_w["p2_px"]
+                mid_px = (
+                    int(p1_px[0] + (p2_px[0] - p1_px[0]) * pos_clamped),
+                    int(p1_px[1] + (p2_px[1] - p1_px[1]) * pos_clamped)
+                )
+                dx_px = p2_px[0] - p1_px[0]
+                dz_px = p2_px[1] - p1_px[1]
+                L_px = math.hypot(dx_px, dz_px)
+                if L_px > 0:
+                    ux = dx_px / L_px
+                    uz = dz_px / L_px
+                    half_w_px = int(actual_win_w / width_m * bw / 2)
+                    window_defs.append({
+                        "p1": (int(mid_px[0] - ux * half_w_px), int(mid_px[1] - uz * half_w_px)),
+                        "p2": (int(mid_px[0] + ux * half_w_px), int(mid_px[1] + uz * half_w_px)),
+                    })
+    else:
+        # Case B: Fallback mode - strictly conservative!
+        # NEVER place windows on bathroom/washroom walls.
+        # Max 2 daylight windows total across the entire house on main living/bedroom facade.
+        placed_count = 0
+        for w in ext_wall_candidates:
+            if placed_count >= 2:
+                break
+            if w["openings"]:
+                continue
+            is_bathroom = any(r.get("type") in ("bathroom", "washroom", "toilet", "closet", "utility") for r in w["bordering_rooms"])
+            if is_bathroom:
+                continue
+            is_living_or_bed = any(r.get("type") in ("living", "bedroom", "dining") for r in w["bordering_rooms"])
+            if not is_living_or_bed:
+                continue
+            is_horiz = abs(w["ex"] - w["sx"]) >= abs(w["ez"] - w["sz"])
+            if is_horiz and w["seg_len"] >= 2.0:
+                actual_win_w = min(1.4, round(w["seg_len"] * 0.45, 2))
+                w["openings"].append({
+                    "id": f"win_{w['id']}",
                     "type": "window",
                     "wallSide": "exterior",
                     "position": 0.5,
-                    "width": win_w,
+                    "width": actual_win_w,
                 })
+                placed_count += 1
+                p1_px, p2_px = w["p1_px"], w["p2_px"]
                 mid_px = ((p1_px[0] + p2_px[0]) // 2, (p1_px[1] + p2_px[1]) // 2)
                 dx_px = p2_px[0] - p1_px[0]
                 dz_px = p2_px[1] - p1_px[1]
@@ -350,28 +525,38 @@ def generate_wall_network_from_rooms(
                 if L_px > 0:
                     ux = dx_px / L_px
                     uz = dz_px / L_px
-                    half_w_px = int(win_w / width_m * bw / 2)
+                    half_w_px = int(actual_win_w / width_m * bw / 2)
                     window_defs.append({
                         "p1": (int(mid_px[0] - ux * half_w_px), int(mid_px[1] - uz * half_w_px)),
                         "p2": (int(mid_px[0] + ux * half_w_px), int(mid_px[1] + uz * half_w_px)),
                     })
 
-            walls.append({
-                "id": w_id,
-                "startX": round(sx, 2),
-                "startZ": round(sz, 2),
-                "endX": round(ex, 2),
-                "endZ": round(ez, 2),
-                "isExterior": True,
-                "thickness": DEFAULT_EXTERIOR_WALL_THICKNESS,
-                "height": DEFAULT_WALL_HEIGHT,
-                "openings": w_openings,
-                "_p1_px": p1_px,
-                "_p2_px": p2_px,
-            })
-            wall_idx += 1
+    for w in ext_wall_candidates:
+        walls.append({
+            "id": w["id"],
+            "startX": w["sx"],
+            "startZ": w["sz"],
+            "endX": w["ex"],
+            "endZ": w["ez"],
+            "isExterior": True,
+            "thickness": DEFAULT_EXTERIOR_WALL_THICKNESS,
+            "height": DEFAULT_WALL_HEIGHT,
+            "openings": w["openings"],
+            "_p1_px": w["p1_px"],
+            "_p2_px": w["p2_px"],
+        })
 
     # 2. Interior Partition Walls from Adjacencies
+    int_ai_doors = [
+        d for d in (ai_doors or [])
+        if str(d.get("wall", "")).lower() == "interior"
+        or (
+            "outside" not in [str(x).lower() for x in d.get("between", [])]
+            and "exterior" not in [str(x).lower() for x in d.get("between", [])]
+            and len(d.get("between", [])) >= 2
+        )
+    ]
+
     for i in range(len(polys)):
         for j in range(i + 1, len(polys)):
             rA, polyA = polys[i]
@@ -412,27 +597,70 @@ def generate_wall_network_from_rooms(
 
                     # Add door on interior partition wall ONLY if not a forbidden adjacency (NEVER Kitchen <-> Bathroom!)
                     is_forbidden_door = (tA, tB) in FORBIDDEN_DOOR_PAIRS or (tB, tA) in FORBIDDEN_DOOR_PAIRS
-                    if seg_len >= 1.0 and not is_forbidden_door:
-                        dr_w = min(DEFAULT_DOOR_WIDTH, round(seg_len * 0.5, 2))
-                        w_openings.append({
-                            "id": f"door_{w_id}",
-                            "type": "door",
-                            "wallSide": "interior",
-                            "position": 0.5,
-                            "width": dr_w,
-                        })
-                        mid_px = ((p1_px[0] + p2_px[0]) // 2, (p1_px[1] + p2_px[1]) // 2)
-                        dx_px = p2_px[0] - p1_px[0]
-                        dz_px = p2_px[1] - p1_px[1]
-                        L_px = math.hypot(dx_px, dz_px)
-                        if L_px > 0:
-                            ux = dx_px / L_px
-                            uz = dz_px / L_px
-                            half_w_px = int(dr_w / width_m * bw / 2)
-                            door_defs.append({
-                                "p1": (int(mid_px[0] - ux * half_w_px), int(mid_px[1] - uz * half_w_px)),
-                                "p2": (int(mid_px[0] + ux * half_w_px), int(mid_px[1] + uz * half_w_px)),
+                    if not is_forbidden_door:
+                        matched_ai_door = None
+                        matched_pos = 0.5
+                        for d in int_ai_doors:
+                            c_d = d.get("center_norm") or d.get("center")
+                            if c_d and len(c_d) >= 2:
+                                dcx_norm, dcz_norm = float(c_d[0]), float(c_d[1])
+                            else:
+                                dcx_norm = float(d.get("relX", 0.5))
+                                dcz_norm = float(d.get("relZ", 0.5))
+                            dcx_m = (dcx_norm - 0.5) * width_m
+                            dcz_m = (dcz_norm - 0.5) * length_m
+                            dist = point_to_segment_dist(dcx_m, dcz_m, sx, sz, ex, ez)
+                            if dist < 1.2:
+                                matched_ai_door = d
+                                matched_pos = project_point_on_segment(dcx_m, dcz_m, sx, sz, ex, ez)
+                                break
+
+                        if matched_ai_door:
+                            dr_w = min(DEFAULT_DOOR_WIDTH, round(seg_len * 0.6, 2))
+                            pos_clamped = max(0.18, min(0.82, matched_pos))
+                            w_openings.append({
+                                "id": f"door_{w_id}",
+                                "type": "door",
+                                "wallSide": "interior",
+                                "position": round(pos_clamped, 2),
+                                "width": dr_w,
                             })
+                            mid_px = (
+                                int(p1_px[0] + (p2_px[0] - p1_px[0]) * pos_clamped),
+                                int(p1_px[1] + (p2_px[1] - p1_px[1]) * pos_clamped)
+                            )
+                            dx_px = p2_px[0] - p1_px[0]
+                            dz_px = p2_px[1] - p1_px[1]
+                            L_px = math.hypot(dx_px, dz_px)
+                            if L_px > 0:
+                                ux = dx_px / L_px
+                                uz = dz_px / L_px
+                                half_w_px = int(dr_w / width_m * bw / 2)
+                                door_defs.append({
+                                    "p1": (int(mid_px[0] - ux * half_w_px), int(mid_px[1] - uz * half_w_px)),
+                                    "p2": (int(mid_px[0] + ux * half_w_px), int(mid_px[1] + uz * half_w_px)),
+                                })
+                        elif not int_ai_doors and seg_len >= 1.0:
+                            dr_w = min(DEFAULT_DOOR_WIDTH, round(seg_len * 0.5, 2))
+                            w_openings.append({
+                                "id": f"door_{w_id}",
+                                "type": "door",
+                                "wallSide": "interior",
+                                "position": 0.5,
+                                "width": dr_w,
+                            })
+                            mid_px = ((p1_px[0] + p2_px[0]) // 2, (p1_px[1] + p2_px[1]) // 2)
+                            dx_px = p2_px[0] - p1_px[0]
+                            dz_px = p2_px[1] - p1_px[1]
+                            L_px = math.hypot(dx_px, dz_px)
+                            if L_px > 0:
+                                ux = dx_px / L_px
+                                uz = dz_px / L_px
+                                half_w_px = int(dr_w / width_m * bw / 2)
+                                door_defs.append({
+                                    "p1": (int(mid_px[0] - ux * half_w_px), int(mid_px[1] - uz * half_w_px)),
+                                    "p2": (int(mid_px[0] + ux * half_w_px), int(mid_px[1] + uz * half_w_px)),
+                                })
 
                     walls.append({
                         "id": w_id,

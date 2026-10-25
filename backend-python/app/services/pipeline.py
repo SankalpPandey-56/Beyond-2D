@@ -184,7 +184,9 @@ def execute_floor_plan_pipeline(image_bytes: bytes, file_name: str = "uploaded_p
             rooms=calibrated_rooms,
             width_m=real_width_m,
             length_m=real_length_m,
-            bbox=bbox
+            bbox=bbox,
+            ai_windows=ai_windows,
+            ai_doors=ai_doors
         )
 
     # 6. Validate Architectural Geometry
