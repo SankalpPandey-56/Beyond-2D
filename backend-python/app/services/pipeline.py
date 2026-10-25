@@ -222,7 +222,7 @@ def execute_floor_plan_pipeline(image_bytes: bytes, file_name: str = "uploaded_p
                 "bbox_pixels": list(bbox),
                 "resolution": f"{w_px}x{h_px}",
                 "aspectRatio": round(drawing_ratio, 3),
-                "porchBayPreserved": any(r.get("type") in ("porch", "exterior", "patio", "balcony", "entrance", "entry") or any(k in r.get("name", "").lower() for k in ("porch", "patio", "entrance", "balcony")) for r in validated_rooms),
+                "porchBayPreserved": any(r.get("type") in ("porch", "exterior") for r in validated_rooms),
                 "exteriorSegmentsCount": len([w for w in validated_walls if w.get("isExterior")]),
             },
             "cvStats": {

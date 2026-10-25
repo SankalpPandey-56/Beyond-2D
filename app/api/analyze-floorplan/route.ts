@@ -7,17 +7,6 @@ import { AIAnalysisResponse } from '@/lib/types';
 
 export const maxDuration = 60; // Allow up to 60s for multimodal vision reasoning
 
-export async function OPTIONS() {
-  return new NextResponse(null, {
-    status: 204,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
-  });
-}
-
 export async function POST(req: NextRequest) {
   const startTime = Date.now();
   const provider = getFloorPlanAIProvider();
@@ -60,9 +49,9 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Priority 1: Version B Python FastAPI + OpenCV + Shapely Engine
+    // Priority 1: Version B Python FastAPI + OpenCV + Shapely Engine (port 8001)
     try {
-      const fastApiUrl = process.env.FASTAPI_URL || 'http://localhost:8001/api/analyze-floorplan';
+      const fastApiUrl = 'http://localhost:8001/api/analyze-floorplan';
       const pyFormData = new FormData();
       const buffer = Buffer.from(imageBase64, 'base64');
       const blob = new Blob([buffer], { type: mimeType });
@@ -77,9 +66,7 @@ export async function POST(req: NextRequest) {
         const pyData = await pyRes.json();
         if (pyData && pyData.success && pyData.layout) {
           console.log(`[Beyond-2D API] Successfully processed via Version B FastAPI in ${Date.now() - startTime}ms.`);
-          return NextResponse.json(pyData, {
-            headers: { 'Access-Control-Allow-Origin': '*' }
-          });
+          return NextResponse.json(pyData);
         }
       }
     } catch (fastApiErr) {
@@ -114,9 +101,7 @@ export async function POST(req: NextRequest) {
       diagnostics: planpopResult.diagnostics,
     };
 
-    return NextResponse.json(response, {
-      headers: { 'Access-Control-Allow-Origin': '*' }
-    });
+    return NextResponse.json(response);
   } catch (error: any) {
     const duration = Date.now() - startTime;
     const errorMessage = error?.message || 'Unknown error occurred during AI floor plan analysis.';
@@ -143,8 +128,6 @@ export async function POST(req: NextRequest) {
       error: errorMessage,
     };
 
-    return NextResponse.json(fallbackResponse, {
-      headers: { 'Access-Control-Allow-Origin': '*' }
-    });
+    return NextResponse.json(fallbackResponse);
   }
 }

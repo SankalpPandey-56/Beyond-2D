@@ -1,8 +1,5 @@
 # dependencies
 /node_modules
-**/node_modules/
-frontend-landing/node_modules/
-frontend-landing/dist/
 /.pnp
 .pnp.js
 

@@ -905,30 +905,14 @@ export default function BlenderViewport({
     const wallY = 0.24 + (H / 2);
     const activeWalls = walls && walls.length > 0 ? walls : [];
 
-    // Parametric scaling for walls to lockstep with Width (W) and Length (L)
     activeWalls.forEach(w => {
-      if ((w as any).baseW === undefined) (w as any).baseW = dimensions.width || 10.0;
-      if ((w as any).baseL === undefined) (w as any).baseL = dimensions.length || 8.0;
-      if ((w as any).baseStartX === undefined) (w as any).baseStartX = w.startX;
-      if ((w as any).baseEndX === undefined) (w as any).baseEndX = w.endX;
-      if ((w as any).baseStartZ === undefined) (w as any).baseStartZ = w.startZ;
-      if ((w as any).baseEndZ === undefined) (w as any).baseEndZ = w.endZ;
-
-      const scaleX = (w as any).baseW > 0 ? W / (w as any).baseW : 1.0;
-      const scaleZ = (w as any).baseL > 0 ? L / (w as any).baseL : 1.0;
-
-      const curStartX = (w as any).baseStartX * scaleX;
-      const curEndX = (w as any).baseEndX * scaleX;
-      const curStartZ = (w as any).baseStartZ * scaleZ;
-      const curEndZ = (w as any).baseEndZ * scaleZ;
-
-      const dx = curEndX - curStartX;
-      const dz = curEndZ - curStartZ;
+      const dx = w.endX - w.startX;
+      const dz = w.endZ - w.startZ;
       const len = Math.sqrt(dx * dx + dz * dz);
       if (len < 0.15) return;
 
-      const midX = (curStartX + curEndX) / 2;
-      const midZ = (curStartZ + curEndZ) / 2;
+      const midX = (w.startX + w.endX) / 2;
+      const midZ = (w.startZ + w.endZ) / 2;
       const angle = Math.atan2(dz, dx);
       const isExt = w.isExterior;
 
@@ -981,7 +965,7 @@ export default function BlenderViewport({
         group.add(wallGroup);
       } else if (doorOp && len > 0.9) {
         // --- 2. TRUE ARCHITECTURAL DOORWAY (Door leaf + threshold, no sill) - PlanPop Blue ---
-        const doorWidth = Math.min(len * 0.70, doorOp.width || 0.95);
+        const doorWidth = Math.min(len * 0.75, doorOp.width || 0.95);
         const remainingLen = Math.max(0.15, len - doorWidth);
         const seg1Len = remainingLen * 0.5;
         const seg2Len = remainingLen * 0.5;
@@ -1004,16 +988,17 @@ export default function BlenderViewport({
         lintel.position.set(0, H / 2 - lintelH / 2, 0);
         lintel.castShadow = true;
 
-        // Door Threshold on floor (flush with wall thickness T, zero exterior overhang)
-        const thresh = new THREE.Mesh(new THREE.BoxGeometry(doorWidth, 0.03, T), doorThresholdMat);
-        thresh.position.set(0, -H / 2 + 0.015, 0);
+        // Door Threshold on floor
+        const thresh = new THREE.Mesh(new THREE.BoxGeometry(doorWidth, 0.04, T * 1.3), doorThresholdMat);
+        thresh.position.set(0, -H / 2 + 0.02, 0);
 
+        // 3D Door Leaf swung open at 55 degrees into the room
         const doorLeaf = new THREE.Mesh(
           new THREE.BoxGeometry(doorWidth * 0.92, 2.06, 0.04),
           doorLeafMat
         );
         doorLeaf.position.set(-doorWidth / 2 + 0.04, -H / 2 + 1.03, 0.32);
-        doorLeaf.rotation.y = Math.PI / 3.2;
+        doorLeaf.rotation.y = Math.PI / 3.2; // Swung open
         doorLeaf.castShadow = true;
 
         wallGroup.add(seg1, seg2, lintel, thresh, doorLeaf);
