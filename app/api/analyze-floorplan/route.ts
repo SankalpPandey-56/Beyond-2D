@@ -60,10 +60,9 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Priority 1: Version B Python FastAPI + OpenCV + Shapely Engine (port 8001 or hosted)
+    // Priority 1: Version B Python FastAPI + OpenCV + Shapely Engine (port 8001)
     try {
-      const fastApiBase = process.env.FASTAPI_BACKEND_URL ? process.env.FASTAPI_BACKEND_URL.replace(/\/$/, '') : 'http://localhost:8001';
-      const fastApiUrl = `${fastApiBase}/api/analyze-floorplan`;
+      const fastApiUrl = 'http://localhost:8001/api/analyze-floorplan';
       const pyFormData = new FormData();
       const buffer = Buffer.from(imageBase64, 'base64');
       const blob = new Blob([buffer], { type: mimeType });

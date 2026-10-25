@@ -905,30 +905,14 @@ export default function BlenderViewport({
     const wallY = 0.24 + (H / 2);
     const activeWalls = walls && walls.length > 0 ? walls : [];
 
-    // Parametric scaling for walls to lockstep with Width (W) and Length (L)
-    const baseW = 10.0;
-    const baseL = 8.0;
-    const scaleX = baseW > 0 ? W / baseW : 1.0;
-    const scaleZ = baseL > 0 ? L / baseL : 1.0;
-
     activeWalls.forEach(w => {
-      if ((w as any).baseStartX === undefined) (w as any).baseStartX = w.startX;
-      if ((w as any).baseEndX === undefined) (w as any).baseEndX = w.endX;
-      if ((w as any).baseStartZ === undefined) (w as any).baseStartZ = w.startZ;
-      if ((w as any).baseEndZ === undefined) (w as any).baseEndZ = w.endZ;
-
-      const curStartX = (w as any).baseStartX * scaleX;
-      const curEndX = (w as any).baseEndX * scaleX;
-      const curStartZ = (w as any).baseStartZ * scaleZ;
-      const curEndZ = (w as any).baseEndZ * scaleZ;
-
-      const dx = curEndX - curStartX;
-      const dz = curEndZ - curStartZ;
+      const dx = w.endX - w.startX;
+      const dz = w.endZ - w.startZ;
       const len = Math.sqrt(dx * dx + dz * dz);
       if (len < 0.15) return;
 
-      const midX = (curStartX + curEndX) / 2;
-      const midZ = (curStartZ + curEndZ) / 2;
+      const midX = (w.startX + w.endX) / 2;
+      const midZ = (w.startZ + w.endZ) / 2;
       const angle = Math.atan2(dz, dx);
       const isExt = w.isExterior;
 

@@ -401,9 +401,9 @@ p.note{color:var(--mute);margin:14px 0 0;font-size:12px;line-height:1.6}
 <!-- Three.js r128 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-// --- Configuration & Endpoints (Vercel & Local Dynamic Resolution) ---
-const API_BASE_URL = window.location.port === '3000' ? 'http://localhost:3001' : window.location.origin;
-const FASTAPI_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:8001' : window.location.origin;
+// --- Configuration & Endpoints ---
+const API_BASE_URL = 'http://localhost:3001';
+const FASTAPI_BASE_URL = 'http://localhost:8001';
 
 const $ = s => document.querySelector(s);
 const stage = $('#stage'), tip = $('#tip'), lab = $('#lab'), loader = $('#loader'), loaderText = $('#loader-text');
@@ -894,49 +894,17 @@ function rebuildHouseScene(data) {
   const walls = data.walls && data.walls.length > 0 ? data.walls : (currentProject.walls.length > 0 ? currentProject.walls : DEFAULT_WALLS);
   currentProject.walls = walls;
 
-  // Baseline Footprint Tracking for Dynamic Parametric Scaling (Stretch walls with W and L)
-  if (!currentProject.baseWidth || !currentProject.baseLength || (data.dimensions && data !== currentProject && data.dimensions.width !== currentProject.dimensions?.width)) {
-    currentProject.baseWidth = (data.dimensions && data.dimensions.width) || dims.width || 10.0;
-    currentProject.baseLength = (data.dimensions && data.dimensions.length) || dims.length || 8.0;
-  }
-  const baseW = currentProject.baseWidth;
-  const baseL = currentProject.baseLength;
-  const scaleX = baseW > 0 ? W / baseW : 1.0;
-  const scaleZ = baseL > 0 ? L / baseL : 1.0;
-
   walls.forEach(w => {
-    // Preserve initial unscaled baseline coordinates
-    if (w.baseStartX === undefined) w.baseStartX = w.startX;
-    if (w.baseEndX === undefined) w.baseEndX = w.endX;
-    if (w.baseStartZ === undefined) w.baseStartZ = w.startZ;
-    if (w.baseEndZ === undefined) w.baseEndZ = w.endZ;
-
-    // Dynamically scale wall endpoints to match current Width (X) and Length (Z)
-    const curStartX = w.baseStartX * scaleX;
-    const curEndX = w.baseEndX * scaleX;
-    const curStartZ = w.baseStartZ * scaleZ;
-    const curEndZ = w.baseEndZ * scaleZ;
-
-    // Keep active coordinates updated for export and inspection
-    w.startX = curStartX;
-    w.endX = curEndX;
-    w.startZ = curStartZ;
-    w.endZ = curEndZ;
-
-    const dx = curEndX - curStartX;
-    const dz = curEndZ - curStartZ;
+    const dx = w.endX - w.startX;
+    const dz = w.endZ - w.startZ;
     const len = Math.hypot(dx, dz);
     if (len < 0.15) return;
 
-    const midX = (curStartX + curEndX) / 2;
-    const midZ = (curStartZ + curEndZ) / 2;
+    const midX = (w.startX + w.endX) / 2;
+    const midZ = (w.startZ + w.endZ) / 2;
     const angle = Math.atan2(dz, dx);
-
-    // Parametric thickness and height driven by current sliders
-    const wallThick = w.isExterior ? T : Math.max(0.10, T * (0.15 / 0.22));
-    const wallH = H;
-    w.thickness = wallThick;
-    w.height = wallH;
+    const wallThick = w.thickness || (w.isExterior ? T : 0.15);
+    const wallH = w.height || H;
 
     const currentWallMat = w.isExterior ? extWallMat : intWallMat;
     const winOp = w.openings?.find(op => op.type === 'window');
@@ -1762,8 +1730,6 @@ async function analyzeFloorPlanFile(file) {
     $('#proj-name').textContent = cleanName;
     currentProject.name = cleanName;
     currentProject.dimensions = layout.dimensions;
-    currentProject.baseWidth = layout.dimensions.width || 10.0;
-    currentProject.baseLength = layout.dimensions.length || 8.0;
     currentProject.rooms = layout.rooms;
     currentProject.walls = layout.walls;
 
