@@ -1704,8 +1704,9 @@ async function analyzeFloorPlanFile(file) {
   let responseData = null;
 
   const endpoints = [
-    `${API_BASE_URL}/api/analyze-floorplan`,
-    `${FASTAPI_BASE_URL}/api/analyze-floorplan`
+    '/api/analyze-floorplan',
+    `${FASTAPI_BASE_URL}/api/analyze-floorplan`,
+    `${API_BASE_URL}/api/analyze-floorplan`
   ];
 
   for (const url of endpoints) {

@@ -38,6 +38,15 @@ OPEN_PLAN_PAIRS = {
     ("living_room", "hallway"), ("hallway", "living_room"),
 }
 
+# Forbidden door adjacencies: Never connect food preparation to sanitation or inappropriate spaces
+FORBIDDEN_DOOR_PAIRS = {
+    ("kitchen", "bathroom"), ("bathroom", "kitchen"),
+    ("kitchen", "washroom"), ("washroom", "kitchen"),
+    ("kitchen", "toilet"), ("toilet", "kitchen"),
+    ("kitchen", "powder_room"), ("powder_room", "kitchen"),
+    ("bedroom", "kitchen"), ("kitchen", "bedroom"),
+}
+
 def snap_rooms_to_wall_pixels(
     rooms: List[Dict[str, Any]],
     crop_gray: np.ndarray
@@ -259,6 +268,7 @@ def generate_wall_network_from_rooms(
     window_defs: List[Dict[str, Any]] = []
     door_defs: List[Dict[str, Any]] = []
     wall_idx = 1
+    has_exterior_door = False
 
     # 1. Exterior Walls from Footprint Boundary
     footprint = unary_union([p[1] for p in polys])
@@ -290,8 +300,41 @@ def generate_wall_network_from_rooms(
             w_id = f"wall_ext_{wall_idx}"
             w_openings = []
 
-            # Add window if long exterior wall
-            if seg_len >= 1.6:
+            # Check if this exterior segment should host the front entrance door
+            is_south_facing = (sz >= length_m * 0.4 and ez >= length_m * 0.4)
+            bordering_living = False
+            from shapely.geometry import LineString as SLineString
+            wall_line = SLineString([(sx, sz), (ex, ez)])
+            for r, poly in polys:
+                if r.get("type") in ("living", "entrance", "porch") and poly.distance(wall_line) < 0.2:
+                    bordering_living = True
+                    break
+
+            if not has_exterior_door and is_south_facing and bordering_living and seg_len >= 1.2:
+                has_exterior_door = True
+                dr_w = min(1.0, round(seg_len * 0.45, 2))
+                w_openings.append({
+                    "id": f"door_ext_{wall_idx}",
+                    "type": "door",
+                    "wallSide": "exterior",
+                    "position": 0.5,
+                    "width": dr_w,
+                    "hingeSide": "left"
+                })
+                mid_px = ((p1_px[0] + p2_px[0]) // 2, (p1_px[1] + p2_px[1]) // 2)
+                dx_px = p2_px[0] - p1_px[0]
+                dz_px = p2_px[1] - p1_px[1]
+                L_px = math.hypot(dx_px, dz_px)
+                if L_px > 0:
+                    ux = dx_px / L_px
+                    uz = dz_px / L_px
+                    half_w_px = int(dr_w / width_m * bw / 2)
+                    door_defs.append({
+                        "p1": (int(mid_px[0] - ux * half_w_px), int(mid_px[1] - uz * half_w_px)),
+                        "p2": (int(mid_px[0] + ux * half_w_px), int(mid_px[1] + uz * half_w_px)),
+                    })
+            elif seg_len >= 1.6:
+                # Add window if long exterior wall
                 win_w = min(1.4, round(seg_len * 0.45, 2))
                 w_openings.append({
                     "id": f"win_{w_id}",
@@ -367,8 +410,9 @@ def generate_wall_network_from_rooms(
                     w_id = f"wall_int_{wall_idx}"
                     w_openings = []
 
-                    # Add door on interior partition wall
-                    if seg_len >= 1.0:
+                    # Add door on interior partition wall ONLY if not a forbidden adjacency (NEVER Kitchen <-> Bathroom!)
+                    is_forbidden_door = (tA, tB) in FORBIDDEN_DOOR_PAIRS or (tB, tA) in FORBIDDEN_DOOR_PAIRS
+                    if seg_len >= 1.0 and not is_forbidden_door:
                         dr_w = min(DEFAULT_DOOR_WIDTH, round(seg_len * 0.5, 2))
                         w_openings.append({
                             "id": f"door_{w_id}",

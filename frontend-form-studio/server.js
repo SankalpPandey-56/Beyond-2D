@@ -25,6 +25,26 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // Proxy API requests directly to FastAPI backend on port 8001
+  if (req.url.startsWith('/api/')) {
+    const proxyReq = http.request({
+      hostname: '127.0.0.1',
+      port: 8001,
+      path: req.url,
+      method: req.method,
+      headers: req.headers
+    }, (proxyRes) => {
+      res.writeHead(proxyRes.statusCode, proxyRes.headers);
+      proxyRes.pipe(res);
+    });
+    proxyReq.on('error', (err) => {
+      res.writeHead(502, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Backend unreachable on 8001', details: err.message }));
+    });
+    req.pipe(proxyReq);
+    return;
+  }
+
   let filePath = path.join(__dirname, req.url === '/' ? 'index.html' : req.url.split('?')[0]);
   
   if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {

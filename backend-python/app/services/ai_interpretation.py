@@ -76,7 +76,16 @@ CRITICAL ARCHITECTURAL RULES:
 2. Extract all room coordinates relative to Image 2 (the cropped building footprint).
 3. The rooms together MUST cover the entire house layout. Do not leave large sections empty.
 4. Adjacent rooms must share boundaries flush with ZERO VOID GAPS between rooms.
-5. Return ONLY valid JSON with {"dimensions": {...}, "rooms": [...]}. Do not include a walls array."""
+5. Identify DOORS:
+   - "doors": [
+       {"id": "door_1", "wall": "exterior"|"interior", "between": ["RoomA", "RoomB"|"outside"], "relX": float (0.0 to 1.0), "relZ": float (0.0 to 1.0), "width": float}
+     ]
+   - CRITICAL: Only detect doors where door swings or door openings are physically drawn. NEVER place a door between kitchen and bathroom/washroom!
+6. Identify WINDOWS:
+   - "windows": [
+       {"id": "win_1", "wall": "north"|"south"|"east"|"west", "relX": float, "relZ": float, "width": float}
+     ]
+7. Return ONLY valid JSON with {"dimensions": {...}, "rooms": [...], "doors": [...], "windows": [...]}. Do not include a walls array."""
 
         parts = [
             {"text": prompt},
@@ -114,14 +123,23 @@ Also identify building dimensions:
 CRITICAL ARCHITECTURAL RULES:
 - The extracted rooms together MUST span the full house footprint. Do NOT leave large areas empty.
 - Adjacent rooms must share boundaries flush with ZERO VOID GAPS between rooms.
-- Return ONLY valid JSON with {"dimensions": {...}, "rooms": [...]}. Do not include a walls array."""
+- Identify DOORS:
+  "doors": [
+    {"id": "door_1", "wall": "exterior"|"interior", "between": ["RoomA", "RoomB"|"outside"], "relX": float, "relZ": float, "width": float}
+  ]
+  Only detect doors where door swings or openings are actually drawn! NEVER place a door between kitchen and bathroom/washroom!
+- Identify WINDOWS:
+  "windows": [
+    {"id": "win_1", "wall": "north"|"south"|"east"|"west", "relX": float, "relZ": float, "width": float}
+  ]
+- Return ONLY valid JSON with {"dimensions": {...}, "rooms": [...], "doors": [...], "windows": [...]}. Do not include a walls array."""
 
         parts = [
             {"text": prompt},
             {"inline_data": {"mime_type": mime_type, "data": b64_full}}
         ]
 
-    candidate_models = ["gemini-3.1-flash-lite-preview", "gemini-3.1-flash-lite"]
+    candidate_models = ["gemini-2.5-flash", "gemini-3.1-flash-lite-preview", "gemini-flash-latest"]
 
     for model in candidate_models:
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
