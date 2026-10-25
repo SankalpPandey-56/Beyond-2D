@@ -17,47 +17,66 @@ import numpy as np
 
 def extract_rooms_from_image_cv(clean_gray: np.ndarray, bbox: Tuple[int, int, int, int], width_m: float, length_m: float) -> List[Dict[str, Any]]:
     """
-    Pure OpenCV deterministic room extraction:
-    Extracts actual enclosed room components directly from image pixels.
+    OpenCV deterministic room extraction with structural morphological filtering:
+    Seals door gaps and filters out text/furniture so only real rooms are extracted.
+    Never creates fragmented 1m² micro-rooms or dimension line artifacts.
     """
     bx, by, bw, bh = bbox
     h, w = clean_gray.shape[:2]
 
-    pad = 10
+    pad = 6
     x1 = max(0, bx - pad)
     y1 = max(0, by - pad)
     x2 = min(w, bx + bw + pad)
     y2 = min(h, by + bh + pad)
     crop = clean_gray[y1:y2, x1:x2]
 
-    _, binary = cv2.threshold(crop, 200, 255, cv2.THRESH_BINARY_INV)
-    inv = 255 - binary
+    _, binary = cv2.threshold(crop, 210, 255, cv2.THRESH_BINARY_INV)
+
+    # Morphological closing to seal walls, doors, and eliminate internal text/furniture noise
+    kernel_size = max(9, int(min(bw, bh) * 0.025))
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (kernel_size, kernel_size))
+    closed = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel)
+    inv = 255 - closed
 
     num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(inv, connectivity=4)
     total_area = crop.shape[0] * crop.shape[1]
 
-    rooms = []
-    ROOM_NAMES = ["Living Room", "Master Bedroom", "Kitchen", "Bedroom 2", "Dining Room", "Bathroom", "Office", "Hallway", "Porch", "Guest Bedroom"]
+    # Collect valid components that have realistic room sizes (minimum 5% of building area, maximum 85%)
+    valid_components = []
+    min_room_area = total_area * 0.05
+    max_room_area = total_area * 0.85
 
     for i in range(1, num_labels):
         area = stats[i, cv2.CC_STAT_AREA]
-        if area > total_area * 0.35 or area < 1200:
-            continue
         rx_c = stats[i, cv2.CC_STAT_LEFT]
         ry_c = stats[i, cv2.CC_STAT_TOP]
         rw_c = stats[i, cv2.CC_STAT_WIDTH]
         rh_c = stats[i, cv2.CC_STAT_HEIGHT]
+        # Skip image border / background component
+        if rx_c <= 2 and ry_c <= 2 and rw_c >= crop.shape[1] - 4 and rh_c >= crop.shape[0] - 4:
+            continue
 
+        if min_room_area <= area <= max_room_area:
+            valid_components.append((area, i, rx_c, ry_c, rw_c, rh_c))
+
+    # Sort by area descending, take at most 6 largest genuine rooms
+    valid_components.sort(key=lambda x: x[0], reverse=True)
+    valid_components = valid_components[:6]
+
+    rooms = []
+    ROOM_NAMES = ["Living Room", "Master Bedroom", "Kitchen", "Bathroom", "Bedroom 2", "Dining Room"]
+
+    for idx, (area, i, rx_c, ry_c, rw_c, rh_c) in enumerate(valid_components):
         rx = x1 + rx_c
         ry = y1 + ry_c
 
         relX = max(0.0, min(0.95, (rx - bx) / float(bw)))
         relZ = max(0.0, min(0.95, (ry - by) / float(bh)))
-        relW = max(0.05, min(1.0 - relX, rw_c / float(bw)))
-        relD = max(0.05, min(1.0 - relZ, rh_c / float(bh)))
+        relW = max(0.08, min(1.0 - relX, rw_c / float(bw)))
+        relD = max(0.08, min(1.0 - relZ, rh_c / float(bh)))
 
-        idx = len(rooms)
-        name = ROOM_NAMES[idx % len(ROOM_NAMES)] if idx < len(ROOM_NAMES) else f"Room {idx+1}"
+        name = ROOM_NAMES[idx % len(ROOM_NAMES)]
         r_type = "bedroom" if "Bedroom" in name else ("bathroom" if "Bathroom" in name else ("kitchen" if "Kitchen" in name else "living"))
 
         rooms.append({
@@ -73,8 +92,8 @@ def extract_rooms_from_image_cv(clean_gray: np.ndarray, bbox: Tuple[int, int, in
 
     if not rooms:
         rooms = [
-            {"id": "room_1", "name": "Living Space", "type": "living", "relX": 0.0, "relZ": 0.0, "relW": 0.55, "relD": 1.0},
-            {"id": "room_2", "name": "Bedroom Wing", "type": "bedroom", "relX": 0.55, "relZ": 0.0, "relW": 0.45, "relD": 1.0},
+            {"id": "room_1", "name": "Main Living Space", "type": "living", "relX": 0.0, "relZ": 0.0, "relW": 0.6, "relD": 1.0},
+            {"id": "room_2", "name": "Kitchen & Bath Wing", "type": "kitchen", "relX": 0.6, "relZ": 0.0, "relW": 0.4, "relD": 1.0},
         ]
 
     return rooms
