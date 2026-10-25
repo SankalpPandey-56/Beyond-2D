@@ -45,45 +45,29 @@ Upload a 2D Floor Plan
 The quality of the result will depend on the input image and how accurately the application can identify the layout.
  🛠️ Tech Stack
 
-We're using modern web technologies to build the application. The exact stack may evolve as development progresses.
+We're using modern web and vision AI technologies to build the application:
 
-- Frontend: Next.js, React, TypeScript, Tailwind CSS
-- 3D Visualization: Three.js / React Three Fiber
-- Backend: Python and Django, if used in the final implementation
-- Version Control: Git and GitHub
+- **Frontend:** Standalone FORM Studio (`frontend-form-studio/`) with Three.js, procedural PBR materials, WASD first-person walkthrough, and parametric dimension controls.
+- **Backend:** Python FastAPI (`backend-python/`) with OpenCV, Shapely planar geometry, and Gemini Vision AI for room and wall extraction.
+- **Export:** GLB 3D models and high-resolution architectural presentation boards.
 
 🚀 Getting Started
 
-Want to run the project locally? Follow these steps.
+Want to run the project locally? Follow these steps:
 
-1. Clone the repository
-
-```bash
-git clone <YOUR_GITHUB_REPOSITORY_URL>
-cd <YOUR_PROJECT_DIRECTORY>
-```
-
-Replace the placeholders with your repository URL and project folder name.
-
-2. Install dependencies
+1. Start the Frontend (FORM Studio):
 
 ```bash
-npm install
+npm start
+# Runs at http://localhost:3000
 ```
 
-3. Start the frontend
+2. Start the Backend (FastAPI Vision Engine):
 
 ```bash
-npm run dev
+npm run backend
+# Runs at http://localhost:8001
 ```
-
-Open the local URL displayed in your terminal, usually `http://localhost:3000`.
-
-4. Start the backend
-
-If the project uses Django, navigate to the backend directory, activate your Python environment, install its dependencies, and run the server using the project's setup instructions.
-
-The exact commands may vary depending on the final project structure.
 
 🗺️ What's next?
 

@@ -1,31 +1,11 @@
 {
   "name": "beyond-2d",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
+  "description": "BEYOND - 2D Architectural 3D Workspace & Vision AI Engine",
   "scripts": {
-    "dev": "next dev",
-    "dev:v2": "PORT=3001 NEXT_PUBLIC_API_BASE_URL=http://localhost:8001 next dev -p 3001",
-    "backend:python": "cd backend-python && python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload",
-    "build": "next build",
-    "start": "next start"
-  },
-  "dependencies": {
-    "clsx": "^2.1.1",
-    "lucide-react": "^0.453.0",
-    "next": "^14.2.15",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "tailwind-merge": "^2.5.4",
-    "three": "^0.169.0"
-  },
-  "devDependencies": {
-    "@types/node": "^20.16.11",
-    "@types/react": "^18.3.11",
-    "@types/react-dom": "^18.3.0",
-    "@types/three": "^0.169.0",
-    "autoprefixer": "^10.4.20",
-    "postcss": "^8.4.47",
-    "tailwindcss": "^3.4.13",
-    "typescript": "^5.6.3"
+    "start": "cd frontend-form-studio && node server.js",
+    "dev": "cd frontend-form-studio && node server.js",
+    "backend": "cd backend-python && python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload"
   }
 }
