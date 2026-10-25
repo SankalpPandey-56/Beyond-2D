@@ -249,6 +249,16 @@ export default function SidebarLeft({
         </div>
       </div>
 
+      {/* Workspace Switcher */}
+      <div className="p-2.5 border-t border-[#3c3c3c] bg-[#1a1a1a]">
+        <a
+          href="/studio"
+          className="w-full flex items-center justify-center gap-1.5 py-1.5 px-2 bg-[#2d3748] hover:bg-[#374151] text-[#e2e8f0] text-xs font-medium rounded border border-[#4a5568] transition-colors"
+        >
+          <span>🏛️ Switch to FORM Studio</span>
+        </a>
+      </div>
+
       {/* 7. Footer Info */}
       <div className="p-2.5 border-t border-[#3c3c3c] bg-[#222222] text-[10px] text-[#777] flex items-center justify-between">
         <span>Beyond-2D Engine</span>
