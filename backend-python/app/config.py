@@ -15,7 +15,7 @@ CORS_ORIGINS: List[str] = [origin.strip() for origin in cors_raw.split(",") if o
 
 # Vision / AI Configuration
 GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
-GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-3.1-flash-lite-preview")
 AI_ENABLED: bool = os.getenv("AI_ENABLED", "true").lower() in ("1", "true", "yes")
 
 # Processing Limits
