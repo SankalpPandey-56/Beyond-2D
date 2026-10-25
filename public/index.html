@@ -153,7 +153,310 @@ p.note{color:var(--mute);margin:14px 0 0;font-size:12px;line-height:1.6}
 #walk-exit{position:absolute;top:20px;left:50%;transform:translateX(-50%);background:rgba(15,23,42,.92);border:1px solid var(--cyan);color:var(--cyan);font:600 13px Manrope,sans-serif;padding:8px 18px;border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,.5);cursor:pointer;display:none;z-index:25}
 #walk-exit:hover{background:var(--cyan);color:#0f172a}
 
-@media(max-width:980px){main{grid-template-columns:1fr}aside{display:none}.tabs{display:none}}
+/* Mobile Responsive System */
+.drawer-header {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 6px;
+}
+.drawer-title {
+  font: 700 16px 'Cormorant Garamond', Georgia, serif;
+  color: var(--accent);
+  letter-spacing: .04em;
+}
+.btn-drawer-close {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--line);
+  color: var(--text);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+}
+.drawer-handle {
+  width: 44px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  margin: 0 auto 12px;
+  display: none;
+}
+
+#mobile-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 14, 20, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 85;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+#mobile-backdrop.active {
+  display: block;
+  opacity: 1;
+}
+
+.mobile-bottom-nav {
+  display: none;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 60px;
+  background: rgba(24, 32, 43, 0.96);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid var(--line);
+  z-index: 80;
+  align-items: center;
+  justify-content: space-around;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
+}
+.mobile-nav-btn {
+  background: none;
+  border: none;
+  color: var(--mute);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  font-size: 10.5px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 14px;
+  border-radius: 8px;
+  transition: all 0.2s;
+  touch-action: manipulation;
+}
+.mobile-nav-btn.active {
+  color: var(--accent);
+}
+.mobile-nav-btn .icon {
+  font-size: 16px;
+}
+
+#mobile-menu-modal {
+  display: none;
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 74px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px;
+  z-index: 110;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.6);
+  flex-direction: column;
+  gap: 8px;
+  transform: translateY(20px);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+#mobile-menu-modal.open {
+  display: flex;
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+.mobile-menu-item {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line);
+  color: var(--text);
+  font: 600 13px Manrope, sans-serif;
+  padding: 12px 14px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  text-align: left;
+}
+.mobile-menu-item:hover, .mobile-menu-item:active {
+  background: rgba(174, 144, 108, 0.15);
+  border-color: var(--accent);
+}
+
+.virtual-dpad {
+  display: none;
+  position: absolute;
+  left: 16px;
+  bottom: 78px;
+  z-index: 70;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+.virtual-dpad.active {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.dpad-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.dpad-btn {
+  width: 48px;
+  height: 48px;
+  background: rgba(24, 32, 43, 0.88);
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  transition: all 0.15s;
+  touch-action: none;
+}
+.dpad-btn:active, .dpad-btn.pressed {
+  background: var(--accent);
+  color: var(--accent-ink);
+  transform: scale(0.92);
+  border-color: var(--accent);
+  box-shadow: 0 0 16px var(--accent-glow);
+}
+.dpad-center {
+  width: 48px;
+  height: 48px;
+}
+
+@media (max-width: 900px) {
+  .app {
+    grid-template-rows: 52px 1fr;
+  }
+  nav {
+    padding: 0 12px;
+    gap: 8px;
+  }
+  .logo {
+    font-size: 19px;
+  }
+  .proj, .tabs {
+    display: none !important;
+  }
+  .nav-actions {
+    gap: 6px;
+  }
+  #btn-bench, #btn-sheet, #btn-export {
+    display: none !important;
+  }
+  #btn-upload {
+    padding: 6px 12px;
+    font-size: 11.5px;
+  }
+  #btn-mobile-menu {
+    display: flex !important;
+  }
+
+  main {
+    display: block;
+    position: relative;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  #stage {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    inset: 0;
+  }
+
+  aside.l, aside.r {
+    display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    max-height: 80vh;
+    height: auto;
+    z-index: 100;
+    border-radius: 20px 20px 0 0;
+    border: 1px solid var(--accent);
+    border-bottom: 0;
+    background: rgba(30, 40, 51, 0.98);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 -12px 48px rgba(0, 0, 0, 0.7);
+    padding: 12px 16px 80px;
+    transform: translateY(115%);
+    transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  aside.l.mobile-open, aside.r.mobile-open {
+    transform: translateY(0);
+  }
+
+  .drawer-header, .drawer-handle {
+    display: flex;
+  }
+
+  .mobile-bottom-nav {
+    display: flex;
+  }
+
+  .stage-dock {
+    bottom: 68px;
+    max-width: 96vw;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    gap: 6px;
+    padding: 4px;
+    border-radius: 14px;
+  }
+  .stage-dock::-webkit-scrollbar {
+    display: none;
+  }
+  .modes button, .btn-color-mode, .btn-walk {
+    padding: 6px 10px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+  .sun-widget {
+    padding: 5px 8px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+  .sun-widget input {
+    width: 50px;
+  }
+
+  .hint {
+    top: 10px;
+    left: 10px;
+    font-size: 10.5px;
+    padding: 4px 8px;
+    max-width: 85%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  #walk-exit {
+    top: 12px;
+    font-size: 12px;
+    padding: 6px 14px;
+  }
+}
 </style>
 </head>
 <body>
@@ -186,6 +489,9 @@ p.note{color:var(--mute);margin:14px 0 0;font-size:12px;line-height:1.6}
       <button class="btn-accent" id="btn-export">
         <span>Export 3D (.GLB)</span>
       </button>
+      <button class="btn-secondary" id="btn-mobile-menu" aria-label="More Actions" style="display:none;padding:6px 10px">
+        <span>⋮ Actions</span>
+      </button>
     </div>
   </nav>
 
@@ -193,6 +499,11 @@ p.note{color:var(--mute);margin:14px 0 0;font-size:12px;line-height:1.6}
   <main>
     <!-- Left Sidebar: Rooms, 2D Plan & Parametric Dimensions -->
     <aside class="l">
+      <div class="drawer-handle"></div>
+      <div class="drawer-header">
+        <span class="drawer-title">Rooms & Floor Plan</span>
+        <button class="btn-drawer-close" id="btn-close-left">✕</button>
+      </div>
       <!-- 1. Room List -->
       <div>
         <div class="section-title">
@@ -281,6 +592,21 @@ p.note{color:var(--mute);margin:14px 0 0;font-size:12px;line-height:1.6}
       <div id="tip"></div>
       <div id="lab"></div>
       <button id="walk-exit">Exit Walkthrough Mode [Esc]</button>
+
+      <!-- Virtual D-Pad for Mobile Walkthrough Mode -->
+      <div id="virtual-dpad" class="virtual-dpad">
+        <div class="dpad-row">
+          <button class="dpad-btn" id="dpad-up" aria-label="Forward">▲</button>
+        </div>
+        <div class="dpad-row">
+          <button class="dpad-btn" id="dpad-left" aria-label="Left">◀</button>
+          <div class="dpad-center"></div>
+          <button class="dpad-btn" id="dpad-right" aria-label="Right">▶</button>
+        </div>
+        <div class="dpad-row">
+          <button class="dpad-btn" id="dpad-down" aria-label="Back">▼</button>
+        </div>
+      </div>
       
       <!-- Stage Dock: Lighting Modes + Sun Slider + Walkthrough + Color Schematics -->
       <div class="stage-dock">
@@ -317,6 +643,11 @@ p.note{color:var(--mute);margin:14px 0 0;font-size:12px;line-height:1.6}
 
     <!-- Right Sidebar: Dynamic Views (Specs / Floor Plan Data / Materials Catalog) -->
     <aside class="r">
+      <div class="drawer-handle"></div>
+      <div class="drawer-header">
+        <span class="drawer-title">Materials & Specifications</span>
+        <button class="btn-drawer-close" id="btn-close-right">✕</button>
+      </div>
       <!-- View 1: 3D Model Specs & Selected Room Info -->
       <div class="right-panel-view active" id="view-specs">
         <div id="info"></div>
@@ -396,6 +727,44 @@ p.note{color:var(--mute);margin:14px 0 0;font-size:12px;line-height:1.6}
       </div>
     </aside>
   </main>
+
+  <!-- Mobile Backdrop Overlay -->
+  <div id="mobile-backdrop"></div>
+
+  <!-- Mobile Actions Dropdown Sheet -->
+  <div id="mobile-menu-modal">
+    <div style="font-size:11px;font-weight:700;color:var(--mute);text-transform:uppercase;letter-spacing:.06em;padding:4px 8px">
+      Quick Architectural Actions
+    </div>
+    <button class="mobile-menu-item" id="mob-btn-bench">
+      <span>⚡</span>
+      <span>Load 10×8m Benchmark Plan</span>
+    </button>
+    <button class="mobile-menu-item" id="mob-btn-sheet">
+      <span>📐</span>
+      <span>Export Presentation Board</span>
+    </button>
+    <button class="mobile-menu-item" id="mob-btn-export" style="color:var(--accent);font-weight:700">
+      <span>💾</span>
+      <span>Export 3D Model (.GLB)</span>
+    </button>
+  </div>
+
+  <!-- Mobile Bottom Tab Navigation -->
+  <div class="mobile-bottom-nav">
+    <button class="mobile-nav-btn active" id="nav-btn-3d">
+      <span class="icon">🏢</span>
+      <span>3D View</span>
+    </button>
+    <button class="mobile-nav-btn" id="nav-btn-rooms">
+      <span class="icon">📋</span>
+      <span>Rooms & Plan</span>
+    </button>
+    <button class="mobile-nav-btn" id="nav-btn-mat">
+      <span class="icon">🎨</span>
+      <span>Materials</span>
+    </button>
+  </div>
 </div>
 
 <!-- Three.js r128 -->
@@ -1043,7 +1412,12 @@ function updateUIPanels() {
   listEl.addEventListener('mouseleave', () => setHover(null));
   listEl.onclick = e => {
     const b = e.target.closest('.room');
-    if (b) select(sel === b.dataset.id ? null : b.dataset.id);
+    if (b) {
+      select(sel === b.dataset.id ? null : b.dataset.id);
+      if (window.innerWidth <= 900 && typeof closeMobileDrawers === 'function') {
+        closeMobileDrawers();
+      }
+    }
   };
 
   renderInfoPanel(null);
@@ -1247,7 +1621,9 @@ function enterRoomWalkthrough(roomId) {
 
   $('#walk-exit').style.display = 'block';
   $('#btn-walk').classList.add('active');
-  $('#stage-hint').textContent = '🚶 Walkthrough Mode: WASD to walk, Mouse Drag or Q/E / Arrows to look, [Esc] to exit';
+  $('#virtual-dpad')?.classList.add('active');
+  if (typeof closeMobileDrawers === 'function') closeMobileDrawers();
+  $('#stage-hint').textContent = '🚶 Walkthrough Mode: WASD or On-Screen D-Pad to walk, Drag to look, [Esc] to exit';
 }
 
 function exitWalkthrough() {
@@ -1260,6 +1636,7 @@ function exitWalkthrough() {
 
   $('#walk-exit').style.display = 'none';
   $('#btn-walk').classList.remove('active');
+  $('#virtual-dpad')?.classList.remove('active');
   $('#stage-hint').textContent = 'Drag to orbit, scroll to zoom, click room to focus';
   th = -1.15; ph = 0.88; radT = 32;
 }
@@ -1819,6 +2196,130 @@ $('#btn-export').onclick = async () => {
     alert('GLB Export network error: ' + err.message);
   }
 };
+
+// --- Mobile Responsive Drawer & Touch Interaction Handling ---
+const asideLeft = $('aside.l');
+const asideRight = $('aside.r');
+const backdrop = $('#mobile-backdrop');
+const btnNav3d = $('#nav-btn-3d');
+const btnNavRooms = $('#nav-btn-rooms');
+const btnNavMat = $('#nav-btn-mat');
+const mobileMenuModal = $('#mobile-menu-modal');
+
+function closeMobileDrawers() {
+  asideLeft?.classList.remove('mobile-open');
+  asideRight?.classList.remove('mobile-open');
+  backdrop?.classList.remove('active');
+  mobileMenuModal?.classList.remove('open');
+  btnNav3d?.classList.add('active');
+  btnNavRooms?.classList.remove('active');
+  btnNavMat?.classList.remove('active');
+}
+
+function openMobileDrawer(which) {
+  closeMobileDrawers();
+  if (which === 'left') {
+    asideLeft?.classList.add('mobile-open');
+    backdrop?.classList.add('active');
+    btnNavRooms?.classList.add('active');
+    btnNav3d?.classList.remove('active');
+  } else if (which === 'right') {
+    asideRight?.classList.add('mobile-open');
+    backdrop?.classList.add('active');
+    btnNavMat?.classList.add('active');
+    btnNav3d?.classList.remove('active');
+  }
+}
+
+btnNav3d?.addEventListener('click', closeMobileDrawers);
+btnNavRooms?.addEventListener('click', () => {
+  if (asideLeft?.classList.contains('mobile-open')) closeMobileDrawers();
+  else openMobileDrawer('left');
+});
+btnNavMat?.addEventListener('click', () => {
+  if (asideRight?.classList.contains('mobile-open')) closeMobileDrawers();
+  else openMobileDrawer('right');
+});
+backdrop?.addEventListener('click', closeMobileDrawers);
+$('#btn-close-left')?.addEventListener('click', closeMobileDrawers);
+$('#btn-close-right')?.addEventListener('click', closeMobileDrawers);
+
+$('#btn-mobile-menu')?.addEventListener('click', (e) => {
+  e.stopPropagation();
+  mobileMenuModal?.classList.toggle('open');
+  backdrop?.classList.toggle('active', mobileMenuModal?.classList.contains('open'));
+});
+
+// Mobile dropdown menu triggers
+$('#mob-btn-bench')?.addEventListener('click', () => {
+  closeMobileDrawers();
+  $('#btn-bench')?.click();
+});
+$('#mob-btn-sheet')?.addEventListener('click', () => {
+  closeMobileDrawers();
+  $('#btn-sheet')?.click();
+});
+$('#mob-btn-export')?.addEventListener('click', () => {
+  closeMobileDrawers();
+  $('#btn-export')?.click();
+});
+
+// Mobile Virtual D-Pad bindings
+const dpadUp = $('#dpad-up');
+const dpadDown = $('#dpad-down');
+const dpadLeft = $('#dpad-left');
+const dpadRight = $('#dpad-right');
+
+function bindDpad(btn, key) {
+  if (!btn) return;
+  const start = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    keysDown[key] = true;
+    btn.classList.add('pressed');
+  };
+  const end = (e) => {
+    e.preventDefault();
+    keysDown[key] = false;
+    btn.classList.remove('pressed');
+  };
+  btn.addEventListener('touchstart', start, { passive: false });
+  btn.addEventListener('touchend', end, { passive: false });
+  btn.addEventListener('touchcancel', end, { passive: false });
+  btn.addEventListener('mousedown', start);
+  btn.addEventListener('mouseup', end);
+  btn.addEventListener('mouseleave', end);
+}
+
+bindDpad(dpadUp, 'w');
+bindDpad(dpadDown, 's');
+bindDpad(dpadLeft, 'a');
+bindDpad(dpadRight, 'd');
+
+// Two-finger Pinch-to-Zoom for mobile touchscreens
+let touchDist = 0;
+cvs.addEventListener('touchstart', e => {
+  if (e.touches.length === 2) {
+    touchDist = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    );
+  }
+}, { passive: true });
+
+cvs.addEventListener('touchmove', e => {
+  if (e.touches.length === 2 && touchDist > 0 && !isWalkthrough) {
+    const dist = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    );
+    if (dist > 10) {
+      const factor = touchDist / dist;
+      radT = Math.min(70, Math.max(10, radT * factor));
+      touchDist = dist;
+    }
+  }
+}, { passive: true });
 
 // Initialize with Default Benchmark Architecture (Watertight 12-Segment Layout with PlanPop CAD Schematics)
 rebuildHouseScene({
