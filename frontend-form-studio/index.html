@@ -894,8 +894,8 @@ function rebuildHouseScene(data) {
   const walls = data.walls && data.walls.length > 0 ? data.walls : (currentProject.walls.length > 0 ? currentProject.walls : DEFAULT_WALLS);
   currentProject.walls = walls;
 
-  // Baseline Footprint Tracking for Dynamic Parametric Scaling (Stretch walls with W and L)
-  if (!currentProject.baseWidth || !currentProject.baseLength || (data.dimensions && data !== currentProject && data.dimensions.width !== currentProject.dimensions?.width)) {
+  // Baseline Footprint Tracking for Dynamic Parametric Scaling
+  if (!currentProject.baseWidth || data !== currentProject) {
     currentProject.baseWidth = (data.dimensions && data.dimensions.width) || dims.width || 10.0;
     currentProject.baseLength = (data.dimensions && data.dimensions.length) || dims.length || 8.0;
   }
@@ -905,23 +905,16 @@ function rebuildHouseScene(data) {
   const scaleZ = baseL > 0 ? L / baseL : 1.0;
 
   walls.forEach(w => {
-    // Preserve initial unscaled baseline coordinates
+    // Preserve initial unscaled baseline coordinates without mutating w.startX/w.endX permanently
     if (w.baseStartX === undefined) w.baseStartX = w.startX;
     if (w.baseEndX === undefined) w.baseEndX = w.endX;
     if (w.baseStartZ === undefined) w.baseStartZ = w.startZ;
     if (w.baseEndZ === undefined) w.baseEndZ = w.endZ;
 
-    // Dynamically scale wall endpoints to match current Width (X) and Length (Z)
     const curStartX = w.baseStartX * scaleX;
     const curEndX = w.baseEndX * scaleX;
     const curStartZ = w.baseStartZ * scaleZ;
     const curEndZ = w.baseEndZ * scaleZ;
-
-    // Keep active coordinates updated for export and inspection
-    w.startX = curStartX;
-    w.endX = curEndX;
-    w.startZ = curStartZ;
-    w.endZ = curEndZ;
 
     const dx = curEndX - curStartX;
     const dz = curEndZ - curStartZ;
@@ -944,47 +937,43 @@ function rebuildHouseScene(data) {
 
     if (winOp && len > 1.1) {
       // Architectural Window Opening with sill, lintel & glass
-      const winWidth = Math.min(len * 0.65, winOp.width || 1.3);
-      const pos = typeof winOp.position === 'number' ? Math.max(0.12, Math.min(0.88, winOp.position)) : 0.5;
-      const winCenter = -len / 2 + len * pos;
-      const side1Len = Math.max(0.05, winCenter - winWidth / 2 - (-len / 2));
-      const side2Len = Math.max(0.05, len / 2 - (winCenter + winWidth / 2));
+      const winWidth = Math.min(len * 0.55, winOp.width || 1.3);
+      const sideSegLen = (len - winWidth) / 2;
 
       const wg = new THREE.Group();
       wg.position.set(midX, F + wallH / 2, midZ);
       wg.rotation.y = -angle;
 
-      const side1 = new THREE.Mesh(new THREE.BoxGeometry(side1Len, wallH, wallThick), currentWallMat);
-      side1.position.set(-len / 2 + side1Len / 2, 0, 0);
+      const side1 = new THREE.Mesh(new THREE.BoxGeometry(sideSegLen, wallH, wallThick), currentWallMat);
+      side1.position.set(-len / 2 + sideSegLen / 2, 0, 0);
       side1.castShadow = true;
 
-      const side2 = new THREE.Mesh(new THREE.BoxGeometry(side2Len, wallH, wallThick), currentWallMat);
-      side2.position.set(len / 2 - side2Len / 2, 0, 0);
+      const side2 = new THREE.Mesh(new THREE.BoxGeometry(sideSegLen, wallH, wallThick), currentWallMat);
+      side2.position.set(len / 2 - sideSegLen / 2, 0, 0);
       side2.castShadow = true;
 
       const sillH = 0.9;
       const sill = new THREE.Mesh(new THREE.BoxGeometry(winWidth, sillH, wallThick), isCAD ? M(0x0891b2, 0.4) : currentWallMat);
-      sill.position.set(winCenter, -wallH / 2 + sillH / 2, 0);
+      sill.position.set(0, -wallH / 2 + sillH / 2, 0);
       sill.castShadow = true;
 
       const lintelH = Math.max(0.2, wallH - 2.1);
       const lintel = new THREE.Mesh(new THREE.BoxGeometry(winWidth, lintelH, wallThick), isCAD ? M(0x0891b2, 0.4) : currentWallMat);
-      lintel.position.set(winCenter, wallH / 2 - lintelH / 2, 0);
+      lintel.position.set(0, wallH / 2 - lintelH / 2, 0);
       lintel.castShadow = true;
 
       const glassH = wallH - sillH - lintelH;
       const glass = new THREE.Mesh(new THREE.BoxGeometry(winWidth, glassH, wallThick * 0.2), activeGlassMat);
-      glass.position.set(winCenter, -wallH / 2 + sillH + glassH / 2, 0);
+      glass.position.set(0, -wallH / 2 + sillH + glassH / 2, 0);
 
       wg.add(side1, side2, sill, lintel, glass);
       house.add(wg);
     } else if (doorOp && len > 0.9) {
       // Architectural Doorway Opening with flush threshold & swung door leaf
-      const doorWidth = Math.min(len * 0.75, doorOp.width || 0.95);
-      const pos = typeof doorOp.position === 'number' ? Math.max(0.12, Math.min(0.88, doorOp.position)) : 0.5;
-      const doorCenter = -len / 2 + len * pos;
-      const seg1Len = Math.max(0.05, doorCenter - doorWidth / 2 - (-len / 2));
-      const seg2Len = Math.max(0.05, len / 2 - (doorCenter + doorWidth / 2));
+      const doorWidth = Math.min(len * 0.70, doorOp.width || 0.95);
+      const remainingLen = Math.max(0.15, len - doorWidth);
+      const seg1Len = remainingLen * 0.5;
+      const seg2Len = remainingLen * 0.5;
 
       const wg = new THREE.Group();
       wg.position.set(midX, F + wallH / 2, midZ);
@@ -1000,30 +989,18 @@ function rebuildHouseScene(data) {
 
       const lintelH = Math.max(0.2, wallH - 2.1);
       const lintel = new THREE.Mesh(new THREE.BoxGeometry(doorWidth, lintelH, wallThick), currentWallMat);
-      lintel.position.set(doorCenter, wallH / 2 - lintelH / 2, 0);
+      lintel.position.set(0, wallH / 2 - lintelH / 2, 0);
       lintel.castShadow = true;
 
       const thresh = new THREE.Mesh(new THREE.BoxGeometry(doorWidth, 0.03, wallThick), activeThreshMat);
-      thresh.position.set(doorCenter, -wallH / 2 + 0.015, 0);
-
-      const isHingeOnLeft = ((doorOp).hingeSide ?? 'left').toLowerCase() === 'left';
-      const localHingeX = dx < 0 
-        ? (isHingeOnLeft ? doorCenter + doorWidth / 2 - 0.03 : doorCenter - doorWidth / 2 + 0.03)
-        : (isHingeOnLeft ? doorCenter - doorWidth / 2 + 0.03 : doorCenter + doorWidth / 2 - 0.03);
-
-      const leafDir = dx < 0 ? (isHingeOnLeft ? -1 : 1) : (isHingeOnLeft ? 1 : -1);
-
-      const doorPivot = new THREE.Group();
-      doorPivot.position.set(localHingeX, -wallH / 2, 0);
+      thresh.position.set(0, -wallH / 2 + 0.015, 0);
 
       const doorLeaf = new THREE.Mesh(new THREE.BoxGeometry(doorWidth * 0.92, 2.06, 0.04), activeDoorMat);
-      doorLeaf.position.set((leafDir * doorWidth * 0.92) / 2, 1.03, 0);
+      doorLeaf.position.set(-doorWidth / 2 + 0.04, -wallH / 2 + 1.03, 0.32);
+      doorLeaf.rotation.y = Math.PI / 3.2;
       doorLeaf.castShadow = true;
-      doorPivot.add(doorLeaf);
 
-      doorPivot.rotation.y = leafDir * (Math.PI / 3.2);
-
-      wg.add(seg1, seg2, lintel, thresh, doorPivot);
+      wg.add(seg1, seg2, lintel, thresh, doorLeaf);
       house.add(wg);
     } else {
       // Solid Continuous Wall

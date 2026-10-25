@@ -146,7 +146,6 @@ def execute_floor_plan_pipeline(image_bytes: bytes, file_name: str = "uploaded_p
     ai_walls = ai_result.get("walls", []) if ai_result else []
     ai_doors = ai_result.get("doors", []) if ai_result else []
     ai_windows = ai_result.get("windows", []) if ai_result else []
-    ai_openings = ai_result.get("openings", []) if ai_result else []
 
     # Check if AI returned a complete wall network (both exterior + interior partitions)
     int_count = sum(1 for w in ai_walls if not w.get("isExterior") and w.get("type") != "exterior")
@@ -166,8 +165,7 @@ def execute_floor_plan_pipeline(image_bytes: bytes, file_name: str = "uploaded_p
             rooms=calibrated_rooms,
             width_m=real_width_m,
             length_m=real_length_m,
-            bbox=bbox,
-            openings=ai_openings
+            bbox=bbox
         )
 
     # 6. Validate Architectural Geometry
@@ -224,7 +222,7 @@ def execute_floor_plan_pipeline(image_bytes: bytes, file_name: str = "uploaded_p
                 "bbox_pixels": list(bbox),
                 "resolution": f"{w_px}x{h_px}",
                 "aspectRatio": round(drawing_ratio, 3),
-                "porchBayPreserved": any(r.get("type") in ("porch", "exterior") for r in validated_rooms),
+                "porchBayPreserved": any(r.get("type") in ("porch", "exterior", "patio", "balcony", "entrance", "entry") or any(k in r.get("name", "").lower() for k in ("porch", "patio", "entrance", "balcony")) for r in validated_rooms),
                 "exteriorSegmentsCount": len([w for w in validated_walls if w.get("isExterior")]),
             },
             "cvStats": {

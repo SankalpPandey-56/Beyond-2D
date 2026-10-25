@@ -906,16 +906,16 @@ export default function BlenderViewport({
     const activeWalls = walls && walls.length > 0 ? walls : [];
 
     // Parametric scaling for walls to lockstep with Width (W) and Length (L)
-    const baseW = 10.0;
-    const baseL = 8.0;
-    const scaleX = baseW > 0 ? W / baseW : 1.0;
-    const scaleZ = baseL > 0 ? L / baseL : 1.0;
-
     activeWalls.forEach(w => {
+      if ((w as any).baseW === undefined) (w as any).baseW = dimensions.width || 10.0;
+      if ((w as any).baseL === undefined) (w as any).baseL = dimensions.length || 8.0;
       if ((w as any).baseStartX === undefined) (w as any).baseStartX = w.startX;
       if ((w as any).baseEndX === undefined) (w as any).baseEndX = w.endX;
       if ((w as any).baseStartZ === undefined) (w as any).baseStartZ = w.startZ;
       if ((w as any).baseEndZ === undefined) (w as any).baseEndZ = w.endZ;
+
+      const scaleX = (w as any).baseW > 0 ? W / (w as any).baseW : 1.0;
+      const scaleZ = (w as any).baseL > 0 ? L / (w as any).baseL : 1.0;
 
       const curStartX = (w as any).baseStartX * scaleX;
       const curEndX = (w as any).baseEndX * scaleX;
@@ -940,56 +940,51 @@ export default function BlenderViewport({
 
       if (winOp && len > 1.1) {
         // --- 1. TRUE ARCHITECTURAL WINDOW WITH SILL & GLASS ---
-        const winWidth = Math.min(len * 0.65, winOp.width || 1.3);
-        const pos = typeof winOp.position === 'number' ? Math.max(0.12, Math.min(0.88, winOp.position)) : 0.5;
-        const winCenter = -len / 2 + len * pos;
-        const side1Len = Math.max(0.05, winCenter - winWidth / 2 - (-len / 2));
-        const side2Len = Math.max(0.05, len / 2 - (winCenter + winWidth / 2));
-
+        const winWidth = Math.min(len * 0.55, winOp.width || 1.3);
         const wallGroup = new THREE.Group();
         wallGroup.position.set(midX, wallY, midZ);
         wallGroup.rotation.y = -angle;
 
-        const side1 = new THREE.Mesh(new THREE.BoxGeometry(side1Len, H, T), currentMat);
-        side1.position.set(-len / 2 + side1Len / 2, 0, 0);
+        const sideSegLen = (len - winWidth) / 2;
+        const side1 = new THREE.Mesh(new THREE.BoxGeometry(sideSegLen, H, T), currentMat);
+        side1.position.set(-len / 2 + sideSegLen / 2, 0, 0);
         side1.castShadow = true;
 
-        const side2 = new THREE.Mesh(new THREE.BoxGeometry(side2Len, H, T), currentMat);
-        side2.position.set(len / 2 - side2Len / 2, 0, 0);
+        const side2 = new THREE.Mesh(new THREE.BoxGeometry(sideSegLen, H, T), currentMat);
+        side2.position.set(len / 2 - sideSegLen / 2, 0, 0);
         side2.castShadow = true;
 
         // Window Sill (Wall up to 0.9m)
         const sillH = 0.9;
         const sillMat = isSchematic ? new THREE.MeshStandardMaterial({ color: 0x0891b2, roughness: 0.4, metalness: 0.2 }) : currentMat;
         const sill = new THREE.Mesh(new THREE.BoxGeometry(winWidth, sillH, T), sillMat);
-        sill.position.set(winCenter, -H / 2 + sillH / 2, 0);
+        sill.position.set(0, -H / 2 + sillH / 2, 0);
         sill.castShadow = true;
 
         // Window Top Lintel (Wall above 2.1m)
         const topLintelH = Math.max(0.2, H - 2.1);
         const topLintelMat = isSchematic ? new THREE.MeshStandardMaterial({ color: 0x0891b2, roughness: 0.4, metalness: 0.2 }) : currentMat;
         const topLintel = new THREE.Mesh(new THREE.BoxGeometry(winWidth, topLintelH, T), topLintelMat);
-        topLintel.position.set(winCenter, H / 2 - topLintelH / 2, 0);
+        topLintel.position.set(0, H / 2 - topLintelH / 2, 0);
         topLintel.castShadow = true;
 
         // Glass Pane in center (Between 0.9m and 2.1m) - PlanPop Cyan
         const glassH = H - sillH - topLintelH;
         const glass = new THREE.Mesh(new THREE.BoxGeometry(winWidth, glassH, T * 0.2), glassMat);
-        glass.position.set(winCenter, -H / 2 + sillH + glassH / 2, 0);
+        glass.position.set(0, -H / 2 + sillH + glassH / 2, 0);
 
         // Window Frame Border
         const frameBarH = new THREE.Mesh(new THREE.BoxGeometry(winWidth, 0.04, T * 0.3), windowFrameMat);
-        frameBarH.position.set(winCenter, -H / 2 + sillH + glassH / 2, 0);
+        frameBarH.position.set(0, -H / 2 + sillH + glassH / 2, 0);
 
         wallGroup.add(side1, side2, sill, topLintel, glass, frameBarH);
         group.add(wallGroup);
       } else if (doorOp && len > 0.9) {
         // --- 2. TRUE ARCHITECTURAL DOORWAY (Door leaf + threshold, no sill) - PlanPop Blue ---
-        const doorWidth = Math.min(len * 0.75, doorOp.width || 0.95);
-        const pos = typeof doorOp.position === 'number' ? Math.max(0.12, Math.min(0.88, doorOp.position)) : 0.5;
-        const doorCenter = -len / 2 + len * pos;
-        const seg1Len = Math.max(0.05, doorCenter - doorWidth / 2 - (-len / 2));
-        const seg2Len = Math.max(0.05, len / 2 - (doorCenter + doorWidth / 2));
+        const doorWidth = Math.min(len * 0.70, doorOp.width || 0.95);
+        const remainingLen = Math.max(0.15, len - doorWidth);
+        const seg1Len = remainingLen * 0.5;
+        const seg2Len = remainingLen * 0.5;
 
         const wallGroup = new THREE.Group();
         wallGroup.position.set(midX, wallY, midZ);
@@ -1006,42 +1001,22 @@ export default function BlenderViewport({
         // Lintel above door (H - 2.1m)
         const lintelH = Math.max(0.2, H - 2.1);
         const lintel = new THREE.Mesh(new THREE.BoxGeometry(doorWidth, lintelH, T), currentMat);
-        lintel.position.set(doorCenter, H / 2 - lintelH / 2, 0);
+        lintel.position.set(0, H / 2 - lintelH / 2, 0);
         lintel.castShadow = true;
 
         // Door Threshold on floor (flush with wall thickness T, zero exterior overhang)
         const thresh = new THREE.Mesh(new THREE.BoxGeometry(doorWidth, 0.03, T), doorThresholdMat);
-        thresh.position.set(doorCenter, -H / 2 + 0.015, 0);
-
-        // Architectural Door Leaf with true hinge anchor and inward swing
-        const isHingeOnLeft = ((doorOp as any).hingeSide ?? 'left').toLowerCase() === 'left';
-        
-        // When dx < 0 (wall drawn right-to-left), local +X points to world left!
-        // When dx >= 0 (wall drawn left-to-right), local -X points to world left!
-        const localHingeX = dx < 0 
-          ? (isHingeOnLeft ? doorCenter + doorWidth / 2 - 0.03 : doorCenter - doorWidth / 2 + 0.03)
-          : (isHingeOnLeft ? doorCenter - doorWidth / 2 + 0.03 : doorCenter + doorWidth / 2 - 0.03);
-
-        const leafDirection = dx < 0 
-          ? (isHingeOnLeft ? -1 : 1) 
-          : (isHingeOnLeft ? 1 : -1);
-
-        // Pivot group anchored at the door hinge jamb
-        const doorPivot = new THREE.Group();
-        doorPivot.position.set(localHingeX, -H / 2, 0);
+        thresh.position.set(0, -H / 2 + 0.015, 0);
 
         const doorLeaf = new THREE.Mesh(
           new THREE.BoxGeometry(doorWidth * 0.92, 2.06, 0.04),
           doorLeafMat
         );
-        doorLeaf.position.set((leafDirection * doorWidth * 0.92) / 2, 1.03, 0);
+        doorLeaf.position.set(-doorWidth / 2 + 0.04, -H / 2 + 1.03, 0.32);
+        doorLeaf.rotation.y = Math.PI / 3.2;
         doorLeaf.castShadow = true;
-        doorPivot.add(doorLeaf);
 
-        // Swung open into the room (55 degrees)
-        doorPivot.rotation.y = leafDirection * (Math.PI / 3.2);
-
-        wallGroup.add(seg1, seg2, lintel, thresh, doorPivot);
+        wallGroup.add(seg1, seg2, lintel, thresh, doorLeaf);
         group.add(wallGroup);
       } else {
         // --- 3. SOLID CONTINUOUS WALL (No openings) ---
