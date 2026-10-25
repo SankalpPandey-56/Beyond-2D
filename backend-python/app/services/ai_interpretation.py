@@ -139,7 +139,7 @@ CRITICAL ARCHITECTURAL RULES:
             {"inline_data": {"mime_type": mime_type, "data": b64_full}}
         ]
 
-    candidate_models = ["gemini-2.5-flash", "gemini-3.1-flash-lite-preview", "gemini-flash-latest"]
+    candidate_models = ["gemini-3.1-flash-lite-preview", "gemini-flash-latest"]
 
     for model in candidate_models:
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
