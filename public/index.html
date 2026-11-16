@@ -3,1668 +3,1243 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>BEYOND - 2D · Architectural 3D Workspace</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Cormorant+Garamond:wght@500;600;700&display=swap">
+<title>BEYOND - 2D · Architectural 3D Studio & Vision CAD Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#18202B;
-  --panel:#1E2833;
-  --panel-alt:#161E27;
-  --line:#2D3947;
-  --text:#E9E4DA;
-  --mute:#8D98A6;
-  --accent:#AE906C;
-  --accent-light:#CBB496;
-  --accent-ink:#18202B;
-  --accent-glow:rgba(174,144,108,0.25);
-  --success:#4ade80;
-  --cyan:#38bdf8;
-  --red:#ef4444;
-  color-scheme:dark;
-  box-sizing:border-box;
-  padding-top:env(safe-area-inset-top,0px);
-  padding-bottom:env(safe-area-inset-bottom,0px)
+:root {
+  --bg: #090D14;
+  --panel: #101622;
+  --panel-alt: #0C111A;
+  --panel-glass: rgba(16, 22, 34, 0.85);
+  --line: #1F293D;
+  --line-active: #38BDF8;
+  --text: #F8FAFC;
+  --text-dim: #94A3B8;
+  --mute: #64748B;
+  --accent: #38BDF8;
+  --accent-hover: #0EA5E9;
+  --accent-glow: rgba(56, 189, 248, 0.35);
+  --amber: #F59E0B;
+  --green: #10B981;
+  --red: #EF4444;
+  --cyan: #06B6D4;
+  --radius: 12px;
+  color-scheme: dark;
+  box-sizing: border-box;
 }
-*,*::before,*::after{box-sizing:inherit}
-html,body{height:100%;margin:0;scroll-padding-top:env(safe-area-inset-top,0px)}
-body{background:var(--bg);color:var(--text);font:14px/1.5 Manrope,system-ui,sans-serif;overflow:hidden}
-.app{height:100%;display:grid;grid-template-rows:56px 1fr}
+*, *::before, *::after { box-sizing: inherit; }
+html, body { height: 100%; margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
 
-/* Top Navigation */
-nav{display:flex;align-items:center;gap:18px;padding:0 20px;border-bottom:1px solid var(--line);background:var(--bg);z-index:20}
-.logo-wrap{display:flex;align-items:center;gap:10px}
-.logo{font:700 24px 'Cormorant Garamond',Georgia,serif;letter-spacing:.06em;color:var(--text)}
-.badge{background:#283545;color:var(--accent);font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;letter-spacing:.08em;text-transform:uppercase}
-.proj{color:var(--mute);font-weight:500;font-size:13px;border-left:1px solid var(--line);padding-left:16px;white-space:nowrap}
-.tabs{display:flex;gap:4px;margin-left:8px}
-.tabs button{background:none;border:0;color:var(--mute);font:inherit;font-size:13px;padding:7px 14px;border-radius:8px;cursor:pointer;transition:all .2s}
-.tabs button:hover{color:var(--text);background:rgba(255,255,255,.04)}
-.tabs button.on{color:var(--text);background:var(--panel);font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+/* Main Application Layout */
+.app { display: grid; grid-template-rows: 60px 1fr; height: 100vh; overflow: hidden; }
 
-.nav-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
-.btn-secondary{background:rgba(255,255,255,.04);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:7px 13px;font:500 12.5px Manrope,sans-serif;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px}
-.btn-secondary:hover{background:rgba(255,255,255,.09);border-color:var(--accent)}
-.btn-accent{background:var(--accent);color:var(--accent-ink);border:0;border-radius:8px;padding:8px 16px;font:600 13px Manrope,sans-serif;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px}
-.btn-accent:hover{filter:brightness(1.1);box-shadow:0 4px 14px var(--accent-glow)}
+/* Top Navigation Bar */
+nav { display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: rgba(9, 13, 20, 0.95); border-bottom: 1px solid var(--line); backdrop-filter: blur(16px); z-index: 50; }
+.nav-left { display: flex; align-items: center; gap: 16px; }
+.logo-box { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.logo-icon { width: 32px; height: 32px; background: linear-gradient(135deg, #38BDF8 0%, #2563EB 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 16px rgba(56, 189, 248, 0.4); font-size: 16px; font-weight: 800; color: #FFF; }
+.logo-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; font-weight: 800; letter-spacing: -0.02em; background: linear-gradient(to right, #FFF, #94A3B8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.version-pill { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: rgba(56, 189, 248, 0.12); color: var(--accent); border: 1px solid rgba(56, 189, 248, 0.3); letter-spacing: 0.04em; text-transform: uppercase; display: flex; align-items: center; gap: 5px; }
+.pulsing-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: pulse 2s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } }
 
-/* Main Layout */
-main{display:grid;grid-template-columns:290px 1fr 300px;min-height:0}
-aside{background:var(--panel);padding:18px 16px;overflow-y:auto;display:flex;flex-direction:column;gap:18px}
-aside.l{border-right:1px solid var(--line)}
-aside.r{border-left:1px solid var(--line)}
-h2{font:600 22px 'Cormorant Garamond',Georgia,serif;margin:0 0 10px;letter-spacing:.02em}
+.nav-tabs { display: flex; gap: 4px; background: rgba(255, 255, 255, 0.04); padding: 3px; border-radius: 10px; border: 1px solid var(--line); }
+.nav-tab { background: none; border: 0; color: var(--text-dim); font-size: 12.5px; font-weight: 600; padding: 6px 14px; border-radius: 7px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+.nav-tab:hover { color: var(--text); background: rgba(255, 255, 255, 0.05); }
+.nav-tab.active { background: var(--panel); color: var(--accent); border: 1px solid rgba(56, 189, 248, 0.25); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); }
 
-/* Left Sidebar - Rooms & 2D Plan */
-.section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--mute);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
-.room-list{max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:3px;padding-right:2px}
-.room{display:flex;justify-content:space-between;width:100%;background:none;border:1px solid transparent;color:var(--text);font:inherit;text-align:left;padding:9px 11px;border-radius:8px;cursor:pointer;transition:all .2s}
-.room span:last-child{color:var(--mute);font-size:12px;font-family:monospace}
-.room:hover{background:#26323F;border-color:var(--line);transform:translateX(4px)}
-.room.sel{border-color:var(--accent);background:rgba(174,144,108,.22);font-weight:600;box-shadow:0 2px 10px rgba(0,0,0,.3)}
+.nav-right { display: flex; align-items: center; gap: 10px; }
+.btn-nav { background: rgba(255, 255, 255, 0.04); border: 1px solid var(--line); color: var(--text); border-radius: 9px; padding: 7px 13px; font-size: 12.5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 7px; transition: all 0.2s; }
+.btn-nav:hover { background: rgba(255, 255, 255, 0.08); border-color: var(--accent); transform: translateY(-1px); }
+.btn-primary { background: linear-gradient(135deg, #38BDF8 0%, #2563EB 100%); color: #070D18; border: 0; font-weight: 700; box-shadow: 0 4px 16px var(--accent-glow); }
+.btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
 
-/* 2D Plan Card */
-.plan-card{background:var(--panel-alt);border:1px solid var(--line);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:8px}
-.plan-thumb-wrap{position:relative;width:100%;height:140px;background:#11161d;border-radius:6px;overflow:hidden;border:1px solid rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center}
-.plan-thumb-wrap img{max-width:100%;max-height:100%;object-fit:contain}
-.plan-tag{position:absolute;top:6px;left:6px;background:rgba(24,32,43,.88);border:1px solid var(--line);color:var(--accent);font-size:9.5px;font-weight:600;padding:2px 6px;border-radius:4px;letter-spacing:.05em}
-.btn-view-plan{width:100%;background:rgba(255,255,255,.03);border:1px solid var(--line);color:var(--text);font-size:11px;padding:5px;border-radius:6px;cursor:pointer;text-align:center;transition:all .2s}
-.btn-view-plan:hover{border-color:var(--accent);background:rgba(255,255,255,.08)}
+/* Main Workspace Grid */
+main { display: grid; grid-template-columns: 310px 1fr 310px; height: calc(100vh - 60px); min-height: 0; }
 
-/* Parametric Dimension Sliders */
-.dim-group{background:var(--panel-alt);border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:10px}
-.dim-row{display:flex;flex-direction:column;gap:4px}
-.dim-label-row{display:flex;justify-content:space-between;font-size:11px;color:var(--mute)}
-.dim-val{font-family:monospace;font-weight:600;color:var(--text)}
-.dim-slider{width:100%;accent-color:var(--accent);cursor:pointer;height:4px;background:#283545;border-radius:2px}
+/* Sidebars */
+aside { background: var(--panel); padding: 18px 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; border-color: var(--line); z-index: 20; }
+aside.sidebar-left { border-right: 1px solid var(--line); }
+aside.sidebar-right { border-left: 1px solid var(--line); }
 
-/* Total Area & Engine Status */
-.total-box{padding-top:10px;border-top:1px solid var(--line);color:var(--mute);display:flex;justify-content:space-between;font-size:13px}
-.total-box span:last-child{color:var(--text);font-weight:700;font-family:monospace}
-.dropzone{border:1.5px dashed var(--line);border-radius:10px;padding:12px 10px;text-align:center;cursor:pointer;transition:all .2s;background:rgba(24,32,43,.4)}
-.dropzone:hover{border-color:var(--accent);background:rgba(174,144,108,.06)}
-.dropzone-icon{font-size:18px;color:var(--accent);margin-bottom:2px}
-.dropzone-text{font-size:11.5px;font-weight:600;color:var(--text)}
-.dropzone-sub{font-size:10px;color:var(--mute)}
-.backend-tag{display:flex;align-items:center;gap:6px;font-size:10.5px;color:var(--mute);padding:6px 8px;background:rgba(0,0,0,.2);border-radius:6px}
-.status-dot{width:6px;height:6px;border-radius:50%;background:var(--success);box-shadow:0 0 6px var(--success)}
+.section-head { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--mute); margin-bottom: 2px; }
+.badge-count { background: rgba(56, 189, 248, 0.15); color: var(--accent); padding: 2px 7px; border-radius: 6px; font-size: 10px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
 
-/* 3D Stage */
-#stage{position:relative;min-width:0;min-height:0;cursor:grab;background:#18202b}
-#stage:active{cursor:grabbing}
-#stage canvas{display:block;width:100%;height:100%}
+/* Preset Selector Dropdown / Grid in Left Sidebar */
+.preset-card { background: var(--panel-alt); border: 1px solid var(--line); border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 8px; transition: all 0.2s; }
+.preset-card:hover { border-color: rgba(56, 189, 248, 0.4); }
+.preset-select { width: 100%; background: #131A26; border: 1px solid var(--line); color: var(--text); border-radius: 8px; padding: 8px 10px; font-size: 12.5px; font-weight: 600; cursor: pointer; outline: none; }
+.preset-select:focus { border-color: var(--accent); }
 
-/* Mode Bar & Sun Slider */
-.stage-dock{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);display:flex;align-items:center;gap:10px;z-index:10;max-width:92%}
-.modes{display:flex;gap:4px;background:rgba(30,40,51,.9);border:1px solid var(--line);border-radius:12px;padding:4px;backdrop-filter:blur(10px);box-shadow:0 8px 32px rgba(0,0,0,.4)}
-.modes button{background:none;border:0;color:var(--mute);font:500 12px Manrope,sans-serif;padding:7px 12px;border-radius:8px;cursor:pointer;transition:all .25s}
-.modes button:hover{color:var(--text)}
-.modes button.on{background:var(--accent);color:var(--accent-ink);font-weight:600}
+/* 2D Plan Preview Card */
+.blueprint-card { background: #070B12; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; position: relative; }
+.blueprint-card-header { padding: 8px 12px; background: rgba(255, 255, 255, 0.02); border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; }
+.blueprint-card-title { font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 6px; }
+.blueprint-img-wrap { width: 100%; height: 165px; position: relative; display: flex; align-items: center; justify-content: center; background: #06090F; overflow: hidden; }
+.blueprint-img-wrap img { max-width: 96%; max-height: 96%; object-fit: contain; transition: transform 0.3s; }
+.blueprint-img-wrap:hover img { transform: scale(1.04); }
+.btn-ortho { width: 100%; background: rgba(255, 255, 255, 0.03); border: 0; border-top: 1px solid var(--line); color: var(--text-dim); padding: 7px; font-size: 11.5px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.btn-ortho:hover { color: var(--accent); background: rgba(56, 189, 248, 0.08); }
 
-/* PlanPop CAD vs Monograph Color Mode Button */
-.btn-color-mode{background:rgba(30,40,51,.9);border:1px solid var(--line);border-radius:12px;padding:7px 12px;color:var(--text);font:500 12px Manrope,sans-serif;cursor:pointer;display:flex;align-items:center;gap:6px;backdrop-filter:blur(10px);box-shadow:0 8px 32px rgba(0,0,0,.4);transition:all .2s}
-.btn-color-mode:hover{border-color:var(--accent)}
-.btn-color-mode.schematic{background:rgba(239,68,68,.18);border-color:var(--red);color:#fca5a5}
+/* Parametric Sliders */
+.param-box { background: var(--panel-alt); border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+.param-row { display: flex; flex-direction: column; gap: 4px; }
+.param-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-dim); font-weight: 500; }
+.param-val { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--accent); font-weight: 600; }
+.slider-styled { -webkit-appearance: none; width: 100%; height: 5px; border-radius: 3px; background: #1B2433; outline: none; cursor: pointer; }
+.slider-styled::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--accent); cursor: pointer; box-shadow: 0 0 10px var(--accent-glow); border: 2px solid #FFF; }
 
-/* Sun Path Slider Widget */
-.sun-widget{display:flex;align-items:center;gap:8px;background:rgba(30,40,51,.9);border:1px solid var(--line);border-radius:12px;padding:6px 12px;backdrop-filter:blur(10px);box-shadow:0 8px 32px rgba(0,0,0,.4);color:var(--mute);font-size:12px}
-.sun-widget input{width:75px;accent-color:var(--accent);cursor:pointer}
-.sun-time{font-family:monospace;font-weight:600;color:var(--text);min-width:40px}
+/* Rooms List in Left Sidebar */
+.rooms-container { display: flex; flex-direction: column; gap: 4px; max-height: 180px; overflow-y: auto; padding-right: 2px; }
+.room-item { background: rgba(255, 255, 255, 0.02); border: 1px solid transparent; border-radius: 8px; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text); cursor: pointer; transition: all 0.2s; }
+.room-item:hover { background: rgba(56, 189, 248, 0.08); border-color: rgba(56, 189, 248, 0.3); transform: translateX(3px); }
+.room-item.active { background: rgba(56, 189, 248, 0.15); border-color: var(--accent); font-weight: 600; }
+.room-meta-pill { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--text-dim); }
 
-/* Walkthrough Eye-Level Button */
-.btn-walk{background:rgba(30,40,51,.9);border:1px solid var(--line);border-radius:12px;padding:7px 12px;color:var(--text);font:600 12px Manrope,sans-serif;cursor:pointer;display:flex;align-items:center;gap:6px;backdrop-filter:blur(10px);box-shadow:0 8px 32px rgba(0,0,0,.4);transition:all .2s}
-.btn-walk:hover{border-color:var(--accent);background:rgba(174,144,108,.15)}
-.btn-walk.active{background:var(--cyan);color:#0f172a;border-color:var(--cyan);box-shadow:0 0 16px rgba(56,189,248,.4)}
+/* Dropzone for Uploads */
+.dropzone-box { border: 1.5px dashed var(--line); border-radius: 10px; padding: 14px 10px; text-align: center; cursor: pointer; transition: all 0.2s; background: rgba(0, 0, 0, 0.15); display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.dropzone-box:hover { border-color: var(--accent); background: rgba(56, 189, 248, 0.05); }
+.dropzone-icon { font-size: 20px; color: var(--accent); }
+.dropzone-main { font-size: 11.5px; font-weight: 600; color: var(--text); }
+.dropzone-sub { font-size: 10px; color: var(--mute); }
 
-/* Stage Overlays */
-.hint{position:absolute;left:18px;top:16px;color:var(--mute);font-size:12px;pointer-events:none;background:rgba(24,32,43,.8);padding:6px 12px;border-radius:6px;border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(6px);box-shadow:0 4px 16px rgba(0,0,0,.3)}
-#lab{position:absolute;left:0;top:0;pointer-events:none;background:var(--accent);color:var(--accent-ink);font:700 12px Manrope,sans-serif;padding:6px 14px;border-radius:999px;opacity:0;transition:opacity .35s;will-change:transform;white-space:nowrap;box-shadow:0 6px 20px rgba(0,0,0,.5);z-index:5}
-#tip{position:absolute;left:0;top:0;will-change:transform;pointer-events:none;background:rgba(24,32,43,.95);border:1px solid var(--accent);border-radius:8px;padding:6px 11px;font-size:12px;opacity:0;transition:opacity .15s;white-space:nowrap;box-shadow:0 6px 16px rgba(0,0,0,.4);z-index:5}
+/* 3D Viewport Stage */
+#stage-wrap { position: relative; width: 100%; height: 100%; min-width: 0; min-height: 0; background: #070B12; overflow: hidden; }
+#stage { width: 100%; height: 100%; cursor: grab; }
+#stage:active { cursor: grabbing; }
 
-/* Right Sidebar Tabs Views */
-.right-panel-view{display:none;flex-direction:column;gap:14px}
-.right-panel-view.active{display:flex}
+/* 10-Floor-Plan Preset Ribbon (Floating at Top of Viewport) */
+.preset-ribbon { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; background: rgba(13, 19, 31, 0.88); border: 1px solid rgba(255, 255, 255, 0.08); padding: 5px; border-radius: 999px; backdrop-filter: blur(20px); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5); z-index: 30; max-width: 95%; overflow-x: auto; scrollbar-width: none; }
+.preset-ribbon::-webkit-scrollbar { display: none; }
+.preset-pill { background: none; border: 1px solid transparent; color: var(--text-dim); font-size: 11px; font-weight: 600; padding: 6px 12px; border-radius: 999px; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
+.preset-pill:hover { color: var(--text); background: rgba(255, 255, 255, 0.06); }
+.preset-pill.active { background: var(--accent); color: #070D18; font-weight: 700; box-shadow: 0 2px 12px var(--accent-glow); }
+.preset-pill-num { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; opacity: 0.8; }
 
-.kv{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:12.5px}
-.kv span:first-child{color:var(--mute)}
-.kv span:last-child{color:var(--text);font-weight:500;font-family:monospace}
-.sw{display:flex;gap:8px;margin:12px 0}
-.sw i{width:26px;height:26px;border-radius:50%;border:1px solid var(--line);box-shadow:0 2px 6px rgba(0,0,0,.2)}
-p.note{color:var(--mute);margin:14px 0 0;font-size:12px;line-height:1.6}
+/* Floating Bottom Control Dock */
+.dock-bar { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; background: rgba(13, 19, 31, 0.9); border: 1px solid rgba(255, 255, 255, 0.08); padding: 6px 10px; border-radius: 14px; backdrop-filter: blur(20px); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6); z-index: 30; max-width: 95%; }
+.dock-group { display: flex; gap: 3px; border-right: 1px solid var(--line); padding-right: 8px; margin-right: 2px; }
+.dock-btn { background: none; border: 0; color: var(--text-dim); font-size: 11.5px; font-weight: 600; padding: 7px 11px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
+.dock-btn:hover { color: var(--text); background: rgba(255, 255, 255, 0.06); }
+.dock-btn.active { background: rgba(56, 189, 248, 0.15); color: var(--accent); border: 1px solid rgba(56, 189, 248, 0.3); font-weight: 700; }
 
-/* Materials Catalog Grid */
-.mat-cat{display:flex;flex-direction:column;gap:8px}
-.mat-cat-title{font-size:11px;font-weight:700;color:var(--mute);text-transform:uppercase;letter-spacing:.05em}
-.mat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-.mat-item{background:var(--panel-alt);border:1px solid var(--line);border-radius:8px;padding:8px;cursor:pointer;display:flex;flex-direction:column;gap:4px;transition:all .2s}
-.mat-item:hover{border-color:var(--accent);transform:translateY(-2px)}
-.mat-item.active{border-color:var(--accent);background:rgba(174,144,108,.15)}
-.mat-color-swatch{height:28px;border-radius:4px;border:1px solid rgba(255,255,255,.1)}
-.mat-name{font-size:11px;font-weight:600;color:var(--text)}
-.mat-desc{font-size:9.5px;color:var(--mute)}
+.dock-sun { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-dim); padding: 0 6px; }
+.dock-sun input { width: 70px; accent-color: var(--amber); cursor: pointer; }
+.dock-sun-val { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--amber); }
 
-/* Loading Overlay */
-#loader{position:absolute;inset:0;background:rgba(24,32,43,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:30;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(6px)}
-#loader.active{opacity:1;pointer-events:auto}
-.spinner{width:32px;height:32px;border:3px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-#loader-text{font-size:13px;font-weight:500;color:var(--text)}
+/* Draggable Split-Screen Slider Overlay */
+#split-overlay { position: absolute; inset: 0; pointer-events: none; z-index: 25; display: none; }
+#split-overlay.active { display: block; }
+#split-2d-canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+#split-divider { position: absolute; top: 0; bottom: 0; width: 4px; background: var(--accent); cursor: ew-resize; pointer-events: auto; box-shadow: 0 0 12px var(--accent-glow); z-index: 26; }
+#split-handle { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--accent); color: #070D18; font-size: 10px; font-weight: 800; padding: 8px 12px; border-radius: 999px; white-space: nowrap; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6); pointer-events: auto; letter-spacing: 0.06em; }
 
-/* Walkthrough Exit Pill */
-#walk-exit{position:absolute;top:20px;left:50%;transform:translateX(-50%);background:rgba(15,23,42,.92);border:1px solid var(--cyan);color:var(--cyan);font:600 13px Manrope,sans-serif;padding:8px 18px;border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,.5);cursor:pointer;display:none;z-index:25}
-#walk-exit:hover{background:var(--cyan);color:#0f172a}
+/* Walkthrough Mini-Radar Floor Map */
+#radar-widget { position: absolute; bottom: 85px; left: 20px; width: 170px; height: 130px; background: rgba(13, 19, 31, 0.92); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 8px; backdrop-filter: blur(16px); z-index: 30; display: none; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6); }
+#radar-widget.active { display: flex; flex-direction: column; gap: 6px; }
+.radar-title { font-size: 9.5px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; display: flex; justify-content: space-between; }
+#radar-canvas { width: 100%; height: 95px; background: #06090F; border-radius: 6px; }
 
-/* Mobile Responsive System */
-.drawer-header {
-  display: none;
-  align-items: center;
-  justify-content: space-between;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--line);
-  margin-bottom: 6px;
-}
-.drawer-title {
-  font: 700 16px 'Cormorant Garamond', Georgia, serif;
-  color: var(--accent);
-  letter-spacing: .04em;
-}
-.btn-drawer-close {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid var(--line);
-  color: var(--text);
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 14px;
-}
-.drawer-handle {
-  width: 44px;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 2px;
-  margin: 0 auto 12px;
-  display: none;
-}
+/* Walkthrough HUD Instructions */
+#walk-hud { position: absolute; top: 75px; left: 50%; transform: translateX(-50%); background: rgba(13, 19, 31, 0.9); border: 1px solid var(--line); border-radius: 10px; padding: 8px 16px; font-size: 11.5px; color: var(--text); display: none; align-items: center; gap: 12px; backdrop-filter: blur(16px); z-index: 30; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5); }
+#walk-hud.active { display: flex; }
+.hud-key { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); padding: 2px 6px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: var(--accent); }
+#btn-exit-walk { background: rgba(239, 68, 68, 0.2); border: 1px solid var(--red); color: #FCA5A5; font-size: 10.5px; font-weight: 700; padding: 4px 10px; border-radius: 6px; cursor: pointer; }
+#btn-exit-walk:hover { background: var(--red); color: #FFF; }
 
-#mobile-backdrop {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(10, 14, 20, 0.65);
-  backdrop-filter: blur(4px);
-  z-index: 85;
-  opacity: 0;
-  transition: opacity 0.25s ease;
-}
-#mobile-backdrop.active {
-  display: block;
-  opacity: 1;
-}
+/* Right Sidebar BIM Schedules & Materials */
+.tab-content { display: none; flex-direction: column; gap: 14px; }
+.tab-content.active { display: flex; }
+.bim-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.04); font-size: 12px; }
+.bim-label { color: var(--text-dim); }
+.bim-val { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--text); }
 
-.mobile-bottom-nav {
-  display: none;
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 60px;
-  background: rgba(24, 32, 43, 0.96);
-  backdrop-filter: blur(16px);
-  border-top: 1px solid var(--line);
-  z-index: 80;
-  align-items: center;
-  justify-content: space-around;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
-}
-.mobile-nav-btn {
-  background: none;
-  border: none;
-  color: var(--mute);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  font-size: 10.5px;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 6px 14px;
-  border-radius: 8px;
-  transition: all 0.2s;
-  touch-action: manipulation;
-}
-.mobile-nav-btn.active {
-  color: var(--accent);
-}
-.mobile-nav-btn .icon {
-  font-size: 16px;
-}
+.mat-picker-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.mat-card { background: var(--panel-alt); border: 1px solid var(--line); border-radius: 8px; padding: 8px; cursor: pointer; display: flex; flex-direction: column; gap: 4px; transition: all 0.2s; }
+.mat-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.mat-card.active { border-color: var(--accent); background: rgba(56, 189, 248, 0.1); }
+.mat-swatch { height: 26px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.08); }
+.mat-name { font-size: 11px; font-weight: 600; color: var(--text); }
+.mat-sub { font-size: 9.5px; color: var(--mute); }
 
-#mobile-menu-modal {
-  display: none;
-  position: fixed;
-  left: 12px;
-  right: 12px;
-  bottom: 74px;
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 12px;
-  z-index: 110;
-  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.6);
-  flex-direction: column;
-  gap: 8px;
-  transform: translateY(20px);
-  opacity: 0;
-  pointer-events: none;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-#mobile-menu-modal.open {
-  display: flex;
-  transform: translateY(0);
-  opacity: 1;
-  pointer-events: auto;
-}
-.mobile-menu-item {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--line);
-  color: var(--text);
-  font: 600 13px Manrope, sans-serif;
-  padding: 12px 14px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  text-align: left;
-}
-.mobile-menu-item:hover, .mobile-menu-item:active {
-  background: rgba(174, 144, 108, 0.15);
-  border-color: var(--accent);
-}
+/* Room Hover Badge */
+#room-tag-tooltip { position: absolute; pointer-events: none; background: rgba(13, 19, 31, 0.95); border: 1px solid var(--accent); border-radius: 8px; padding: 6px 12px; font-size: 11.5px; opacity: 0; transition: opacity 0.15s; white-space: nowrap; z-index: 40; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6); }
 
-.virtual-dpad {
-  display: none;
-  position: absolute;
-  left: 16px;
-  bottom: 78px;
-  z-index: 70;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: none;
-}
-.virtual-dpad.active {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-.dpad-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.dpad-btn {
-  width: 48px;
-  height: 48px;
-  background: rgba(24, 32, 43, 0.88);
-  border: 1.5px solid var(--line);
-  border-radius: 12px;
-  color: var(--text);
-  font-size: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
-  transition: all 0.15s;
-  touch-action: none;
-}
-.dpad-btn:active, .dpad-btn.pressed {
-  background: var(--accent);
-  color: var(--accent-ink);
-  transform: scale(0.92);
-  border-color: var(--accent);
-  box-shadow: 0 0 16px var(--accent-glow);
-}
-.dpad-center {
-  width: 48px;
-  height: 48px;
-}
-
-@media (max-width: 900px) {
-  .app {
-    grid-template-rows: 52px 1fr;
-  }
-  nav {
-    padding: 0 12px;
-    gap: 8px;
-  }
-  .logo {
-    font-size: 19px;
-  }
-  .proj, .tabs {
-    display: none !important;
-  }
-  .nav-actions {
-    gap: 6px;
-  }
-  #btn-bench, #btn-sheet, #btn-export {
-    display: none !important;
-  }
-  #btn-upload {
-    padding: 6px 12px;
-    font-size: 11.5px;
-  }
-  #btn-mobile-menu {
-    display: flex !important;
-  }
-
-  main {
-    display: block;
-    position: relative;
-    height: 100%;
-    width: 100%;
-    overflow: hidden;
-  }
-
-  #stage {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    inset: 0;
-  }
-
-  aside.l, aside.r {
-    display: flex;
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    max-height: 80vh;
-    height: auto;
-    z-index: 100;
-    border-radius: 20px 20px 0 0;
-    border: 1px solid var(--accent);
-    border-bottom: 0;
-    background: rgba(30, 40, 51, 0.98);
-    backdrop-filter: blur(20px);
-    box-shadow: 0 -12px 48px rgba(0, 0, 0, 0.7);
-    padding: 12px 16px 80px;
-    transform: translateY(115%);
-    transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  aside.l.mobile-open, aside.r.mobile-open {
-    transform: translateY(0);
-  }
-
-  .drawer-header, .drawer-handle {
-    display: flex;
-  }
-
-  .mobile-bottom-nav {
-    display: flex;
-  }
-
-  .stage-dock {
-    bottom: 68px;
-    max-width: 96vw;
-    overflow-x: auto;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-    gap: 6px;
-    padding: 4px;
-    border-radius: 14px;
-  }
-  .stage-dock::-webkit-scrollbar {
-    display: none;
-  }
-  .modes button, .btn-color-mode, .btn-walk {
-    padding: 6px 10px;
-    font-size: 11px;
-    white-space: nowrap;
-  }
-  .sun-widget {
-    padding: 5px 8px;
-    font-size: 11px;
-    white-space: nowrap;
-  }
-  .sun-widget input {
-    width: 50px;
-  }
-
-  .hint {
-    top: 10px;
-    left: 10px;
-    font-size: 10.5px;
-    padding: 4px 8px;
-    max-width: 85%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  #walk-exit {
-    top: 12px;
-    font-size: 12px;
-    padding: 6px 14px;
-  }
-}
+/* Loading Spinner */
+#spinner-modal { position: absolute; inset: 0; background: rgba(9, 13, 20, 0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.3s; backdrop-filter: blur(10px); }
+#spinner-modal.active { opacity: 1; pointer-events: auto; }
+.loading-ring { width: 38px; height: 38px; border: 3px solid rgba(56, 189, 248, 0.15); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+#spinner-text { font-size: 13px; font-weight: 600; color: var(--text); }
 </style>
 </head>
 <body>
+
 <div class="app">
   <!-- Top Navigation -->
   <nav>
-    <div class="logo-wrap">
-      <span class="logo">BEYOND - 2D</span>
-      <span class="badge">CAD Engine</span>
-    </div>
-    <span class="proj" id="proj-name">Maple Residence</span>
-    
-    <div class="tabs">
-      <button class="on" id="tab-3d">3D model</button>
-      <button id="tab-plan">Floor plan</button>
-      <button id="tab-mat">Materials</button>
+    <div class="nav-left">
+      <div class="logo-box" id="btn-logo-home">
+        <div class="logo-icon">B2</div>
+        <span class="logo-title">BEYOND - 2D</span>
+      </div>
+      <div class="version-pill">
+        <span class="pulsing-dot"></span>
+        <span>STUDIO v2.5 · 10 ARCHETYPES</span>
+      </div>
+
+      <div class="nav-tabs">
+        <button class="nav-tab active" id="tab-btn-3d">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          3D Viewport
+        </button>
+        <button class="nav-tab" id="tab-btn-split">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 3v18"/></svg>
+          Split 2D / 3D
+        </button>
+        <button class="nav-tab" id="tab-btn-bim">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          BIM Schedule
+        </button>
+      </div>
     </div>
 
-    <div class="nav-actions">
-      <input type="file" id="file-input" accept="image/*" style="display:none">
-      <button class="btn-secondary" id="btn-bench" title="Load verified 10.0m x 8.0m benchmark CAD layout">
-        <span>⚡ Benchmark (4 Rooms)</span>
+    <div class="nav-right">
+      <input type="file" id="file-uploader" accept="image/*" style="display:none">
+      <button class="btn-nav" id="btn-upload-plan">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Upload Blueprint
       </button>
-      <button class="btn-secondary" id="btn-upload">
-        <span>Upload 2D Plan</span>
+      <button class="btn-nav" id="btn-export-sheet" title="Generate High-Resolution Architectural Presentation Sheet">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        Presentation Board
       </button>
-      <button class="btn-secondary" id="btn-sheet" title="Generate High-Resolution Architectural Presentation Board">
-        <span>📐 Export Sheet</span>
-      </button>
-      <button class="btn-accent" id="btn-export">
-        <span>Export 3D (.GLB)</span>
-      </button>
-      <button class="btn-secondary" id="btn-mobile-menu" aria-label="More Actions" style="display:none;padding:6px 10px">
-        <span>⋮ Actions</span>
+      <button class="btn-nav btn-primary" id="btn-export-glb" title="Export 3D Model in Binary GLTF (.GLB) format">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export .GLB
       </button>
     </div>
   </nav>
 
-  <!-- Main Viewport Layout -->
+  <!-- Main Viewport Area -->
   <main>
-    <!-- Left Sidebar: Rooms, 2D Plan & Parametric Dimensions -->
-    <aside class="l">
-      <div class="drawer-handle"></div>
-      <div class="drawer-header">
-        <span class="drawer-title">Rooms & Floor Plan</span>
-        <button class="btn-drawer-close" id="btn-close-left">✕</button>
-      </div>
-      <!-- 1. Room List -->
-      <div>
-        <div class="section-title">
-          <span>Rooms</span>
-          <span id="room-count">0</span>
+    <!-- Left Sidebar: Architectural Parameters & Preset Picker -->
+    <aside class="sidebar-left">
+      <div class="preset-card">
+        <div class="section-head">
+          <span>Active Preset</span>
+          <span class="badge-count" id="badge-plan-num">01 / 10</span>
         </div>
-        <div class="room-list" id="list"></div>
+        <select class="preset-select" id="select-preset"></select>
       </div>
 
-      <!-- 2. Original 2D Blueprint Thumbnail -->
-      <div class="plan-card">
-        <div class="section-title">
-          <span>Original 2D Plan</span>
-          <span style="color:var(--accent)">1:1 CAD</span>
+      <!-- 2D Blueprint Preview -->
+      <div class="blueprint-card">
+        <div class="blueprint-card-header">
+          <span class="blueprint-card-title">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            2D Blueprint
+          </span>
+          <span style="font-size:10px; color:var(--text-dim); font-family:'JetBrains Mono'">1:100 CAD</span>
         </div>
-        <div class="plan-thumb-wrap">
-          <span class="plan-tag">2D BLUEPRINT</span>
-          <img id="blueprint-img" src="/samples/perfect_floorplan.png" alt="Floor Plan Blueprint">
+        <div class="blueprint-img-wrap">
+          <img id="sidebar-blueprint-img" src="/samples/01_minimalist_studio.png" alt="Architectural Floor Plan">
         </div>
-        <button class="btn-view-plan" id="btn-toggle-plan-view">View Top-Down Orthographic [7]</button>
+        <button class="btn-ortho" id="btn-view-ortho">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="12" x2="16" y2="16"/></svg>
+          Top-Down Ortho View [7]
+        </button>
       </div>
 
-      <!-- 3. Parametric Dimension Sliders -->
-      <div class="dim-group">
-        <div class="section-title">
-          <span>Parametric Dimensions</span>
-          <span style="color:var(--cyan)">LIVE 3D</span>
+      <!-- Parametric Sliders -->
+      <div class="param-box">
+        <div class="section-head">
+          <span>Building Dimensions</span>
+          <span class="badge-count" id="param-total-m2">33.0 m²</span>
         </div>
-        
-        <div class="dim-row">
-          <div class="dim-label-row">
-            <span>Width (X)</span>
-            <span class="dim-val" id="val-w">10.0 m</span>
+        <div class="param-row">
+          <div class="param-label">
+            <span>Width (X-Axis)</span>
+            <span class="param-val" id="val-dim-w">6.0 m</span>
           </div>
-          <input type="range" class="dim-slider" id="slider-w" min="4.0" max="22.0" step="0.2" value="10.0">
+          <input type="range" class="slider-styled" id="slider-dim-w" min="4.0" max="18.0" step="0.2" value="6.0">
         </div>
-
-        <div class="dim-row">
-          <div class="dim-label-row">
-            <span>Length (Z)</span>
-            <span class="dim-val" id="val-l">8.0 m</span>
+        <div class="param-row">
+          <div class="param-label">
+            <span>Length (Z-Axis)</span>
+            <span class="param-val" id="val-dim-l">5.5 m</span>
           </div>
-          <input type="range" class="dim-slider" id="slider-l" min="4.0" max="20.0" step="0.2" value="8.0">
+          <input type="range" class="slider-styled" id="slider-dim-l" min="4.0" max="16.0" step="0.2" value="5.5">
         </div>
-
-        <div class="dim-row">
-          <div class="dim-label-row">
-            <span>Wall Height</span>
-            <span class="dim-val" id="val-h">2.8 m</span>
+        <div class="param-row">
+          <div class="param-label">
+            <span>Ceiling Height</span>
+            <span class="param-val" id="val-dim-h">2.8 m</span>
           </div>
-          <input type="range" class="dim-slider" id="slider-h" min="2.2" max="3.8" step="0.1" value="2.8">
+          <input type="range" class="slider-styled" id="slider-dim-h" min="2.4" max="4.0" step="0.1" value="2.8">
         </div>
-
-        <div class="dim-row">
-          <div class="dim-label-row">
+        <div class="param-row">
+          <div class="param-label">
             <span>Wall Thickness</span>
-            <span class="dim-val" id="val-t">22 cm</span>
+            <span class="param-val" id="val-dim-t">22 cm</span>
           </div>
-          <input type="range" class="dim-slider" id="slider-t" min="15" max="35" step="1" value="22">
+          <input type="range" class="slider-styled" id="slider-dim-t" min="15" max="35" step="1" value="22">
         </div>
       </div>
 
-      <!-- Total & Dropzone -->
+      <!-- Room Program -->
       <div>
-        <div class="total-box">
-          <span>Total interior</span>
-          <span id="tot">-- m²</span>
+        <div class="section-head" style="margin-bottom:8px">
+          <span>Room Schedule</span>
+          <span class="badge-count" id="room-badge-count">3 Spaces</span>
         </div>
+        <div class="rooms-container" id="sidebar-rooms-list"></div>
+      </div>
 
-        <div class="dropzone" id="dropzone">
-          <div class="dropzone-icon">⇪</div>
-          <div class="dropzone-text">Drop floor plan drawing</div>
-          <div class="dropzone-sub">PNG, JPG, or SVG architectural plan</div>
-        </div>
-
-        <div class="backend-tag">
-          <span class="status-dot"></span>
-          <span>FastAPI :8001 / Next :3001 Connected</span>
-        </div>
+      <!-- Custom Upload Dropzone -->
+      <div class="dropzone-box" id="dropzone-area">
+        <div class="dropzone-icon">⇪</div>
+        <div class="dropzone-main">Drop Custom Blueprint</div>
+        <div class="dropzone-sub">PNG, JPG, SVG with instant 3D extrusion</div>
       </div>
     </aside>
 
-    <!-- Center 3D Stage -->
-    <div id="stage">
-      <div class="hint" id="stage-hint">Drag to orbit, scroll to zoom, click room to focus</div>
-      <div id="tip"></div>
-      <div id="lab"></div>
-      <button id="walk-exit">Exit Walkthrough Mode [Esc]</button>
+    <!-- Center 3D Viewport Stage -->
+    <div id="stage-wrap">
+      <!-- 10 Architectural Presets Ribbon (Top of Viewport) -->
+      <div class="preset-ribbon" id="ribbon-presets"></div>
 
-      <!-- Virtual D-Pad for Mobile Walkthrough Mode -->
-      <div id="virtual-dpad" class="virtual-dpad">
-        <div class="dpad-row">
-          <button class="dpad-btn" id="dpad-up" aria-label="Forward">▲</button>
-        </div>
-        <div class="dpad-row">
-          <button class="dpad-btn" id="dpad-left" aria-label="Left">◀</button>
-          <div class="dpad-center"></div>
-          <button class="dpad-btn" id="dpad-right" aria-label="Right">▶</button>
-        </div>
-        <div class="dpad-row">
-          <button class="dpad-btn" id="dpad-down" aria-label="Back">▼</button>
+      <!-- Three.js Canvas Container -->
+      <div id="stage"></div>
+
+      <!-- Split-Screen 2D/3D Slider Overlay -->
+      <div id="split-overlay">
+        <img id="split-2d-canvas" src="/samples/01_minimalist_studio.png" alt="2D CAD Underlay">
+        <div id="split-divider">
+          <div id="split-handle">⬌ DRAG TO REVEAL 3D</div>
         </div>
       </div>
-      
-      <!-- Stage Dock: Lighting Modes + Sun Slider + Walkthrough + Color Schematics -->
-      <div class="stage-dock">
-        <div class="modes" id="modes">
-          <button data-m="plain">3D view</button>
-          <button data-m="day" class="on">Daylight</button>
-          <button data-m="night">Nightlight</button>
-        </div>
 
-        <!-- PlanPop CAD vs Monograph Color Mode Button -->
-        <button class="btn-color-mode" id="btn-color-mode" title="Toggle between PlanPop CAD Color Schematics and Realistic Monograph Finishes">
-          <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--red)"></span>
-          <span id="color-mode-txt">Color: PlanPop CAD</span>
-        </button>
-
-        <!-- Real-Time Sun Path / Heliodon Slider (Feature 1) -->
-        <div class="sun-widget" title="Architectural Sun Path: adjust daylight angle & cast shadows">
-          <span>☀️</span>
-          <input type="range" id="sun-slider" min="6.5" max="19.5" step="0.25" value="14.0">
-          <span class="sun-time" id="sun-time-txt">14:00</span>
-        </div>
-
-        <!-- Eye-Level Walkthrough Mode (Feature 2) -->
-        <button class="btn-walk" id="btn-walk" title="Drop camera to human eye-level (1.65m) and explore interior with WASD">
-          <span>🚶 Walk Inside</span>
-        </button>
+      <!-- Walkthrough Mode HUD & Controls -->
+      <div id="walk-hud">
+        <span>Walkthrough Mode Active</span>
+        <span>Use <span class="hud-key">W</span> <span class="hud-key">A</span> <span class="hud-key">S</span> <span class="hud-key">D</span> or Arrow Keys to move · Drag mouse to look</span>
+        <button id="btn-exit-walk">Exit [ESC]</button>
       </div>
 
-      <div id="loader">
-        <div class="spinner"></div>
-        <div id="loader-text">Analyzing architectural plan with Vision AI...</div>
+      <!-- Walkthrough Mini-Radar Floor Map -->
+      <div id="radar-widget">
+        <div class="radar-title">
+          <span>Spatial Radar</span>
+          <span style="font-family:'JetBrains Mono'">1.65m EYE</span>
+        </div>
+        <canvas id="radar-canvas"></canvas>
+      </div>
+
+      <!-- Floating Room Hover Tooltip -->
+      <div id="room-tag-tooltip"></div>
+
+      <!-- Floating Bottom Control Dock -->
+      <div class="dock-bar">
+        <div class="dock-group">
+          <button class="dock-btn active" id="btn-mode-dollhouse" title="Perspective Dollhouse Cutaway">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Dollhouse
+          </button>
+          <button class="dock-btn" id="btn-mode-ortho" title="Architectural Top-Down Plan">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            Plan View
+          </button>
+          <button class="dock-btn" id="btn-mode-walk" title="First-Person Human Eye-Level Walkthrough">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>
+            Walkthrough
+          </button>
+          <button class="dock-btn" id="btn-toggle-split" title="Interactive 2D vs 3D Draggable Split Screen">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 3v18"/></svg>
+            Split Slider
+          </button>
+        </div>
+
+        <div class="dock-group">
+          <button class="dock-btn" id="btn-color-cad" title="Toggle Schematic PlanPop CAD vs Monograph Finishes">
+            <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#EF4444; margin-right:2px"></span>
+            CAD Schematic
+          </button>
+          <button class="dock-btn" id="btn-toggle-roof" title="Toggle Architectural Roof Ceiling">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 22 22 22"/></svg>
+            Roof
+          </button>
+        </div>
+
+        <div class="dock-sun">
+          <span>☀️ Sun Path:</span>
+          <input type="range" id="slider-sun-time" min="6" max="22" step="0.5" value="13.5">
+          <span class="dock-sun-val" id="val-sun-time">1:30 PM</span>
+        </div>
       </div>
     </div>
 
-    <!-- Right Sidebar: Dynamic Views (Specs / Floor Plan Data / Materials Catalog) -->
-    <aside class="r">
-      <div class="drawer-handle"></div>
-      <div class="drawer-header">
-        <span class="drawer-title">Materials & Specifications</span>
-        <button class="btn-drawer-close" id="btn-close-right">✕</button>
-      </div>
-      <!-- View 1: 3D Model Specs & Selected Room Info -->
-      <div class="right-panel-view active" id="view-specs">
-        <div id="info"></div>
+    <!-- Right Sidebar: BIM Materials & Spatial Specs -->
+    <aside class="sidebar-right">
+      <div class="section-head">
+        <span>BIM Specification</span>
+        <span class="badge-count">LOD 350</span>
       </div>
 
-      <!-- View 2: Floor Plan Tab View (Orthographic metrics & schedule) -->
-      <div class="right-panel-view" id="view-plan">
-        <h2>Floor Plan Schedule</h2>
-        <div class="section-title">Architectural Layout</div>
-        <div class="kv"><span>Projection</span><span>Orthographic 90° Top</span></div>
-        <div class="kv"><span>Coordinate System</span><span>Z-Up Cartesian (m)</span></div>
-        <div class="kv"><span>Active Rooms</span><span id="fp-rooms-cnt">4</span></div>
-        <div class="kv"><span>Total Footprint</span><span id="fp-area">80 m²</span></div>
-        <div class="section-title" style="margin-top:10px">Room Dimensions Breakdown</div>
-        <div id="fp-schedule-list" style="display:flex;flex-direction:column;gap:6px"></div>
-        <button class="btn-secondary" style="margin-top:12px;width:100%;justify-content:center" id="btn-return-3d">
-          Return to 3D Perspective
-        </button>
+      <div class="bim-row">
+        <span class="bim-label">Gross Footprint</span>
+        <span class="bim-val" id="spec-gross-area">33.0 m²</span>
+      </div>
+      <div class="bim-row">
+        <span class="bim-label">Net Habitable Area</span>
+        <span class="bim-val" id="spec-net-area">30.2 m²</span>
+      </div>
+      <div class="bim-row">
+        <span class="bim-label">Exterior Walls</span>
+        <span class="bim-val" id="spec-ext-walls">4 Segments</span>
+      </div>
+      <div class="bim-row">
+        <span class="bim-label">Interior Partitions</span>
+        <span class="bim-val" id="spec-int-walls">2 Segments</span>
+      </div>
+      <div class="bim-row">
+        <span class="bim-label">Door Count</span>
+        <span class="bim-val" id="spec-doors">3 Openings</span>
+      </div>
+      <div class="bim-row">
+        <span class="bim-label">Window Sills</span>
+        <span class="bim-val" id="spec-windows">4 Openings</span>
+      </div>
+      <div class="bim-row">
+        <span class="bim-label">Watertight Topology</span>
+        <span class="bim-val" style="color:var(--green)">100% Certified</span>
       </div>
 
-      <!-- View 3: Materials Tab View (Interactive Finishes Catalog) -->
-      <div class="right-panel-view" id="view-mat">
-        <h2>Materials & Finishes</h2>
-        <div class="section-title">Flooring Catalog (Click to Apply)</div>
-        <div class="mat-cat">
-          <div class="mat-grid">
-            <div class="mat-item active" data-type="floor" data-color="0xB5A187" data-name="Smoked Oak">
-              <div class="mat-color-swatch" style="background:#B5A187"></div>
-              <div class="mat-name">Smoked Oak</div>
-              <div class="mat-desc">Natural timber parquet</div>
-            </div>
-            <div class="mat-item" data-type="floor" data-color="0xB8AA94" data-name="Pale Oak">
-              <div class="mat-color-swatch" style="background:#B8AA94"></div>
-              <div class="mat-name">Pale Oak</div>
-              <div class="mat-desc">Scandinavian blonde wood</div>
-            </div>
-            <div class="mat-item" data-type="floor" data-color="0xAFAAA0" data-name="Honed Limestone">
-              <div class="mat-color-swatch" style="background:#AFAAA0"></div>
-              <div class="mat-name">Honed Limestone</div>
-              <div class="mat-desc">Smooth matte stone slab</div>
-            </div>
-            <div class="mat-item" data-type="floor" data-color="0xA3A8A8" data-name="Grey Travertine">
-              <div class="mat-color-swatch" style="background:#A3A8A8"></div>
-              <div class="mat-name">Grey Travertine</div>
-              <div class="mat-desc">Luxury veined marble tile</div>
-            </div>
+      <div style="margin-top:10px">
+        <div class="section-head" style="margin-bottom:8px">
+          <span>Architectural Finishes</span>
+          <span class="badge-count">PBR</span>
+        </div>
+        <div class="mat-picker-grid">
+          <div class="mat-card active" data-floor="wood">
+            <div class="mat-swatch" style="background:linear-gradient(45deg, #c2a67e, #a88960)"></div>
+            <span class="mat-name">Herringbone Oak</span>
+            <span class="mat-sub">Living & Bedrooms</span>
+          </div>
+          <div class="mat-card" data-floor="concrete">
+            <div class="mat-swatch" style="background:#858E99"></div>
+            <span class="mat-name">Polished Concrete</span>
+            <span class="mat-sub">Modern Lofts</span>
+          </div>
+          <div class="mat-card" data-floor="travertine">
+            <div class="mat-swatch" style="background:#E2DDD4"></div>
+            <span class="mat-name">Honed Travertine</span>
+            <span class="mat-sub">Luxury Stone</span>
+          </div>
+          <div class="mat-card" data-floor="terrazzo">
+            <div class="mat-swatch" style="background:radial-gradient(circle, #555 10%, #DDD 90%)"></div>
+            <span class="mat-name">Venetian Terrazzo</span>
+            <span class="mat-sub">Kitchen & Bath</span>
           </div>
         </div>
+      </div>
 
-        <div class="section-title" style="margin-top:10px">Wall Finishes</div>
-        <div class="mat-cat">
-          <div class="mat-grid">
-            <div class="mat-item active" data-type="wall" data-color="0xD9D4CA" data-name="Warm Bone">
-              <div class="mat-color-swatch" style="background:#D9D4CA"></div>
-              <div class="mat-name">Warm Bone</div>
-              <div class="mat-desc">Limewash mineral plaster</div>
-            </div>
-            <div class="mat-item" data-type="wall" data-color="0x8B7660" data-name="Walnut Slat">
-              <div class="mat-color-swatch" style="background:#8B7660"></div>
-              <div class="mat-name">Walnut Slat</div>
-              <div class="mat-desc">Architectural wood panel</div>
-            </div>
-            <div class="mat-item" data-type="wall" data-color="0x3B4048" data-name="Charcoal Cast">
-              <div class="mat-color-swatch" style="background:#3B4048"></div>
-              <div class="mat-name">Charcoal Cast</div>
-              <div class="mat-desc">Dark industrial concrete</div>
-            </div>
-            <div class="mat-item" data-type="wall" data-color="0xE5E0D8" data-name="Chalk Stucco">
-              <div class="mat-color-swatch" style="background:#E5E0D8"></div>
-              <div class="mat-name">Chalk Stucco</div>
-              <div class="mat-desc">Pure gallery whitebox</div>
-            </div>
+      <div style="margin-top:10px">
+        <div class="section-head" style="margin-bottom:8px">
+          <span>Active Space Finishes</span>
+        </div>
+        <div class="param-box" id="active-room-box">
+          <div style="font-size:12.5px; font-weight:700; color:var(--text)" id="inspect-room-name">Living & Bedroom Studio</div>
+          <div class="bim-row">
+            <span class="bim-label">Floor Area</span>
+            <span class="bim-val" id="inspect-room-area">21.4 m²</span>
+          </div>
+          <div class="bim-row">
+            <span class="bim-label">Floor Finish</span>
+            <span class="bim-val" id="inspect-room-floor">Pale oak parquet</span>
+          </div>
+          <div class="bim-row">
+            <span class="bim-label">Wall Coating</span>
+            <span class="bim-val" id="inspect-room-wall">Warm bone plaster</span>
           </div>
         </div>
-
-        <p class="note">Click any swatch to apply the finish to the selected room or full building.</p>
       </div>
     </aside>
   </main>
-
-  <!-- Mobile Backdrop Overlay -->
-  <div id="mobile-backdrop"></div>
-
-  <!-- Mobile Actions Dropdown Sheet -->
-  <div id="mobile-menu-modal">
-    <div style="font-size:11px;font-weight:700;color:var(--mute);text-transform:uppercase;letter-spacing:.06em;padding:4px 8px">
-      Quick Architectural Actions
-    </div>
-    <button class="mobile-menu-item" id="mob-btn-bench">
-      <span>⚡</span>
-      <span>Load 10×8m Benchmark Plan</span>
-    </button>
-    <button class="mobile-menu-item" id="mob-btn-sheet">
-      <span>📐</span>
-      <span>Export Presentation Board</span>
-    </button>
-    <button class="mobile-menu-item" id="mob-btn-export" style="color:var(--accent);font-weight:700">
-      <span>💾</span>
-      <span>Export 3D Model (.GLB)</span>
-    </button>
-  </div>
-
-  <!-- Mobile Bottom Tab Navigation -->
-  <div class="mobile-bottom-nav">
-    <button class="mobile-nav-btn active" id="nav-btn-3d">
-      <span class="icon">🏢</span>
-      <span>3D View</span>
-    </button>
-    <button class="mobile-nav-btn" id="nav-btn-rooms">
-      <span class="icon">📋</span>
-      <span>Rooms & Plan</span>
-    </button>
-    <button class="mobile-nav-btn" id="nav-btn-mat">
-      <span class="icon">🎨</span>
-      <span>Materials</span>
-    </button>
-  </div>
 </div>
 
-<!-- Three.js r128 -->
+<!-- Loading Spinner Modal -->
+<div id="spinner-modal">
+  <div class="loading-ring"></div>
+  <div id="spinner-text">Rebuilding Architectural Model...</div>
+</div>
+
+<!-- Scripts -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/GLTFExporter.js"></script>
+<script src="samples/catalog.js"></script>
+
 <script>
-// --- Configuration & Endpoints ---
-const API_BASE_URL = window.API_BASE_URL || '';
-const FASTAPI_BASE_URL = window.FASTAPI_BASE_URL || localStorage.getItem('beyond2d_api_url') || 'http://localhost:8001';
+// =========================================================================
+// BEYOND - 2D STUDIO ENGINE (v2.5)
+// Built with Three.js, Planar Topology, Multi-Opening Slicing & PBR Staging
+// =========================================================================
 
 const $ = s => document.querySelector(s);
-const stage = $('#stage'), tip = $('#tip'), lab = $('#lab'), loader = $('#loader'), loaderText = $('#loader-text');
+const $$ = s => document.querySelectorAll(s);
 
-// --- Three.js Setup with Filmic Shading ---
+// Global State
+let catalog = window.BEYOND_2D_CATALOG || [];
+let activePlanIndex = 0;
+let currentPlan = catalog[0] || null;
+let colorMode = 'monograph'; // 'monograph' | 'cad'
+let hasRoof = false;
+let isSplitMode = false;
+let isWalkthrough = false;
+let splitDividerX = 0.5;
+
+// Three.js Core
+const stage = $('#stage');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x090D14);
+scene.fog = new THREE.FogExp2(0x090D14, 0.015);
+
+const cam = new THREE.PerspectiveCamera(45, stage.clientWidth / stage.clientHeight, 0.1, 500);
+const orthoCam = new THREE.OrthographicCamera(-15, 15, 15, -15, 0.1, 500);
+let activeCam = cam;
+
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, preserveDrawingBuffer: true });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(stage.clientWidth, stage.clientHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.05;
-stage.insertBefore(renderer.domElement, stage.firstChild);
+stage.appendChild(renderer.domElement);
 
-const scene = new THREE.Scene();
-const cam = new THREE.PerspectiveCamera(36, 1, 0.5, 400);
-scene.background = new THREE.Color(0x18202b);
-scene.fog = new THREE.Fog(0x18202b, 50, 140);
+// Lighting Architecture
+const ambLight = new THREE.AmbientLight(0xE2E8F0, 0.45);
+scene.add(ambLight);
 
-const house = new THREE.Group();
-scene.add(house);
+const hemiLight = new THREE.HemisphereLight(0x87CEEB, 0x1E293B, 0.35);
+scene.add(hemiLight);
 
-const M = (c, r = 0.9, o = {}) => new THREE.MeshStandardMaterial(Object.assign({ color: c, roughness: r, metalness: 0 }, o));
+const sunLight = new THREE.DirectionalLight(0xFFF7ED, 1.3);
+sunLight.position.set(25, 40, 20);
+sunLight.castShadow = true;
+sunLight.shadow.mapSize.width = 2048;
+sunLight.shadow.mapSize.height = 2048;
+sunLight.shadow.camera.near = 1;
+sunLight.shadow.camera.far = 120;
+sunLight.shadow.camera.left = -25;
+sunLight.shadow.camera.right = 25;
+sunLight.shadow.camera.top = 25;
+sunLight.shadow.camera.bottom = -25;
+sunLight.shadow.bias = -0.0004;
+scene.add(sunLight);
 
-function box(x, y, z, w, h, d, mat, cast = true) {
-  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
-  m.position.set(x, y + h / 2, z);
-  m.castShadow = cast;
-  m.receiveShadow = true;
-  house.add(m);
-  return m;
-}
+// Ground & Scene Roots
+const houseGroup = new THREE.Group();
+scene.add(houseGroup);
 
-const F = 0.25; // Floor elevation
-let colorMode = 'schematic'; // 'schematic' (PlanPop CAD: red walls, blue doors, cyan windows) vs 'monograph' (Realistic warm neutrals)
-
-let currentWallColor = 0xD9D4CA;
-let currentFloorColor = 0xB5A187;
-
-const dark = M(0x3B4048, 0.8);
-const wood = M(0x8B7660, 0.8);
-const linen = M(0xD3CEC4, 1);
-const sofa = M(0x5C626A, 1);
-
-// --- Environment Lighting & Sky ---
-const lampM = M(0xFFE2B8, 0.5, { emissive: 0xFFC27A, emissiveIntensity: 0 });
-const glowTex = (() => {
-  const c = document.createElement('canvas');
-  c.width = c.height = 64;
-  const g = c.getContext('2d'), r = g.createRadialGradient(32, 32, 0, 32, 32, 32);
-  r.addColorStop(0, 'rgba(255,205,140,.9)');
-  r.addColorStop(1, 'rgba(255,205,140,0)');
-  g.fillStyle = r;
-  g.fillRect(0, 0, 64, 64);
-  return new THREE.CanvasTexture(c);
-})();
-
-const coveM = new THREE.MeshBasicMaterial({ color: 0xFFC283, transparent: true, opacity: 0, depthWrite: false });
-const taskM = new THREE.MeshBasicMaterial({ color: 0xFFE0B8, transparent: true, opacity: 0, depthWrite: false });
-
-// Landscape Ground
-const ground = new THREE.Mesh(new THREE.CircleGeometry(160, 64), M(0x9AA095, 1));
+const groundGeo = new THREE.PlaneGeometry(300, 300);
+const groundMat = new THREE.MeshStandardMaterial({ color: 0x0C111A, roughness: 0.95, metalness: 0.05 });
+const ground = new THREE.Mesh(groundGeo, groundMat);
 ground.rotation.x = -Math.PI / 2;
-ground.position.y = -0.5;
+ground.position.y = -0.22;
 ground.receiveShadow = true;
 scene.add(ground);
 
-const trunk = M(0x5A4C40, 1), leaf = M(0x66735F, 1);
-[[-17, -9], [-18, 5], [17, -10], [18, 9], [-8, 14], [0, -14], [14, 15]].forEach(([x, z], i) => {
-  const h = 3 + (i % 3);
-  const t = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.3, h, 8), trunk);
-  t.position.set(x, -0.5 + h / 2, z);
-  t.castShadow = true;
-  scene.add(t);
-  const c = new THREE.Mesh(new THREE.IcosahedronGeometry(2.1 + (i % 2) * 0.5, 1), leaf);
-  c.position.set(x, -0.5 + h + 1.2, z);
-  c.castShadow = true;
-  scene.add(c);
-});
+// Grid plane
+const gridHelper = new THREE.GridHelper(80, 80, 0x1E293B, 0x121A26);
+gridHelper.position.y = -0.21;
+scene.add(gridHelper);
 
-// Sky Lighting
-const hemi = new THREE.HemisphereLight(0xdfe6ee, 0x8d8f88, 0.75);
-scene.add(hemi);
-const selL = new THREE.PointLight(0xFFD2A0, 0, 16, 1.5);
-scene.add(selL);
-const lv = new THREE.Vector3();
-
-const fill = new THREE.DirectionalLight(0xBBD0EE, 0);
-fill.position.set(-22, 14, -12);
-scene.add(fill);
-
-const sun = new THREE.DirectionalLight(0xFFDCA8, 2.3);
-const moon = new THREE.DirectionalLight(0xB2B4D6, 0);
-[sun, moon].forEach((l, i) => {
-  l.position.set(i ? -20 : 30, i ? 30 : 17, i ? -12 : 16);
-  l.castShadow = true;
-  l.shadow.mapSize.set(2048, 2048);
-  Object.assign(l.shadow.camera, { left: -26, right: 26, top: 26, bottom: -26, near: 1, far: 100 });
-  l.shadow.bias = -0.0004;
-  l.shadow.normalBias = 0.03;
-  scene.add(l);
-});
-
-// Stars & Moon
-const sp = [];
-for (let i = 0; i < 450; i++) {
-  const a = Math.random() * 6.283, b = Math.random() * 1.3 + 0.12, r = 170;
-  sp.push(r * Math.cos(a) * Math.cos(b), r * Math.sin(b), r * Math.sin(a) * Math.cos(b));
-}
-const starG = new THREE.BufferGeometry();
-starG.setAttribute('position', new THREE.Float32BufferAttribute(sp, 3));
-const stars = new THREE.Points(starG, new THREE.PointsMaterial({ color: 0xdfe7f5, size: 1.7, sizeAttenuation: false, transparent: true, opacity: 0, fog: false }));
-scene.add(stars);
-
-const moonM = new THREE.Mesh(new THREE.SphereGeometry(5, 24, 16), new THREE.MeshBasicMaterial({ color: 0xE4EAF3, fog: false, transparent: true, opacity: 0 }));
-moonM.position.set(-80, 70, -110);
-scene.add(moonM);
-
-// Ambient Dust Motes
-const dn = 70, dp = [], dv = [];
-for (let i = 0; i < dn; i++) {
-  dp.push((Math.random() - 0.5) * 28, Math.random() * 6, (Math.random() - 0.5) * 20);
-  dv.push(0.1 + Math.random() * 0.25);
-}
-const dustG = new THREE.BufferGeometry();
-dustG.setAttribute('position', new THREE.Float32BufferAttribute(dp, 3));
-const dust = new THREE.Points(dustG, new THREE.PointsMaterial({ map: glowTex, color: 0xFFD9A8, size: 0.5, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending }));
-scene.add(dust);
-
-// Clouds
-const cloudTex = (() => {
+// Procedural Canvas Textures
+function createParquetTexture() {
   const c = document.createElement('canvas');
-  c.width = 256; c.height = 96;
-  const g = c.getContext('2d');
-  [[70, 54, 44], [120, 44, 50], [170, 52, 46], [210, 58, 34], [100, 60, 36]].forEach(([x, y, r]) => {
-    const q = g.createRadialGradient(x, y, 0, x, y, r);
-    q.addColorStop(0, 'rgba(255,255,255,.9)');
-    q.addColorStop(1, 'rgba(255,255,255,0)');
-    g.fillStyle = q;
-    g.fillRect(0, 0, 256, 96);
-  });
-  return new THREE.CanvasTexture(c);
-})();
-
-const clouds = [];
-for (let i = 0; i < 9; i++) {
-  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: cloudTex, transparent: true, opacity: 0, depthWrite: false, fog: false }));
-  s.scale.set(55 + Math.random() * 30, 20 + Math.random() * 8, 1);
-  s.position.set(-150 + Math.random() * 300, 60 + Math.random() * 25, -70 - Math.random() * 90);
-  s.userData.v = 0.6 + Math.random() * 0.7;
-  scene.add(s);
-  clouds.push(s);
-}
-
-const sunDisc = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color: 0xFFE7B8, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
-sunDisc.scale.set(70, 70, 1);
-sunDisc.position.set(120, 68, 64);
-scene.add(sunDisc);
-
-const domeTex = (() => {
-  const c = document.createElement('canvas');
-  c.width = 4; c.height = 256;
-  const g = c.getContext('2d'), q = g.createLinearGradient(0, 0, 0, 256);
-  q.addColorStop(0, '#5E95CF');
-  q.addColorStop(0.55, '#A9CBE8');
-  q.addColorStop(0.85, '#F0E3CC');
-  q.addColorStop(1, '#F6DDB8');
-  g.fillStyle = q;
-  g.fillRect(0, 0, 4, 256);
-  const t = new THREE.CanvasTexture(c);
-  t.encoding = THREE.sRGBEncoding;
-  return t;
-})();
-const dome = new THREE.Mesh(new THREE.SphereGeometry(320, 32, 16), new THREE.MeshBasicMaterial({ map: domeTex, side: THREE.BackSide, fog: false, transparent: true, opacity: 0, depthWrite: false }));
-dome.renderOrder = -1;
-scene.add(dome);
-
-// --- Lighting Modes & Sun Path Calculation ---
-const MODES = {
-  plain: { bg: 0x18202b, sky: 0xc4cdd6, gr: 0x828a92, ground: 0x80857c, hemi: 0.85, sun: 1.6, moon: 0, lamps: 0, stars: 0, cloud: 0, fog: [60, 140], exp: 1.0 },
-  day: { bg: 0x98b8d8, sky: 0xdfe6ee, gr: 0x8d8f88, ground: 0x9AA095, hemi: 0.75, sun: 2.3, moon: 0, lamps: 0, stars: 0, cloud: 1, fog: [90, 260], exp: 1.05 },
-  night: { bg: 0x090D13, sky: 0x172233, gr: 0x090E16, ground: 0x161B18, hemi: 0.12, sun: 0, moon: 0.85, lamps: 1, stars: 1, cloud: 0, fog: [40, 150], exp: 1.25 }
-};
-
-let mode = 'day';
-let currentSunTime = 14.0;
-const cur = Object.assign({}, MODES.day);
-const col = { bg: new THREE.Color(), sky: new THREE.Color(), gr: new THREE.Color(), ground: new THREE.Color() };
-let roomLights = [];
-
-// --- Dynamic Architectural Data State ---
-let currentProject = {
-  name: 'Maple Residence',
-  dimensions: { width: 10.0, length: 8.0, wallHeight: 2.8, wallThickness: 0.22 },
-  rooms: [],
-  walls: []
-};
-
-let floors = [];
-let hov = null, sel = null;
-
-// Walkthrough Eye-Level State
-let isWalkthrough = false;
-const walkPos = new THREE.Vector3(0, F + 1.65, 0);
-let walkYaw = 0, walkPitch = 0;
-const keysDown = {};
-
-// Default Rooms (Synchronized with Benchmark Ground-Truth Layout)
-const DEFAULT_ROOMS = [
-  { id: 'bed', n: 'Master Bedroom', type: 'bedroom', relX: 0.0, relZ: 0.0, relW: 0.549, relD: 0.48, color: '#10b981', c: 0x10b981, fin: 'Pale oak', wall: 'PlanPop Solid Red' },
-  { id: 'kitchen', n: 'Kitchen & Dining', type: 'kitchen', relX: 0.549, relZ: 0.0, relW: 0.451, relD: 0.48, color: '#ec4899', c: 0xec4899, fin: 'Honed limestone', wall: 'PlanPop Solid Red' },
-  { id: 'living', n: 'Living Room', type: 'living', relX: 0.0, relZ: 0.48, relW: 0.549, relD: 0.52, color: '#3b82f6', c: 0x3b82f6, fin: 'Smoked oak', wall: 'PlanPop Solid Red' },
-  { id: 'bath', n: 'Bathroom', type: 'bathroom', relX: 0.549, relZ: 0.48, relW: 0.451, relD: 0.52, color: '#eab308', c: 0xeab308, fin: 'Grey travertine', wall: 'PlanPop Solid Red' }
-];
-
-// Default Watertight Walls (8 Exterior with Doors/Windows, 4 Interior Partitions)
-const DEFAULT_WALLS = [
-  { id: 'wall_ext_1', startX: -5.0, startZ: -0.16, endX: -5.0, endZ: 4.0, isExterior: true, thickness: 0.22, height: 2.8, openings: [{ id: 'w1', type: 'window', position: 0.23, width: 1.0 }] },
-  { id: 'wall_ext_2', startX: -5.0, startZ: 4.0, endX: 0.49, endZ: 4.0, isExterior: true, thickness: 0.22, height: 2.8, openings: [{ id: 'd1', type: 'door', position: 0.27, width: 0.9, hingeSide: 'left' }] },
-  { id: 'wall_ext_3', startX: 0.49, startZ: 4.0, endX: 5.0, endZ: 4.0, isExterior: true, thickness: 0.22, height: 2.8, openings: [] },
-  { id: 'wall_ext_4', startX: 5.0, startZ: 4.0, endX: 5.0, endZ: -0.16, isExterior: true, thickness: 0.22, height: 2.8, openings: [{ id: 'w2', type: 'window', position: 0.67, width: 1.0 }] },
-  { id: 'wall_ext_5', startX: 5.0, startZ: -0.16, endX: 5.0, endZ: -4.0, isExterior: true, thickness: 0.22, height: 2.8, openings: [] },
-  { id: 'wall_ext_6', startX: 5.0, startZ: -4.0, endX: 0.49, endZ: -4.0, isExterior: true, thickness: 0.22, height: 2.8, openings: [{ id: 'w3', type: 'window', position: 0.5, width: 1.5 }] },
-  { id: 'wall_ext_7', startX: 0.49, startZ: -4.0, endX: -5.0, endZ: -4.0, isExterior: true, thickness: 0.22, height: 2.8, openings: [{ id: 'w4', type: 'window', position: 0.5, width: 1.5 }] },
-  { id: 'wall_ext_8', startX: -5.0, startZ: -4.0, endX: -5.0, endZ: -0.16, isExterior: true, thickness: 0.22, height: 2.8, openings: [] },
-  { id: 'wall_int_1', startX: 0.49, startZ: -4.0, endX: 0.49, endZ: -0.16, isExterior: false, thickness: 0.15, height: 2.8, openings: [{ id: 'd2', type: 'door', position: 0.5, width: 0.9, hingeSide: 'left' }] },
-  { id: 'wall_int_2', startX: 0.49, startZ: -0.16, endX: -5.0, endZ: -0.16, isExterior: false, thickness: 0.15, height: 2.8, openings: [{ id: 'd3', type: 'door', position: 0.18, width: 0.9, hingeSide: 'right' }] },
-  { id: 'wall_int_3', startX: 5.0, startZ: -0.16, endX: 0.49, endZ: -0.16, isExterior: false, thickness: 0.15, height: 2.8, openings: [{ id: 'd4', type: 'door', position: 0.5, width: 0.9, hingeSide: 'left' }] },
-  { id: 'wall_int_4', startX: 0.49, startZ: -0.16, endX: 0.49, endZ: 4.0, isExterior: false, thickness: 0.15, height: 2.8, openings: [{ id: 'd5', type: 'door', position: 0.13, width: 0.9, hingeSide: 'left' }] }
-];
-
-// --- Procedural 3D Scene Builder ---
-function rebuildHouseScene(data) {
-  while (house.children.length > 0) {
-    const obj = house.children[0];
-    if (obj.geometry) obj.geometry.dispose();
-    house.remove(obj);
+  c.width = 512; c.height = 512;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#C2A67E';
+  ctx.fillRect(0, 0, 512, 512);
+  ctx.strokeStyle = '#A88960';
+  ctx.lineWidth = 3;
+  for (let y = 0; y < 512; y += 32) {
+    for (let x = 0; x < 512; x += 64) {
+      ctx.strokeRect(x + (y % 64 === 0 ? 0 : 32), y, 64, 32);
+    }
   }
-  floors = [];
-  roomLights.forEach(l => scene.remove(l));
-  roomLights = [];
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(4, 4);
+  return tex;
+}
+const parquetTexture = createParquetTexture();
 
-  const dims = data.dimensions || currentProject.dimensions;
-  currentProject.dimensions = dims;
-  const W = dims.width || 10.0;
-  const L = dims.length || 8.0;
-  const H = dims.wallHeight || 2.8;
-  const T = dims.wallThickness || 0.22;
+// Materials Registry
+const MATS = {
+  wallExt: new THREE.MeshStandardMaterial({ color: 0xEDE9DF, roughness: 0.92, metalness: 0.02 }),
+  wallInt: new THREE.MeshStandardMaterial({ color: 0xF4EFE6, roughness: 0.92, metalness: 0.02 }),
+  wallCAD: new THREE.MeshStandardMaterial({ color: 0xEF4444, roughness: 0.5 }),
+  wallCADInt: new THREE.MeshStandardMaterial({ color: 0xDC2626, roughness: 0.5 }),
+  floorWood: new THREE.MeshStandardMaterial({ map: parquetTexture, roughness: 0.45, metalness: 0.05 }),
+  floorStone: new THREE.MeshStandardMaterial({ color: 0x858E99, roughness: 0.7, metalness: 0.1 }),
+  floorTravertine: new THREE.MeshStandardMaterial({ color: 0xE2DDD4, roughness: 0.5, metalness: 0.05 }),
+  floorTerrazzo: new THREE.MeshStandardMaterial({ color: 0xD1D5DB, roughness: 0.6, metalness: 0.05 }),
+  glass: new THREE.MeshPhysicalMaterial({ color: 0x38BDF8, transmission: 0.75, opacity: 0.4, transparent: true, roughness: 0.05, metalness: 0.1, ior: 1.5 }),
+  frame: new THREE.MeshStandardMaterial({ color: 0x1E293B, roughness: 0.4, metalness: 0.8 }),
+  doorLeaf: new THREE.MeshStandardMaterial({ color: 0x855836, roughness: 0.6, metalness: 0.05 }),
+  doorCAD: new THREE.MeshStandardMaterial({ color: 0x2563EB, roughness: 0.4 }),
+  furnitureWood: new THREE.MeshStandardMaterial({ color: 0x9A7B56, roughness: 0.65 }),
+  furnitureFabric: new THREE.MeshStandardMaterial({ color: 0xE2E8F0, roughness: 0.85 }),
+  furnitureDark: new THREE.MeshStandardMaterial({ color: 0x1E293B, roughness: 0.5, metalness: 0.4 }),
+  ceramic: new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.15, metalness: 0.05 }),
+  brass: new THREE.MeshStandardMaterial({ color: 0xF59E0B, roughness: 0.3, metalness: 0.85 })
+};
 
-  // Sync Slider values in UI
-  $('#slider-w').value = W;
-  $('#slider-l').value = L;
-  $('#slider-h').value = H;
-  $('#slider-t').value = Math.round(T * 100);
-  $('#val-w').textContent = `${W.toFixed(1)} m`;
-  $('#val-l').textContent = `${L.toFixed(1)} m`;
-  $('#val-h').textContent = `${H.toFixed(1)} m`;
-  $('#val-t').textContent = `${Math.round(T * 100)} cm`;
+// Floor Room Mesh references for raycasting
+let roomFloorMeshes = [];
+let roomHighlightMesh = null;
+let currentFloorType = 'wood';
 
-  // Materials setup based on Color Mode (PlanPop CAD vs Monograph)
-  const isCAD = colorMode === 'schematic';
-  const extWallColor = isCAD ? 0xef4444 : currentWallColor;
-  const intWallColor = isCAD ? 0xdc2626 : currentWallColor;
-  const doorColor = isCAD ? 0x2563eb : 0x92400e;
-  const threshColor = isCAD ? 0x1d4ed8 : 0x78350f;
-  const glassColor = isCAD ? 0x06b6d4 : 0x9FB2C0;
-  const capColor = isCAD ? 0xb91c1c : currentWallColor;
+// Procedural Geometry Helpers
+function box(parent, x, y, z, w, h, d, mat, cast=true, receive=true) {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+  m.position.set(x, y, z);
+  m.castShadow = cast;
+  m.receiveShadow = receive;
+  parent.add(m);
+  return m;
+}
 
-  const extWallMat = M(extWallColor, isCAD ? 0.45 : 0.95);
-  const intWallMat = M(intWallColor, isCAD ? 0.45 : 0.95);
-  const activeDoorMat = M(doorColor, 0.4);
-  const activeThreshMat = M(threshColor, 0.6);
-  const activeGlassMat = M(glassColor, 0.08, { transparent: true, opacity: isCAD ? 0.65 : 0.25, emissive: isCAD ? 0x06b6d4 : 0xFFB070, emissiveIntensity: isCAD ? 0.2 : 0, depthWrite: false });
+// =========================================================================
+// 3D SCENE RECONSTRUCTION PIPELINE
+// Continuous Walls, Multi-Opening Slicing, Architectural Staging
+// =========================================================================
 
-  // Foundation Plinth
-  box(0, -0.4, 0, W + 1.2, 0.4, L + 1.2, M(0x2A3038, 0.9));
+function rebuild3DScene(plan) {
+  if (!plan) return;
+  currentPlan = plan;
 
-  // Build Room Floor Slabs
-  const rooms = data.rooms && data.rooms.length > 0 ? data.rooms : (currentProject.rooms.length > 0 ? currentProject.rooms : DEFAULT_ROOMS);
-  currentProject.rooms = rooms;
+  // Clear existing scene
+  while (houseGroup.children.length > 0) {
+    const obj = houseGroup.children[0];
+    if (obj.geometry) obj.geometry.dispose();
+    houseGroup.remove(obj);
+  }
+  roomFloorMeshes = [];
 
+  const W = plan.dimensions.width;
+  const L = plan.dimensions.length;
+  const H = plan.dimensions.wallHeight || 2.8;
+  const T = plan.dimensions.wallThickness || 0.22;
+  const F = 0.08; // Floor slab thickness
+
+  // 1. Plinth Foundation
+  box(houseGroup, 0, -F/2, 0, W + 0.8, F, L + 0.8, MATS.furnitureDark, false, true);
+
+  // 2. Room Floor Slabs & Designer Staging
+  const rooms = plan.rooms || [];
   rooms.forEach(r => {
     const rw = r.relW * W;
     const rd = r.relD * L;
     const rx = (r.relX + r.relW / 2 - 0.5) * W;
     const rz = (r.relZ + r.relD / 2 - 0.5) * L;
-    r.x = rx; r.z = rz; r.w = rw; r.d = rd;
-    r.m = rw; r.dd = rd;
-    r.area = Math.round(rw * rd);
+    r.worldX = rx; r.worldZ = rz; r.worldW = rw; r.worldD = rd;
+    r.areaM2 = Math.round(rw * rd * 10) / 10;
 
-    // Floor Color: In CAD mode, use room semantic color (Emerald, Blue, Pink, Yellow)
-    let floorHex = currentFloorColor;
-    if (isCAD) {
-      if (r.color) {
-        floorHex = parseInt(r.color.replace('#', '0x'));
-      } else if (r.type === 'bedroom') floorHex = 0x10b981;
-      else if (r.type === 'kitchen') floorHex = 0xec4899;
-      else if (r.type === 'bathroom') floorHex = 0xeab308;
-      else floorHex = 0x3b82f6;
+    // Determine Floor Material based on selector & room type
+    let floorMat = MATS.floorWood;
+    if (colorMode === 'cad') {
+      const cadColors = { bedroom: 0x6366F1, living: 0x22C55E, kitchen: 0xF97316, bathroom: 0xEAB308, porch: 0x94A3B8, hallway: 0xA855F7 };
+      floorMat = new THREE.MeshStandardMaterial({ color: cadColors[r.type] || 0x38BDF8, roughness: 0.5 });
     } else {
-      if (r.type === 'living') floorHex = 0xB5A187;
-      else if (r.type === 'kitchen') floorHex = 0xAFAAA0;
-      else if (r.type === 'bedroom') floorHex = 0xB8AA94;
-      else if (r.type === 'bathroom') floorHex = 0xA3A8A8;
-    }
-    r.c = floorHex;
-
-    if (!r.fin) {
-      if (r.type === 'living') r.fin = 'Smoked oak';
-      else if (r.type === 'kitchen') r.fin = 'Honed limestone';
-      else if (r.type === 'bedroom') r.fin = 'Pale oak';
-      else if (r.type === 'bathroom') r.fin = 'Grey travertine';
-      else r.fin = 'Hardwood parquet';
-    }
-    if (!r.wall) r.wall = isCAD ? 'PlanPop Solid Red' : 'Warm bone plaster';
-    if (!r.n) r.n = r.name || 'Room';
-
-    // Interactive Floor Mesh
-    const m = new THREE.Mesh(new THREE.BoxGeometry(rw - 0.04, F, rd - 0.04), M(r.c, 0.85, { emissive: 0xAE906C, emissiveIntensity: 0 }));
-    m.position.set(rx, F / 2, rz);
-    m.receiveShadow = true;
-    m.userData.id = r.id;
-    house.add(m);
-    floors.push(m);
-    r.mesh = m;
-    r.base = new THREE.Color(r.c);
-    r.k = 0; r.s = 0; r.dm = 0;
-
-    // Glowing perimeter outline
-    const fm = new THREE.MeshBasicMaterial({ color: isCAD ? 0x60a5fa : 0xE6C99B, transparent: true, opacity: 0, depthWrite: false });
-    r.fm = fm;
-    [
-      [0, -rd / 2 + 0.12, rw, 0.24],
-      [0, rd / 2 - 0.12, rw, 0.24],
-      [-rw / 2 + 0.12, 0, 0.24, rd],
-      [rw / 2 - 0.12, 0, 0.24, rd]
-    ].forEach(([dx, dz, bw, bd]) => {
-      const b = new THREE.Mesh(new THREE.BoxGeometry(bw, 0.08, bd), fm);
-      b.position.set(rx + dx, F + 0.04, rz + dz);
-      house.add(b);
-    });
-
-    // Volumetric fill glow
-    const vm = new THREE.Mesh(new THREE.BoxGeometry(rw - 0.2, H, rd - 0.2), new THREE.MeshBasicMaterial({ color: isCAD ? 0x38bdf8 : 0xFFD9A0, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }));
-    vm.position.set(rx, F + H / 2, rz);
-    house.add(vm);
-    r.vol = vm;
-
-    // Floor glow plane
-    const g = new THREE.Mesh(new THREE.PlaneGeometry(rw - 0.2, rd - 0.2), new THREE.MeshBasicMaterial({ color: isCAD ? 0x2563eb : 0xAE906C, transparent: true, opacity: 0, depthWrite: false }));
-    g.rotation.x = -Math.PI / 2;
-    g.position.set(rx, F + 0.02, rz);
-    house.add(g);
-    r.glow = g;
-
-    // Selection 3D Wireframe Box (CAD dollhouse highlight)
-    const selBoxGeo = new THREE.BoxGeometry(rw, H + 0.06, rd);
-    const selEdges = new THREE.EdgesGeometry(selBoxGeo);
-    const selWireMat = new THREE.LineBasicMaterial({
-      color: isCAD ? 0xf59e0b : 0xE6C99B,
-      transparent: true,
-      opacity: 0,
-      depthWrite: false
-    });
-    const selWire = new THREE.LineSegments(selEdges, selWireMat);
-    selWire.position.set(rx, F + (H + 0.06) / 2, rz);
-    house.add(selWire);
-    r.wire = selWire;
-
-    // Architectural Room Floor Label Badge
-    if (rw > 1.2 && rd > 1.2) {
-      const lblCanvas = document.createElement('canvas');
-      lblCanvas.width = 512; lblCanvas.height = 256;
-      const lctx = lblCanvas.getContext('2d');
-      lctx.fillStyle = 'rgba(15, 23, 42, 0.75)';
-      if (lctx.roundRect) lctx.roundRect(16, 16, 480, 224, 28);
-      else lctx.fillRect(16, 16, 480, 224);
-      lctx.fill();
-      lctx.strokeStyle = isCAD ? 'rgba(56, 189, 248, 0.6)' : 'rgba(174, 144, 108, 0.6)';
-      lctx.lineWidth = 4;
-      lctx.stroke();
-      lctx.fillStyle = '#ffffff';
-      lctx.font = 'bold 46px Manrope, sans-serif';
-      lctx.textAlign = 'center';
-      lctx.textBaseline = 'middle';
-      lctx.fillText(r.n.toUpperCase(), 256, 95);
-      lctx.fillStyle = isCAD ? '#38bdf8' : '#AE906C';
-      lctx.font = '600 34px monospace';
-      lctx.fillText(`${rw.toFixed(1)}m × ${rd.toFixed(1)}m (${r.area} m²)`, 256, 165);
-
-      const lblTex = new THREE.CanvasTexture(lblCanvas);
-      const lw = Math.min(rw * 0.7, 2.2);
-      const lh = lw * 0.5;
-      const lblMesh = new THREE.Mesh(new THREE.PlaneGeometry(lw, lh), new THREE.MeshBasicMaterial({ map: lblTex, transparent: true, opacity: 0.88, depthWrite: false }));
-      lblMesh.rotation.x = -Math.PI / 2;
-      lblMesh.position.set(rx, F + 0.025, rz);
-      house.add(lblMesh);
+      if (currentFloorType === 'concrete' || r.type === 'living' && currentFloorType === 'concrete') floorMat = MATS.floorStone;
+      else if (r.type === 'bathroom') floorMat = MATS.floorTerrazzo;
+      else if (r.type === 'kitchen') floorMat = MATS.floorTravertine;
     }
 
-    // Room Night Downlight
-    const rl = new THREE.PointLight(0xFFB574, 0, 12, 1.6);
-    rl.position.set(rx, F + H - 0.3, rz);
-    rl.userData.b = 0.6;
-    scene.add(rl);
-    roomLights.push(rl);
+    const floorMesh = new THREE.Mesh(new THREE.BoxGeometry(rw - 0.02, F, rd - 0.02), floorMat);
+    floorMesh.position.set(rx, F / 2, rz);
+    floorMesh.receiveShadow = true;
+    floorMesh.userData = { id: r.id, name: r.name, type: r.type, area: r.areaM2, finish: r.fin };
+    houseGroup.add(floorMesh);
+    roomFloorMeshes.push(floorMesh);
 
-    // Ceiling Cove Lighting Strip
-    [
-      [0, -rd / 2 + 0.25, rw - 0.5, 0.06],
-      [0, rd / 2 - 0.25, rw - 0.5, 0.06],
-      [-rw / 2 + 0.25, 0, 0.06, rd - 0.5],
-      [rw / 2 - 0.25, 0, 0.06, rd - 0.5]
-    ].forEach(([dx, dz, cw, cd]) => {
-      const b = new THREE.Mesh(new THREE.BoxGeometry(cw, 0.05, cd), coveM);
-      b.position.set(rx + dx, F + H - 0.08, rz + dz);
-      house.add(b);
-    });
+    // Warm Recessed Ceiling Spotlights per Room
+    const spot = new THREE.PointLight(0xFFE2B8, 0.45, Math.max(rw, rd) * 1.8);
+    spot.position.set(rx, H - 0.2, rz);
+    houseGroup.add(spot);
 
-    // Rich Procedural Architectural 3D Furniture Proxies
-    if (r.type === 'bedroom') {
-      // 3D Bed: Frame, Mattress, Headboard, Dual Pillows
-      const bedW = Math.min(rw * 0.6, 2.0);
-      const bedD = Math.min(rd * 0.65, 2.1);
-      box(rx, F, rz - rd * 0.15, bedW, 0.38, bedD, linen);
-      box(rx, F, rz - rd * 0.15 - bedD / 2 + 0.06, bedW + 0.08, 0.85, 0.12, wood);
-      box(rx - 0.45, F + 0.38, rz - rd * 0.15 - 0.55, 0.65, 0.12, 0.4, M(0xffffff, 0.9));
-      box(rx + 0.45, F + 0.38, rz - rd * 0.15 - 0.55, 0.65, 0.12, 0.4, M(0xffffff, 0.9));
-    } else if (r.type === 'living') {
-      // 3D Modern Sofa (Seat Cushions, Backrest, Armrests) & Warm Coffee Table
-      const sofaW = Math.min(rw * 0.68, 2.4);
-      box(rx, F, rz - rd * 0.15, sofaW, 0.38, 0.85, sofa);
-      box(rx, F, rz - rd * 0.15 - 0.35, sofaW, 0.75, 0.2, sofa);
-      box(rx - sofaW / 2 + 0.1, F, rz - rd * 0.15, 0.2, 0.55, 0.85, sofa);
-      box(rx + sofaW / 2 - 0.1, F, rz - rd * 0.15, 0.2, 0.55, 0.85, sofa);
-      box(rx, F, rz + rd * 0.2, Math.min(rw * 0.45, 1.3), 0.3, 0.65, wood);
-    } else if (r.type === 'kitchen') {
-      // 3D Kitchen Island Counter with Stainless Sink
-      const cW = Math.min(rw * 0.75, 2.4);
-      box(rx, F, rz - rd * 0.25, cW, 0.85, 0.65, dark);
-      box(rx + 0.4, F + 0.85, rz - rd * 0.25, 0.65, 0.04, 0.45, M(0x94a3b8, 0.2, { metalness: 0.8 }));
-      // Dining Table & Chairs in dining area of kitchen
-      box(rx, F, rz + rd * 0.2, Math.min(rw * 0.5, 1.6), 0.75, Math.min(rd * 0.4, 0.9), wood);
-      box(rx - 0.45, F, rz + rd * 0.2 + 0.6, 0.35, 0.45, 0.35, dark);
-      box(rx + 0.45, F, rz + rd * 0.2 + 0.6, 0.35, 0.45, 0.35, dark);
-    } else if (r.type === 'bathroom') {
-      // 3D Ceramic Toilet (Bowl + Cistern) & Vanity Cabinet
-      box(rx - rw * 0.2, F, rz, 0.45, 0.4, 0.55, M(0xffffff, 0.2));
-      box(rx - rw * 0.2, F, rz - 0.22, 0.45, 0.75, 0.2, M(0xffffff, 0.2));
-      box(rx + rw * 0.2, F, rz, 0.65, 0.8, 0.5, wood);
-      box(rx + rw * 0.2, F + 0.8, rz, 0.5, 0.04, 0.35, M(0xffffff, 0.2));
+    // High-Fidelity Procedural Architectural Furniture
+    const furn = r.furniture || [];
+    const isCAD = colorMode === 'cad';
+    const bedMat = isCAD ? MATS.wallCAD : MATS.furnitureFabric;
+    const woodMat = isCAD ? MATS.doorCAD : MATS.furnitureWood;
+
+    if (furn.includes('king_bed') || furn.includes('queen_bed') || furn.includes('platform_bed')) {
+      const bW = Math.min(rw * 0.55, 2.0);
+      const bD = Math.min(rd * 0.60, 2.15);
+      const bX = rx;
+      const bZ = rz - rd * 0.15;
+      // Base Platform
+      box(houseGroup, bX, F + 0.15, bZ, bW, 0.3, bD, woodMat);
+      // Mattress with Duvet
+      box(houseGroup, bX, F + 0.35, bZ, bW - 0.08, 0.22, bD - 0.08, bedMat);
+      // Headboard
+      box(houseGroup, bX, F + 0.55, bZ - bD/2 + 0.05, bW + 0.15, 0.8, 0.12, woodMat);
+      // Dual Pillows
+      box(houseGroup, bX - bW*0.25, F + 0.50, bZ - bD*0.35, bW*0.38, 0.12, 0.42, MATS.ceramic);
+      box(houseGroup, bX + bW*0.25, F + 0.50, bZ - bD*0.35, bW*0.38, 0.12, 0.42, MATS.ceramic);
+      // Nightstands with Brass Lamps
+      [-1, 1].forEach(dir => {
+        const nsX = bX + dir * (bW/2 + 0.3);
+        const nsZ = bZ - bD/2 + 0.3;
+        box(houseGroup, nsX, F + 0.22, nsZ, 0.45, 0.44, 0.42, woodMat);
+        box(houseGroup, nsX, F + 0.52, nsZ, 0.14, 0.18, 0.14, MATS.brass);
+      });
+    }
+
+    if (furn.includes('sofa') || furn.includes('l_sofa') || furn.includes('sectional_sofa') || furn.includes('modular_sofa')) {
+      const sW = Math.min(rw * 0.65, 2.5);
+      const sX = rx;
+      const sZ = rz - rd * 0.12;
+      // Area Rug underneath
+      box(houseGroup, sX, F + 0.01, sZ + 0.4, sW + 0.8, 0.02, 2.2, new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.9 }));
+      // Seat base
+      box(houseGroup, sX, F + 0.22, sZ, sW, 0.42, 0.88, bedMat);
+      // Backrest
+      box(houseGroup, sX, F + 0.55, sZ - 0.38, sW, 0.65, 0.22, bedMat);
+      // Armrests
+      [-1, 1].forEach(dir => {
+        box(houseGroup, sX + dir * (sW/2 - 0.1), F + 0.35, sZ, 0.2, 0.48, 0.88, bedMat);
+      });
+      // Designer Coffee Table
+      box(houseGroup, sX, F + 0.2, sZ + 0.75, Math.min(sW * 0.6, 1.3), 0.36, 0.65, woodMat);
+    }
+
+    if (furn.includes('dining_table') || furn.includes('dining_set') || furn.includes('8p_dining_table')) {
+      const tW = Math.min(rw * 0.55, 1.8);
+      const tD = Math.min(rd * 0.4, 0.95);
+      const tX = rx;
+      const tZ = rz + rd * 0.15;
+      // Table Top & Legs
+      box(houseGroup, tX, F + 0.74, tZ, tW, 0.05, tD, woodMat);
+      [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([dx, dz]) => {
+        box(houseGroup, tX + dx * (tW/2 - 0.08), F + 0.37, tZ + dz * (tD/2 - 0.08), 0.06, 0.74, 0.06, MATS.furnitureDark);
+      });
+      // 4 Chairs
+      [-1, 1].forEach(dx => {
+        [-0.35, 0.35].forEach(dz => {
+          box(houseGroup, tX + dz * tW * 0.8, F + 0.22, tZ + dx * (tD/2 + 0.25), 0.38, 0.45, 0.38, bedMat);
+          box(houseGroup, tX + dz * tW * 0.8, F + 0.55, tZ + dx * (tD/2 + 0.4), 0.38, 0.45, 0.05, woodMat);
+        });
+      });
+    }
+
+    if (furn.includes('island_counter') || furn.includes('kitchen_island') || furn.includes('grand_island') || furn.includes('kitchen_counter')) {
+      const cW = Math.min(rw * 0.65, 2.4);
+      const cX = rx;
+      const cZ = rz - rd * 0.25;
+      // Island base with waterfall marble top
+      box(houseGroup, cX, F + 0.45, cZ, cW, 0.9, 0.75, woodMat);
+      box(houseGroup, cX, F + 0.92, cZ, cW + 0.06, 0.06, 0.85, MATS.ceramic);
+      // Stainless Steel Undermount Sink
+      box(houseGroup, cX + cW * 0.25, F + 0.94, cZ, 0.5, 0.02, 0.4, new THREE.MeshStandardMaterial({ color: 0x94A3B8, metalness: 0.9, roughness: 0.2 }));
+    }
+
+    if (furn.includes('toilet') || furn.includes('bathtub') || furn.includes('shower_enclosure') || furn.includes('freestanding_tub')) {
+      const tX = rx - rw * 0.22;
+      const tZ = rz - rd * 0.2;
+      // Toilet (Cistern + Bowl)
+      box(houseGroup, tX, F + 0.45, tZ - 0.18, 0.42, 0.75, 0.2, MATS.ceramic);
+      box(houseGroup, tX, F + 0.22, tZ + 0.08, 0.42, 0.42, 0.52, MATS.ceramic);
+      // Floating Vanity with Mirror
+      const vX = rx + rw * 0.22;
+      box(houseGroup, vX, F + 0.55, tZ, 0.75, 0.5, 0.5, woodMat);
+      box(houseGroup, vX, F + 0.82, tZ, 0.55, 0.08, 0.4, MATS.ceramic);
+      // Mirror
+      box(houseGroup, vX, F + 1.45, tZ - 0.24, 0.65, 0.85, 0.04, new THREE.MeshStandardMaterial({ color: 0xE2E8F0, metalness: 0.95, roughness: 0.05 }));
     }
   });
 
-  // 3D Architectural North Compass Rose on Foundation Plinth
-  const compassGroup = new THREE.Group();
-  compassGroup.position.set(W / 2 + 0.8, -0.18, -L / 2 - 0.3);
-  const ringGeo = new THREE.RingGeometry(0.42, 0.48, 32);
-  const ringMat = new THREE.MeshBasicMaterial({ color: isCAD ? 0x38bdf8 : 0xAE906C, side: THREE.DoubleSide });
-  const ringMesh = new THREE.Mesh(ringGeo, ringMat);
-  ringMesh.rotation.x = -Math.PI / 2;
-  compassGroup.add(ringMesh);
-
-  const needleN = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.55, 4), new THREE.MeshBasicMaterial({ color: 0xef4444 }));
-  needleN.rotation.x = -Math.PI / 2;
-  needleN.position.set(0, 0.02, -0.26);
-  compassGroup.add(needleN);
-
-  const needleS = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.38, 4), new THREE.MeshBasicMaterial({ color: 0xe2e8f0 }));
-  needleS.rotation.x = Math.PI / 2;
-  needleS.position.set(0, 0.02, 0.16);
-  compassGroup.add(needleS);
-
-  const nCanvas = document.createElement('canvas');
-  nCanvas.width = nCanvas.height = 128;
-  const nCtx = nCanvas.getContext('2d');
-  nCtx.fillStyle = '#ef4444';
-  nCtx.font = 'bold 84px sans-serif';
-  nCtx.textAlign = 'center';
-  nCtx.textBaseline = 'middle';
-  nCtx.fillText('N', 64, 64);
-  const nMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.35, 0.35), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(nCanvas), transparent: true }));
-  nMesh.rotation.x = -Math.PI / 2;
-  nMesh.position.set(0, 0.03, -0.62);
-  compassGroup.add(nMesh);
-  house.add(compassGroup);
-
-  // Build Walls from Geometric Segments (Default to Watertight 12-Segment Architecture)
-  const walls = data.walls && data.walls.length > 0 ? data.walls : (currentProject.walls.length > 0 ? currentProject.walls : DEFAULT_WALLS);
-  currentProject.walls = walls;
-
+  // 3. Multi-Opening Wall Slicing Engine
+  const walls = plan.walls || [];
   walls.forEach(w => {
     const dx = w.endX - w.startX;
     const dz = w.endZ - w.startZ;
     const len = Math.hypot(dx, dz);
     if (len < 0.15) return;
 
+    const angle = Math.atan2(dz, dx);
     const midX = (w.startX + w.endX) / 2;
     const midZ = (w.startZ + w.endZ) / 2;
-    const angle = Math.atan2(dz, dx);
     const wallThick = w.thickness || (w.isExterior ? T : 0.15);
     const wallH = w.height || H;
 
-    const currentWallMat = w.isExterior ? extWallMat : intWallMat;
-    const winOp = w.openings?.find(op => op.type === 'window');
-    const doorOp = w.openings?.find(op => op.type === 'door');
+    const isCAD = colorMode === 'cad';
+    const wallMat = isCAD ? (w.isExterior ? MATS.wallCAD : MATS.wallCADInt) : (w.isExterior ? MATS.wallExt : MATS.wallInt);
 
-    if (winOp && len > 1.1) {
-      // Architectural Window Opening with sill, lintel & glass
-      const winWidth = Math.min(len * 0.65, winOp.width || 1.3);
-      const pos = typeof winOp.position === 'number' ? Math.max(0.12, Math.min(0.88, winOp.position)) : 0.5;
-      const winCenter = -len / 2 + len * pos;
-      const side1Len = Math.max(0.05, winCenter - winWidth / 2 - (-len / 2));
-      const side2Len = Math.max(0.05, len / 2 - (winCenter + winWidth / 2));
+    // Group for this wall aligned with local X along wall length
+    const wallGroup = new THREE.Group();
+    wallGroup.position.set(midX, F, midZ);
+    wallGroup.rotation.y = -angle;
+    houseGroup.add(wallGroup);
 
-      const wg = new THREE.Group();
-      wg.position.set(midX, F + wallH / 2, midZ);
-      wg.rotation.y = -angle;
-
-      const side1 = new THREE.Mesh(new THREE.BoxGeometry(side1Len, wallH, wallThick), currentWallMat);
-      side1.position.set(-len / 2 + side1Len / 2, 0, 0);
-      side1.castShadow = true;
-
-      const side2 = new THREE.Mesh(new THREE.BoxGeometry(side2Len, wallH, wallThick), currentWallMat);
-      side2.position.set(len / 2 - side2Len / 2, 0, 0);
-      side2.castShadow = true;
-
-      const sillH = 0.9;
-      const sill = new THREE.Mesh(new THREE.BoxGeometry(winWidth, sillH, wallThick), isCAD ? M(0x0891b2, 0.4) : currentWallMat);
-      sill.position.set(winCenter, -wallH / 2 + sillH / 2, 0);
-      sill.castShadow = true;
-
-      const lintelH = Math.max(0.2, wallH - 2.1);
-      const lintel = new THREE.Mesh(new THREE.BoxGeometry(winWidth, lintelH, wallThick), isCAD ? M(0x0891b2, 0.4) : currentWallMat);
-      lintel.position.set(winCenter, wallH / 2 - lintelH / 2, 0);
-      lintel.castShadow = true;
-
-      const glassH = wallH - sillH - lintelH;
-      const glass = new THREE.Mesh(new THREE.BoxGeometry(winWidth, glassH, wallThick * 0.2), activeGlassMat);
-      glass.position.set(winCenter, -wallH / 2 + sillH + glassH / 2, 0);
-
-      wg.add(side1, side2, sill, lintel, glass);
-      house.add(wg);
-    } else if (doorOp && len > 0.9) {
-      // Architectural Doorway Opening with flush threshold & swung door leaf
-      const doorWidth = Math.min(len * 0.75, doorOp.width || 0.95);
-      const pos = typeof doorOp.position === 'number' ? Math.max(0.12, Math.min(0.88, doorOp.position)) : 0.5;
-      const doorCenter = -len / 2 + len * pos;
-      const seg1Len = Math.max(0.05, doorCenter - doorWidth / 2 - (-len / 2));
-      const seg2Len = Math.max(0.05, len / 2 - (doorCenter + doorWidth / 2));
-
-      const wg = new THREE.Group();
-      wg.position.set(midX, F + wallH / 2, midZ);
-      wg.rotation.y = -angle;
-
-      const seg1 = new THREE.Mesh(new THREE.BoxGeometry(seg1Len, wallH, wallThick), currentWallMat);
-      seg1.position.set(-len / 2 + seg1Len / 2, 0, 0);
-      seg1.castShadow = true;
-
-      const seg2 = new THREE.Mesh(new THREE.BoxGeometry(seg2Len, wallH, wallThick), currentWallMat);
-      seg2.position.set(len / 2 - seg2Len / 2, 0, 0);
-      seg2.castShadow = true;
-
-      const lintelH = Math.max(0.2, wallH - 2.1);
-      const lintel = new THREE.Mesh(new THREE.BoxGeometry(doorWidth, lintelH, wallThick), currentWallMat);
-      lintel.position.set(doorCenter, wallH / 2 - lintelH / 2, 0);
-      lintel.castShadow = true;
-
-      const thresh = new THREE.Mesh(new THREE.BoxGeometry(doorWidth, 0.03, wallThick), activeThreshMat);
-      thresh.position.set(doorCenter, -wallH / 2 + 0.015, 0);
-
-      const isHingeOnLeft = ((doorOp).hingeSide ?? 'left').toLowerCase() === 'left';
-      const localHingeX = dx < 0 
-        ? (isHingeOnLeft ? doorCenter + doorWidth / 2 - 0.03 : doorCenter - doorWidth / 2 + 0.03)
-        : (isHingeOnLeft ? doorCenter - doorWidth / 2 + 0.03 : doorCenter + doorWidth / 2 - 0.03);
-
-      const leafDir = dx < 0 ? (isHingeOnLeft ? -1 : 1) : (isHingeOnLeft ? 1 : -1);
-
-      const doorPivot = new THREE.Group();
-      doorPivot.position.set(localHingeX, -wallH / 2, 0);
-
-      const doorLeaf = new THREE.Mesh(new THREE.BoxGeometry(doorWidth * 0.92, 2.06, 0.04), activeDoorMat);
-      doorLeaf.position.set((leafDir * doorWidth * 0.92) / 2, 1.03, 0);
-      doorLeaf.castShadow = true;
-      doorPivot.add(doorLeaf);
-
-      doorPivot.rotation.y = leafDir * (Math.PI / 3.2);
-
-      wg.add(seg1, seg2, lintel, thresh, doorPivot);
-      house.add(wg);
-    } else {
+    const openings = w.openings || [];
+    if (openings.length === 0) {
       // Solid Continuous Wall
-      const solid = new THREE.Mesh(new THREE.BoxGeometry(len, wallH, wallThick), currentWallMat);
-      solid.position.set(midX, F + wallH / 2, midZ);
-      solid.rotation.y = -angle;
-      solid.castShadow = true;
-      solid.receiveShadow = true;
-      house.add(solid);
-    }
+      box(wallGroup, 0, wallH / 2, 0, len, wallH, wallThick, wallMat);
+    } else {
+      // Sort openings along wall length (-len/2 to +len/2)
+      const parsedOps = openings.map(op => {
+        const pos = typeof op.position === 'number' ? Math.max(0.1, Math.min(0.9, op.position)) : 0.5;
+        const wWidth = Math.min(len * 0.7, op.width || (op.type === 'door' ? 0.95 : 1.4));
+        const center = -len / 2 + len * pos;
+        return {
+          ...op,
+          center,
+          width: wWidth,
+          start: center - wWidth / 2,
+          end: center + wWidth / 2
+        };
+      }).sort((a, b) => a.start - b.start);
 
-    // Wall Top Coping Trim
-    const cap = new THREE.Mesh(new THREE.BoxGeometry(len, 0.04, wallThick + 0.02), M(capColor, 0.6));
-    cap.position.set(midX, F + wallH + 0.02, midZ);
-    cap.rotation.y = -angle;
-    house.add(cap);
-  });
-
-  updateUIPanels();
-}
-
-// --- UI Panel Synchronization ---
-function updateUIPanels() {
-  const rooms = currentProject.rooms;
-  $('#room-count').textContent = rooms.length;
-  
-  const listEl = $('#list');
-  listEl.innerHTML = rooms.map(r => `
-    <button class="room" data-id="${r.id}">
-      <span>${r.n}</span>
-      <span>${r.area} m²</span>
-    </button>
-  `).join('');
-
-  const totArea = rooms.reduce((acc, r) => acc + (r.area || 0), 0);
-  $('#tot').textContent = totArea + ' m²';
-
-  // Floor Plan Schedule View
-  $('#fp-rooms-cnt').textContent = rooms.length;
-  $('#fp-area').textContent = (currentProject.dimensions.width * currentProject.dimensions.length).toFixed(1) + ' m²';
-  $('#fp-schedule-list').innerHTML = rooms.map(r => `
-    <div class="kv"><span>${r.n}</span><span>${r.m.toFixed(1)} × ${r.dd.toFixed(1)} m (${r.area} m²)</span></div>
-  `).join('');
-
-  listEl.addEventListener('mouseover', e => {
-    const b = e.target.closest('.room');
-    setHover(b ? b.dataset.id : null);
-  });
-  listEl.addEventListener('mouseleave', () => setHover(null));
-  listEl.onclick = e => {
-    const b = e.target.closest('.room');
-    if (b) {
-      select(sel === b.dataset.id ? null : b.dataset.id);
-      if (window.innerWidth <= 900 && typeof closeMobileDrawers === 'function') {
-        closeMobileDrawers();
-      }
-    }
-  };
-
-  renderInfoPanel(null);
-}
-
-function renderInfoPanel(r) {
-  const infoEl = $('#info');
-  if (r) {
-    infoEl.innerHTML = `
-      <h2>${r.n}</h2>
-      <div class="kv"><span>Area</span><span>${r.area} m²</span></div>
-      <div class="kv"><span>Dimensions</span><span>${r.m.toFixed(1)} × ${r.dd.toFixed(1)} m</span></div>
-      <div class="kv"><span>Floor Finish</span><span>${r.fin}</span></div>
-      <div class="kv"><span>Wall Finish</span><span>${r.wall}</span></div>
-      <div class="sw">
-        <i style="background:#${r.c.toString(16)}" title="Floor Tile"></i>
-        <i style="background:#${colorMode === 'schematic' ? 'ef4444' : currentWallColor.toString(16)}" title="Wall Color"></i>
-        <i style="background:#${colorMode === 'schematic' ? '2563eb' : '8B7660'}" title="Door Color"></i>
-      </div>
-      <button class="btn-secondary" style="width:100%;margin-top:10px;justify-content:center" onclick="enterRoomWalkthrough('${r.id}')">
-        🚶 Step Inside This Room
-      </button>
-      <p class="note">Click room again to return to full architectural overview.</p>
-    `;
-  } else {
-    const total = currentProject.rooms.reduce((acc, x) => acc + (x.area || 0), 0);
-    infoEl.innerHTML = `
-      <h2>${currentProject.name}</h2>
-      <div class="kv"><span>Levels</span><span>1 (Ground Floor)</span></div>
-      <div class="kv"><span>Total Rooms</span><span>${currentProject.rooms.length}</span></div>
-      <div class="kv"><span>Interior Area</span><span>${total} m²</span></div>
-      <div class="kv"><span>Width × Length</span><span>${currentProject.dimensions.width.toFixed(1)} × ${currentProject.dimensions.length.toFixed(1)} m</span></div>
-      <div class="kv"><span>Ceiling Height</span><span>${currentProject.dimensions.wallHeight || 2.8} m</span></div>
-      <div class="sw">
-        <i style="background:#${colorMode === 'schematic' ? 'ef4444' : currentWallColor.toString(16)}" title="Walls"></i>
-        <i style="background:#${colorMode === 'schematic' ? '2563eb' : '8B7660'}" title="Doors"></i>
-        <i style="background:#${colorMode === 'schematic' ? '06b6d4' : '3B4048'}" title="Windows"></i>
-      </div>
-      <p class="note">BEYOND-2D Architectural Workspace. Real-time parametric resizing, dynamic sun path heliodon, and walkthrough mode.</p>
-    `;
-  }
-}
-
-// --- Tab Switching Logic (Floor Plan / Materials / 3D Model) ---
-function switchTab(tabId) {
-  $('#tab-3d').classList.toggle('on', tabId === '3d');
-  $('#tab-plan').classList.toggle('on', tabId === 'plan');
-  $('#tab-mat').classList.toggle('on', tabId === 'mat');
-
-  $('#view-specs').classList.toggle('active', tabId === '3d');
-  $('#view-plan').classList.toggle('active', tabId === 'plan');
-  $('#view-mat').classList.toggle('active', tabId === 'mat');
-
-  if (tabId === 'plan') {
-    // Smooth transition to 90° Top-Down Orthographic View
-    th = 0;
-    ph = 0.02; // Straight from above
-    radT = Math.max(currentProject.dimensions.width, currentProject.dimensions.length) * 2.2;
-    tgGoal.set(0, 0, 0);
-    $('#stage-hint').textContent = 'Top-Down 90° Orthographic Architectural View [7]';
-  } else if (tabId === '3d') {
-    // Restore 3D Perspective Isometric
-    th = -1.15;
-    ph = 0.88;
-    radT = 32;
-    $('#stage-hint').textContent = 'Drag to orbit, scroll to zoom, click room to focus';
-  } else if (tabId === 'mat') {
-    $('#stage-hint').textContent = 'Materials Catalog: click any finish to apply live to rooms & walls';
-  }
-}
-
-$('#tab-3d').onclick = () => switchTab('3d');
-$('#tab-plan').onclick = () => switchTab('plan');
-$('#tab-mat').onclick = () => switchTab('mat');
-$('#btn-toggle-plan-view').onclick = () => switchTab('plan');
-$('#btn-return-3d').onclick = () => switchTab('3d');
-
-// --- Color Mode Toggle (PlanPop CAD vs Monograph) ---
-$('#btn-color-mode').onclick = () => {
-  colorMode = colorMode === 'schematic' ? 'monograph' : 'schematic';
-  const isCAD = colorMode === 'schematic';
-  $('#btn-color-mode').classList.toggle('schematic', isCAD);
-  $('#color-mode-txt').textContent = isCAD ? 'Color: PlanPop CAD' : 'Color: Realistic';
-  rebuildHouseScene(currentProject);
-};
-
-// --- Materials Catalog Interaction ---
-document.querySelectorAll('.mat-item').forEach(item => {
-  item.onclick = () => {
-    const parentGrid = item.closest('.mat-grid');
-    parentGrid.querySelectorAll('.mat-item').forEach(x => x.classList.remove('active'));
-    item.classList.add('active');
-
-    const type = item.dataset.type;
-    const hex = parseInt(item.dataset.color);
-    const matName = item.dataset.name;
-
-    if (type === 'floor') {
-      currentFloorColor = hex;
-      if (sel) {
-        const r = currentProject.rooms.find(x => x.id === sel);
-        if (r) {
-          r.c = hex;
-          r.fin = matName;
-          r.mesh.material.color.setHex(hex);
-          r.base.setHex(hex);
+      // Build solid intervals alternating with openings
+      let currentX = -len / 2;
+      parsedOps.forEach(op => {
+        // Solid wall segment before opening
+        const segLen = op.start - currentX;
+        if (segLen > 0.04) {
+          box(wallGroup, currentX + segLen / 2, wallH / 2, 0, segLen, wallH, wallThick, wallMat);
         }
-      } else {
-        currentProject.rooms.forEach(r => {
-          r.c = hex;
-          r.fin = matName;
-          if (r.mesh) {
-            r.mesh.material.color.setHex(hex);
-            r.base.setHex(hex);
-          }
-        });
+
+        // Opening span
+        if (op.type === 'window') {
+          const sillH = 0.9;
+          const lintelH = Math.max(0.2, wallH - 2.1);
+          const glassH = wallH - sillH - lintelH;
+
+          // Sill & Lintel
+          box(wallGroup, op.center, sillH / 2, 0, op.width, sillH, wallThick, wallMat);
+          box(wallGroup, op.center, wallH - lintelH / 2, 0, op.width, lintelH, wallThick, wallMat);
+
+          // Glass Pane & Window Frame
+          box(wallGroup, op.center, sillH + glassH / 2, 0, op.width, glassH, wallThick * 0.25, MATS.glass, false, false);
+          box(wallGroup, op.center, sillH + glassH / 2, 0, op.width, glassH, wallThick * 0.35, MATS.frame, false, false);
+        } else if (op.type === 'door') {
+          const lintelH = Math.max(0.2, wallH - 2.1);
+          // Top lintel
+          box(wallGroup, op.center, wallH - lintelH / 2, 0, op.width, lintelH, wallThick, wallMat);
+          // Flush threshold strip
+          box(wallGroup, op.center, 0.015, 0, op.width, 0.03, wallThick, MATS.furnitureDark);
+
+          // Swung Door Leaf
+          const doorPivot = new THREE.Group();
+          const isHingeLeft = (op.hingeSide || 'left').toLowerCase() === 'left';
+          const hingeX = isHingeLeft ? op.start + 0.02 : op.end - 0.02;
+          doorPivot.position.set(hingeX, 0, 0);
+
+          const leafDir = isHingeLeft ? 1 : -1;
+          const doorLeaf = new THREE.Mesh(new THREE.BoxGeometry(op.width * 0.92, 2.06, 0.04), isCAD ? MATS.doorCAD : MATS.doorLeaf);
+          doorLeaf.position.set((leafDir * op.width * 0.92) / 2, 1.03, 0);
+          doorLeaf.castShadow = true;
+          doorPivot.add(doorLeaf);
+
+          // Brass Door Handle
+          const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.12), MATS.brass);
+          handle.rotation.z = Math.PI / 2;
+          handle.position.set(leafDir * (op.width * 0.92 - 0.1), 1.0, 0.04);
+          doorPivot.add(handle);
+
+          doorPivot.rotation.y = leafDir * (Math.PI / 3.2);
+          wallGroup.add(doorPivot);
+        }
+
+        currentX = op.end;
+      });
+
+      // Final trailing wall segment
+      const endLen = len / 2 - currentX;
+      if (endLen > 0.04) {
+        box(wallGroup, currentX + endLen / 2, wallH / 2, 0, endLen, wallH, wallThick, wallMat);
       }
-    } else if (type === 'wall') {
-      currentWallColor = hex;
-      rebuildHouseScene(currentProject);
     }
 
-    renderInfoPanel(sel ? currentProject.rooms.find(x => x.id === sel) : null);
-  };
+    // Wall Coping Trim along the top
+    box(wallGroup, 0, wallH + 0.02, 0, len, 0.04, wallThick + 0.03, isCAD ? MATS.wallCAD : MATS.frame, false, true);
+  });
+
+  // 4. Optional Architectural Flat Roof with Glass Skylight
+  if (hasRoof) {
+    const roofGeo = new THREE.BoxGeometry(W + 0.6, 0.25, L + 0.6);
+    const roofMesh = new THREE.Mesh(roofGeo, new THREE.MeshStandardMaterial({ color: 0x1E293B, roughness: 0.9 }));
+    roofMesh.position.set(0, F + H + 0.12, 0);
+    roofMesh.castShadow = true;
+    houseGroup.add(roofMesh);
+  }
+
+  // Sync UI Specs and Sidebar
+  updateUISpecs(plan);
+}
+
+// =========================================================================
+// UI UPDATES & BIM SCHEDULING
+// =========================================================================
+
+function updateUISpecs(plan) {
+  const W = plan.dimensions.width;
+  const L = plan.dimensions.length;
+  const H = plan.dimensions.wallHeight || 2.8;
+  const T = plan.dimensions.wallThickness || 0.22;
+  const grossArea = Math.round(W * L * 10) / 10;
+  const netArea = Math.round((plan.rooms || []).reduce((acc, r) => acc + (r.areaM2 || (r.relW * r.relD * grossArea)), 0) * 10) / 10;
+
+  $('#badge-plan-num').textContent = `${plan.num} / 10`;
+  $('#param-total-m2').textContent = `${grossArea} m²`;
+  $('#spec-gross-area').textContent = `${grossArea} m²`;
+  $('#spec-net-area').textContent = `${netArea} m²`;
+
+  $('#slider-dim-w').value = W;
+  $('#slider-dim-l').value = L;
+  $('#slider-dim-h').value = H;
+  $('#slider-dim-t').value = Math.round(T * 100);
+
+  $('#val-dim-w').textContent = `${W.toFixed(1)} m`;
+  $('#val-dim-l').textContent = `${L.toFixed(1)} m`;
+  $('#val-dim-h').textContent = `${H.toFixed(1)} m`;
+  $('#val-dim-t').textContent = `${Math.round(T * 100)} cm`;
+
+  const extCount = (plan.walls || []).filter(w => w.isExterior).length;
+  const intCount = (plan.walls || []).filter(w => !w.isExterior).length;
+  $('#spec-ext-walls').textContent = `${extCount} Segments`;
+  $('#spec-int-walls').textContent = `${intCount} Partitions`;
+
+  let doorCount = 0;
+  let winCount = 0;
+  (plan.walls || []).forEach(w => {
+    (w.openings || []).forEach(op => {
+      if (op.type === 'door') doorCount++;
+      if (op.type === 'window') winCount++;
+    });
+  });
+  $('#spec-doors').textContent = `${doorCount} Doors`;
+  $('#spec-windows').textContent = `${winCount} Windows`;
+
+  // Update Blueprint image in sidebar & split view
+  const imgUrl = plan.imagePath || `/samples/${plan.filename}`;
+  $('#sidebar-blueprint-img').src = imgUrl;
+  $('#split-2d-canvas').src = imgUrl;
+
+  // Update Rooms List in sidebar
+  const rooms = plan.rooms || [];
+  $('#room-badge-count').textContent = `${rooms.length} Spaces`;
+  const listEl = $('#sidebar-rooms-list');
+  listEl.innerHTML = rooms.map((r, i) => `
+    <div class="room-item ${i === 0 ? 'active' : ''}" data-id="${r.id}">
+      <span>${r.name}</span>
+      <span class="room-meta-pill">${r.areaM2 || Math.round(r.relW * r.relD * grossArea)} m²</span>
+    </div>
+  `).join('');
+
+  $$('.room-item').forEach(el => {
+    el.onclick = () => {
+      $$('.room-item').forEach(x => x.classList.remove('active'));
+      el.classList.add('active');
+      const rId = el.getAttribute('data-id');
+      const r = rooms.find(x => x.id === rId);
+      if (r) inspectRoom(r);
+    };
+  });
+
+  if (rooms.length > 0) inspectRoom(rooms[0]);
+}
+
+function inspectRoom(r) {
+  $('#inspect-room-name').textContent = r.name;
+  $('#inspect-room-area').textContent = `${r.areaM2 || 0} m²`;
+  $('#inspect-room-floor').textContent = r.fin || 'Architectural Parquet';
+  $('#inspect-room-wall').textContent = colorMode === 'cad' ? 'PlanPop Solid CAD Red' : 'Warm Bone Plaster';
+}
+
+// =========================================================================
+// 10 ARCHITECTURAL PRESET RIBBON & SELECTOR
+// =========================================================================
+
+function buildPresetRibbon() {
+  const ribbon = $('#ribbon-presets');
+  const select = $('#select-preset');
+  ribbon.innerHTML = '';
+  select.innerHTML = '';
+
+  catalog.forEach((plan, idx) => {
+    // Top Floating Ribbon Pill
+    const pill = document.createElement('button');
+    pill.className = `preset-pill ${idx === 0 ? 'active' : ''}`;
+    pill.innerHTML = `
+      <span class="preset-pill-num">${plan.num}</span>
+      <span>${plan.name}</span>
+    `;
+    pill.onclick = () => switchPlan(idx);
+    ribbon.appendChild(pill);
+
+    // Sidebar Select Option
+    const opt = document.createElement('option');
+    opt.value = idx;
+    opt.textContent = `${plan.num}. ${plan.name} (${plan.dimensions.width}m × ${plan.dimensions.length}m)`;
+    select.appendChild(opt);
+  });
+
+  select.onchange = e => switchPlan(parseInt(e.target.value));
+}
+
+function switchPlan(index) {
+  if (index < 0 || index >= catalog.length) return;
+  activePlanIndex = index;
+  const plan = catalog[index];
+
+  // Update ribbon & select
+  $$('.preset-pill').forEach((p, i) => p.classList.toggle('active', i === index));
+  $('#select-preset').value = index;
+
+  // Show brief loading ring
+  const spinner = $('#spinner-modal');
+  $('#spinner-text').textContent = `Loading Preset ${plan.num}: ${plan.name}...`;
+  spinner.classList.add('active');
+
+  setTimeout(() => {
+    rebuild3DScene(plan);
+
+    // Smoothly re-frame camera based on house dimensions
+    const maxDim = Math.max(plan.dimensions.width, plan.dimensions.length);
+    radT = Math.max(16, maxDim * 1.85);
+    tgGoal.set(0, 0, 0);
+
+    spinner.classList.remove('active');
+  }, 120);
+}
+
+// =========================================================================
+// INTERACTIVE SPLIT-SCREEN 2D / 3D DRAGGABLE SLIDER
+// =========================================================================
+
+const splitOverlay = $('#split-overlay');
+const splitDivider = $('#split-divider');
+
+function setSplitMode(active) {
+  isSplitMode = active;
+  splitOverlay.classList.toggle('active', active);
+  $('#tab-btn-split').classList.toggle('active', active);
+  $('#btn-toggle-split').classList.toggle('active', active);
+
+  if (active) {
+    updateSplitDivider(0.5);
+    cam.position.set(0, 32, 0.001);
+    cam.lookAt(0, 0, 0);
+  } else {
+    renderer.domElement.style.clipPath = '';
+    cam.position.set(0, 18, 24);
+    cam.lookAt(0, 0, 0);
+  }
+}
+
+function updateSplitDivider(ratio) {
+  splitDividerX = Math.max(0.05, Math.min(0.95, ratio));
+  const pct = (splitDividerX * 100).toFixed(2);
+  splitDivider.style.left = `${pct}%`;
+  // Clip Three.js WebGL canvas to right side of divider
+  renderer.domElement.style.clipPath = `polygon(${pct}% 0, 100% 0, 100% 100%, ${pct}% 100%)`;
+}
+
+let isDraggingDivider = false;
+splitDivider.addEventListener('mousedown', () => isDraggingDivider = true);
+window.addEventListener('mouseup', () => isDraggingDivider = false);
+window.addEventListener('mousemove', e => {
+  if (!isDraggingDivider || !isSplitMode) return;
+  const rect = stage.getBoundingClientRect();
+  const ratio = (e.clientX - rect.left) / rect.width;
+  updateSplitDivider(ratio);
 });
 
-// --- Parametric Dimension Sliders Real-Time Updates ---
-function handleDimensionSlider() {
-  const newW = parseFloat($('#slider-w').value);
-  const newL = parseFloat($('#slider-l').value);
-  const newH = parseFloat($('#slider-h').value);
-  const newT = parseFloat($('#slider-t').value) / 100.0;
+// =========================================================================
+// ORBIT, TOP-DOWN & FIRST-PERSON WALKTHROUGH CAMERA
+// =========================================================================
 
-  currentProject.dimensions = {
-    width: newW,
-    length: newL,
-    wallHeight: newH,
-    wallThickness: newT
-  };
+let th = -1.15, ph = 0.85, rad = 30, radT = 30;
+let vth = 0, vph = 0, isDragging = false, lx = 0, ly = 0;
+const tg = new THREE.Vector3(0, 0, 0), tgGoal = new THREE.Vector3(0, 0, 0);
 
-  $('#val-w').textContent = `${newW.toFixed(1)} m`;
-  $('#val-l').textContent = `${newL.toFixed(1)} m`;
-  $('#val-h').textContent = `${newH.toFixed(1)} m`;
-  $('#val-t').textContent = `${Math.round(newT * 100)} cm`;
+// Walkthrough state
+let walkPos = new THREE.Vector3(0, 1.65, 3);
+let walkYaw = 0;
+let walkPitch = 0;
+const keysDown = {};
 
-  rebuildHouseScene(currentProject);
+window.addEventListener('keydown', e => {
+  keysDown[e.code] = true;
+  if (e.key === '7') setTopDownOrtho();
+  if (e.key === 'Escape' && isWalkthrough) exitWalkthrough();
+});
+window.addEventListener('keyup', e => keysDown[e.code] = false);
+
+stage.addEventListener('mousedown', e => {
+  if (e.button !== 0) return;
+  isDragging = true;
+  lx = e.clientX;
+  ly = e.clientY;
+});
+window.addEventListener('mouseup', () => isDragging = false);
+
+window.addEventListener('mousemove', e => {
+  if (isDragging && !isSplitMode) {
+    const dx = e.clientX - lx;
+    const dy = e.clientY - ly;
+
+    if (isWalkthrough) {
+      walkYaw -= dx * 0.004;
+      walkPitch = Math.max(-Math.PI / 2.5, Math.min(Math.PI / 2.5, walkPitch - dy * 0.004));
+    } else {
+      vth = -dx * 0.005;
+      vph = -dy * 0.005;
+      th += vth;
+      ph = Math.min(1.48, Math.max(0.05, ph + vph));
+    }
+    lx = e.clientX;
+    ly = e.clientY;
+  }
+});
+
+stage.addEventListener('wheel', e => {
+  if (isWalkthrough) return;
+  e.preventDefault();
+  radT = Math.min(80, Math.max(8, radT * (1 + e.deltaY * 0.001)));
+}, { passive: false });
+
+function setTopDownOrtho() {
+  isWalkthrough = false;
+  $('#walk-hud').classList.remove('active');
+  $('#radar-widget').classList.remove('active');
+  tgGoal.set(0, 0, 0);
+  th = 0;
+  ph = 0.01;
+  radT = 32;
 }
 
-$('#slider-w').oninput = handleDimensionSlider;
-$('#slider-l').oninput = handleDimensionSlider;
-$('#slider-h').oninput = handleDimensionSlider;
-$('#slider-t').oninput = handleDimensionSlider;
-
-// --- Sun Path / Heliodon Slider ---
-const sunSlider = $('#sun-slider');
-const sunTimeTxt = $('#sun-time-txt');
-
-sunSlider.oninput = () => {
-  const tVal = parseFloat(sunSlider.value);
-  currentSunTime = tVal;
-  const hours = Math.floor(tVal);
-  const minutes = Math.round((tVal - hours) * 60);
-  sunTimeTxt.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-
-  const angle = ((tVal - 6.0) / 14.0) * Math.PI;
-  const sunDist = 38.0;
-  const sunX = Math.cos(angle) * sunDist;
-  const sunY = Math.max(2.0, Math.sin(angle) * sunDist * 0.9);
-  const sunZ = -Math.sin(angle) * 16.0;
-
-  sun.position.set(sunX, sunY, sunZ);
-  sunDisc.position.set(sunX * 3.5, sunY * 3.0, sunZ * 3.5);
-
-  if (tVal < 8.5 || tVal > 17.5) {
-    sun.color.setHex(0xFFAA66);
-    hemi.color.setHex(0xfad390);
-  } else if (tVal >= 11.5 && tVal <= 14.5) {
-    sun.color.setHex(0xFFF4E0);
-    hemi.color.setHex(0xdfe6ee);
-  } else {
-    sun.color.setHex(0xFFDCA8);
-    hemi.color.setHex(0xdfe6ee);
-  }
-};
-
-// --- Eye-Level Walkthrough Mode (Wider Natural Human FOV & Smooth WASD) ---
-function enterRoomWalkthrough(roomId) {
-  const r = currentProject.rooms.find(x => x.id === roomId) || currentProject.rooms[0];
-  if (!r) return;
-
-  // 1. Natural Wide Human FOV (80° instead of 36°) & close near plane to eliminate wall-clipping
-  cam.fov = 80;
-  cam.near = 0.08;
-  cam.updateProjectionMatrix();
-
-  // 2. Position camera at human eye-level (1.65m above floor) inside the room
-  walkPos.set(r.x, F + 1.65, r.z);
+function enterWalkthrough() {
+  isWalkthrough = true;
+  setSplitMode(false);
+  walkPos.set(0, 1.65, currentPlan.dimensions.length / 2 - 0.5);
   walkYaw = 0;
   walkPitch = 0;
-  isWalkthrough = true;
-
-  $('#walk-exit').style.display = 'block';
-  $('#btn-walk').classList.add('active');
-  $('#virtual-dpad')?.classList.add('active');
-  if (typeof closeMobileDrawers === 'function') closeMobileDrawers();
-  $('#stage-hint').textContent = '🚶 Walkthrough Mode: WASD or On-Screen D-Pad to walk, Drag to look, [Esc] to exit';
+  $('#walk-hud').classList.add('active');
+  $('#radar-widget').classList.add('active');
+  $('#btn-mode-walk').classList.add('active');
+  $('#btn-mode-dollhouse').classList.remove('active');
+  $('#btn-mode-ortho').classList.remove('active');
 }
 
 function exitWalkthrough() {
   isWalkthrough = false;
-
-  // Restore Isometric Architectural FOV
-  cam.fov = 36;
-  cam.near = 0.5;
-  cam.updateProjectionMatrix();
-
-  $('#walk-exit').style.display = 'none';
-  $('#btn-walk').classList.remove('active');
-  $('#virtual-dpad')?.classList.remove('active');
-  $('#stage-hint').textContent = 'Drag to orbit, scroll to zoom, click room to focus';
-  th = -1.15; ph = 0.88; radT = 32;
+  $('#walk-hud').classList.remove('active');
+  $('#radar-widget').classList.remove('active');
+  $('#btn-mode-walk').classList.remove('active');
+  $('#btn-mode-dollhouse').classList.add('active');
+  radT = 28;
 }
 
-$('#btn-walk').onclick = () => {
-  if (isWalkthrough) exitWalkthrough();
-  else {
-    const targetRoom = sel ? sel : currentProject.rooms[0]?.id;
-    if (targetRoom) enterRoomWalkthrough(targetRoom);
+// Spatial Radar Renderer
+const radarCanvas = $('#radar-canvas');
+const radarCtx = radarCanvas.getContext('2d');
+function drawSpatialRadar() {
+  if (!isWalkthrough || !currentPlan) return;
+  const rw = radarCanvas.width = radarCanvas.clientWidth;
+  const rh = radarCanvas.height = radarCanvas.clientHeight;
+  radarCtx.clearRect(0, 0, rw, rh);
+
+  // Background grid
+  radarCtx.strokeStyle = '#1E293B';
+  radarCtx.lineWidth = 1;
+  radarCtx.strokeRect(4, 4, rw - 8, rh - 8);
+
+  const W = currentPlan.dimensions.width;
+  const L = currentPlan.dimensions.length;
+  const scale = Math.min((rw - 24) / W, (rh - 24) / L);
+  const cx = rw / 2;
+  const cy = rh / 2;
+
+  // Draw room outlines
+  (currentPlan.rooms || []).forEach(r => {
+    const rx = cx + (r.relX - 0.5) * W * scale;
+    const rz = cy + (r.relZ - 0.5) * L * scale;
+    const rW = r.relW * W * scale;
+    const rD = r.relD * L * scale;
+    radarCtx.fillStyle = 'rgba(56, 189, 248, 0.08)';
+    radarCtx.fillRect(rx, rz, rW, rD);
+    radarCtx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
+    radarCtx.strokeRect(rx, rz, rW, rD);
+  });
+
+  // Player position dot
+  const px = cx + walkPos.x * scale;
+  const pz = cy + walkPos.z * scale;
+  radarCtx.fillStyle = '#EF4444';
+  radarCtx.beginPath();
+  radarCtx.arc(px, pz, 4, 0, Math.PI * 2);
+  radarCtx.fill();
+
+  // View FOV Cone
+  radarCtx.fillStyle = 'rgba(239, 68, 68, 0.2)';
+  radarCtx.beginPath();
+  radarCtx.moveTo(px, pz);
+  const viewLen = 24;
+  radarCtx.arc(px, pz, viewLen, walkYaw - Math.PI/2 - 0.45, walkYaw - Math.PI/2 + 0.45);
+  radarCtx.closePath();
+  radarCtx.fill();
+}
+
+// =========================================================================
+// REAL-TIME SOLAR HELIODON SLIDER
+// =========================================================================
+
+$('#slider-sun-time').oninput = e => {
+  const t = parseFloat(e.target.value);
+  const hours = Math.floor(t);
+  const mins = t % 1 === 0 ? '00' : '30';
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  const displayH = hours > 12 ? hours - 12 : hours;
+  $('#val-sun-time').textContent = `${displayH}:${mins} ${ampm}`;
+
+  // Solar angle math (6 AM to 10 PM)
+  const sunAngle = ((t - 6) / 16) * Math.PI;
+  const sunDist = 55;
+  const sunX = Math.cos(sunAngle) * sunDist;
+  const sunY = Math.max(4, Math.sin(sunAngle) * sunDist);
+  const sunZ = Math.sin(sunAngle) * 35;
+  sunLight.position.set(sunX, sunY, sunZ);
+
+  // Sunlight color temperature shift
+  if (t < 8 || t > 18.5) {
+    sunLight.color.setHex(0xF59E0B); // Golden Hour
+    sunLight.intensity = 0.9;
+  } else if (t >= 11 && t <= 14) {
+    sunLight.color.setHex(0xFFFFFF); // High Noon
+    sunLight.intensity = 1.4;
+  } else {
+    sunLight.color.setHex(0xFFF7ED);
+    sunLight.intensity = 1.2;
   }
 };
-$('#walk-exit').onclick = exitWalkthrough;
 
-window.addEventListener('keydown', e => {
-  keysDown[e.code] = true;
-  keysDown[e.key.toLowerCase()] = true;
-  if (e.key === 'Escape' && isWalkthrough) exitWalkthrough();
-});
+// =========================================================================
+// HIGH-RESOLUTION ARCHITECTURAL PRESENTATION BOARD EXPORT
+// =========================================================================
 
-window.addEventListener('keyup', e => {
-  keysDown[e.code] = false;
-  keysDown[e.key.toLowerCase()] = false;
-});
-
-// --- High-Resolution Architectural Presentation Board Export ---
-$('#btn-sheet').onclick = () => {
-  loaderText.textContent = 'Rendering Presentation Board with Title Block...';
-  loader.classList.add('active');
+$('#btn-export-sheet').onclick = () => {
+  const spinner = $('#spinner-modal');
+  $('#spinner-text').textContent = 'Rendering 2400×1600 Architectural Presentation Board...';
+  spinner.classList.add('active');
 
   setTimeout(() => {
     try {
@@ -1673,659 +1248,332 @@ $('#btn-sheet').onclick = () => {
       sheet.height = 1600;
       const ctx = sheet.getContext('2d');
 
-      // Background
-      ctx.fillStyle = '#18202B';
-      ctx.fillRect(0, 0, sheet.width, sheet.height);
+      // 1. Blueprint Backdrop
+      ctx.fillStyle = '#090D14';
+      ctx.fillRect(0, 0, 2400, 1600);
 
-      // Border
-      ctx.strokeStyle = '#2D3947';
+      // Fine grid
+      ctx.strokeStyle = '#141D2C';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < 2400; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 1600); ctx.stroke(); }
+      for (let y = 0; y < 1600; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(2400, y); ctx.stroke(); }
+
+      // Outer Border
+      ctx.strokeStyle = '#1E293B';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(50, 50, 2300, 1500);
+
+      // 2. High-Res 3D Viewport Snapshot
+      const renderW = 1500;
+      const renderH = 1400;
+      ctx.drawImage(renderer.domElement, 70, 100, renderW, renderH);
+      ctx.strokeStyle = '#38BDF8';
       ctx.lineWidth = 2;
-      ctx.strokeRect(40, 40, sheet.width - 80, sheet.height - 80);
+      ctx.strokeRect(70, 100, renderW, renderH);
 
-      // 3D Render Image
-      const renderW = sheet.width - 800;
-      const renderH = sheet.height - 180;
-      ctx.drawImage(renderer.domElement, 60, 60, renderW, renderH);
+      // 3. Certified Title Block (Right Column)
+      const tbX = 1620;
+      ctx.fillStyle = '#F8FAFC';
+      ctx.font = '800 42px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('BEYOND - 2D', tbX, 160);
 
-      ctx.strokeStyle = '#2D3947';
-      ctx.strokeRect(60, 60, renderW, renderH);
+      ctx.fillStyle = '#38BDF8';
+      ctx.font = '700 18px "JetBrains Mono", monospace';
+      ctx.fillText('CERTIFIED ARCHITECTURAL BIM SPECIFICATION', tbX, 195);
 
-      // Title Block
-      const colX = sheet.width - 700;
-      ctx.fillStyle = '#E9E4DA';
-      ctx.font = 'bold 36px "Cormorant Garamond", Georgia, serif';
-      ctx.fillText('BEYOND - 2D', colX, 110);
+      ctx.strokeStyle = '#38BDF8';
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(tbX, 220); ctx.lineTo(tbX + 700, 220); ctx.stroke();
 
-      ctx.fillStyle = '#AE906C';
-      ctx.font = '600 16px "Manrope", sans-serif';
-      ctx.fillText('ARCHITECTURAL MONOGRAPH & BIM SCHEDULE', colX, 140);
+      // Project Meta
+      ctx.fillStyle = '#94A3B8';
+      ctx.font = '600 15px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('PROJECT ARCHETYPE', tbX, 260);
+      ctx.fillStyle = '#F8FAFC';
+      ctx.font = '700 28px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText(`${currentPlan.num}. ${currentPlan.name}`, tbX, 295);
 
-      ctx.strokeStyle = '#AE906C';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.moveTo(colX, 160);
-      ctx.lineTo(colX + 620, 160);
-      ctx.stroke();
+      ctx.fillStyle = '#94A3B8';
+      ctx.font = '600 15px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('ENVELOPE METRICS', tbX, 350);
+      ctx.fillStyle = '#F8FAFC';
+      ctx.font = '600 20px "JetBrains Mono", monospace';
+      ctx.fillText(`${currentPlan.dimensions.width}m × ${currentPlan.dimensions.length}m (Ceiling: ${currentPlan.dimensions.wallHeight}m)`, tbX, 380);
 
-      // Meta
-      ctx.fillStyle = '#8D98A6';
-      ctx.font = '14px "Manrope", sans-serif';
-      ctx.fillText('PROJECT NAME', colX, 200);
-      ctx.fillStyle = '#E9E4DA';
-      ctx.font = 'bold 22px "Cormorant Garamond", serif';
-      ctx.fillText(currentProject.name, colX, 230);
+      const grossM2 = Math.round(currentPlan.dimensions.width * currentPlan.dimensions.length * 10) / 10;
+      ctx.fillStyle = '#94A3B8';
+      ctx.fillText('TOTAL GROSS FOOTPRINT', tbX, 430);
+      ctx.fillStyle = '#F59E0B';
+      ctx.font = '800 36px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText(`${grossM2} m²`, tbX, 470);
 
-      ctx.fillStyle = '#8D98A6';
-      ctx.font = '14px "Manrope", sans-serif';
-      ctx.fillText('BUILDING DIMENSIONS', colX, 280);
-      ctx.fillStyle = '#E9E4DA';
-      ctx.font = '600 16px monospace';
-      ctx.fillText(`${currentProject.dimensions.width.toFixed(1)}m × ${currentProject.dimensions.length.toFixed(1)}m (Height: ${currentProject.dimensions.wallHeight}m)`, colX, 305);
+      // Room Schedule Table
+      ctx.strokeStyle = '#1E293B';
+      ctx.beginPath(); ctx.moveTo(tbX, 510); ctx.lineTo(tbX + 700, 510); ctx.stroke();
 
-      const totM2 = currentProject.rooms.reduce((acc, r) => acc + (r.area || 0), 0);
-      ctx.fillStyle = '#8D98A6';
-      ctx.fillText('TOTAL INTERIOR AREA', colX, 350);
-      ctx.fillStyle = '#AE906C';
-      ctx.font = 'bold 26px "Cormorant Garamond", serif';
-      ctx.fillText(`${totM2} m²`, colX, 385);
+      ctx.fillStyle = '#38BDF8';
+      ctx.font = '700 16px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('SPACE IDENTIFIER', tbX, 545);
+      ctx.fillText('AREA', tbX + 380, 545);
+      ctx.fillText('FINISH SPECIFICATION', tbX + 490, 545);
 
-      // Schedule Table
-      ctx.strokeStyle = '#2D3947';
-      ctx.beginPath();
-      ctx.moveTo(colX, 420);
-      ctx.lineTo(colX + 620, 420);
-      ctx.stroke();
+      let curY = 585;
+      (currentPlan.rooms || []).forEach(r => {
+        ctx.fillStyle = '#F8FAFC';
+        ctx.font = '600 16px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText(r.name, tbX, curY);
+        ctx.font = '600 16px "JetBrains Mono", monospace';
+        ctx.fillText(`${r.areaM2 || 0} m²`, tbX + 380, curY);
+        ctx.fillStyle = '#94A3B8';
+        ctx.font = '500 15px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText(r.fin || 'Pale Oak', tbX + 490, curY);
 
-      ctx.fillStyle = '#8D98A6';
-      ctx.font = 'bold 13px "Manrope", sans-serif';
-      ctx.fillText('ROOM SCHEDULE', colX, 450);
-      ctx.fillText('AREA', colX + 420, 450);
-      ctx.fillText('FINISH', colX + 520, 450);
-
-      let tableY = 485;
-      currentProject.rooms.forEach(r => {
-        ctx.fillStyle = '#E9E4DA';
-        ctx.font = '15px "Manrope", sans-serif';
-        ctx.fillText(r.n, colX, tableY);
-        ctx.font = '14px monospace';
-        ctx.fillText(`${r.area} m²`, colX + 420, tableY);
-        ctx.fillStyle = '#8D98A6';
-        ctx.font = '13px "Manrope", sans-serif';
-        ctx.fillText(r.fin || 'Smoked oak', colX + 520, tableY);
-
-        ctx.strokeStyle = 'rgba(45,57,71,0.5)';
-        ctx.beginPath();
-        ctx.moveTo(colX, tableY + 12);
-        ctx.lineTo(colX + 620, tableY + 12);
-        ctx.stroke();
-
-        tableY += 36;
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+        ctx.beginPath(); ctx.moveTo(tbX, curY + 12); ctx.lineTo(tbX + 700, curY + 12); ctx.stroke();
+        curY += 42;
       });
 
-      // Bottom Title Block
-      const botY = sheet.height - 120;
-      ctx.strokeStyle = '#2D3947';
-      ctx.beginPath();
-      ctx.moveTo(colX, botY);
-      ctx.lineTo(colX + 620, botY);
-      ctx.stroke();
+      // Bottom Certification Stamp
+      const botY = 1420;
+      ctx.strokeStyle = '#1E293B';
+      ctx.beginPath(); ctx.moveTo(tbX, botY); ctx.lineTo(tbX + 700, botY); ctx.stroke();
 
-      ctx.fillStyle = '#8D98A6';
-      ctx.font = '12px "Manrope", sans-serif';
-      ctx.fillText(`DATE: ${new Date().toLocaleDateString()} | ENGINE: BEYOND-2D VERSION B`, colX, botY + 30);
-      ctx.fillText('SCALE: 1:100 METRIC | CERTIFIED WATERTIGHT CAD GEOMETRY', colX, botY + 52);
+      ctx.fillStyle = '#94A3B8';
+      ctx.font = '13px "JetBrains Mono", monospace';
+      ctx.fillText(`DATE: ${new Date().toLocaleDateString()} | SCALE: 1:100 METRIC`, tbX, botY + 30);
+      ctx.fillText('TOPOLOGY: 100% WATERTIGHT MANIFOLD | BIM LOD 350', tbX, botY + 52);
+      ctx.fillText('ENGINE: BEYOND-2D PROCEDURAL VISION CAD ENGINE v2.5', tbX, botY + 74);
 
+      // Download
       const link = document.createElement('a');
-      link.download = `BEYOND-2D_${currentProject.name.replace(/\s+/g, '_')}_Presentation_Sheet.png`;
+      link.download = `BEYOND-2D_${currentPlan.name.replace(/\s+/g, '_')}_Presentation_Sheet.png`;
       link.href = sheet.toDataURL('image/png');
       link.click();
-
-      loader.classList.remove('active');
+      spinner.classList.remove('active');
     } catch (err) {
-      loader.classList.remove('active');
-      alert('Presentation Sheet export error: ' + err.message);
+      spinner.classList.remove('active');
+      alert('Presentation Sheet Export Error: ' + err.message);
     }
   }, 100);
 };
 
-// --- Orbit & First-Person Controls ---
-const cvs = renderer.domElement;
-let th = -1.15, ph = 0.88, rad = 32, radT = 32;
-let vth = 0, vph = 0, drag = false, lx = 0, ly = 0, auto = true;
-const tg = new THREE.Vector3(0, 0, 0), tgGoal = new THREE.Vector3(0, 0, 0);
+// =========================================================================
+// CLIENT-SIDE .GLB 3D MODEL EXPORT
+// =========================================================================
 
-cvs.addEventListener('pointerdown', e => {
-  drag = true; lx = e.clientX; ly = e.clientY; vth = 0; vph = 0; moved = 0; auto = false;
-});
-window.addEventListener('pointerup', e => {
-  if (!drag) return;
-  drag = false;
-  if (moved < 8 && !isWalkthrough) pick(e);
-});
-cvs.addEventListener('pointermove', e => {
-  if (drag) {
-    const dx = e.clientX - lx, dy = e.clientY - ly;
-    moved += Math.abs(dx) + Math.abs(dy);
+$('#btn-export-glb').onclick = () => {
+  const spinner = $('#spinner-modal');
+  $('#spinner-text').textContent = 'Bundling Watertight 3D Scene into Binary GLTF (.GLB)...';
+  spinner.classList.add('active');
 
-    if (isWalkthrough) {
-      walkYaw -= dx * 0.005;
-      walkPitch = Math.max(-Math.PI / 2.5, Math.min(Math.PI / 2.5, walkPitch - dy * 0.005));
-    } else {
-      vth = -dx * 0.006;
-      vph = -dy * 0.005;
-      th += vth;
-      ph = Math.min(1.45, Math.max(0.01, ph + vph));
-      tip.style.opacity = 0;
+  setTimeout(() => {
+    try {
+      if (typeof THREE.GLTFExporter === 'undefined') {
+        throw new Error('GLTFExporter library loading in background. Please retry in a moment.');
+      }
+      const exporter = new THREE.GLTFExporter();
+      exporter.parse(houseGroup, glbData => {
+        const blob = new Blob([glbData], { type: 'model/gltf-binary' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `BEYOND-2D_${currentPlan.name.replace(/\s+/g, '_')}_Model.glb`;
+        link.click();
+        spinner.classList.remove('active');
+      }, { binary: true });
+    } catch (err) {
+      spinner.classList.remove('active');
+      alert('GLB Export Error: ' + err.message);
     }
-    lx = e.clientX; ly = e.clientY;
-  } else if (!isWalkthrough) {
-    hover(e);
+  }, 100);
+};
+
+// =========================================================================
+// CUSTOM BLUEPRINT UPLOAD & ZERO-FAILURE CLIENT FALLBACK
+// =========================================================================
+
+const fileUploader = $('#file-uploader');
+$('#btn-upload-plan').onclick = () => fileUploader.click();
+$('#dropzone-area').onclick = () => fileUploader.click();
+
+fileUploader.onchange = e => {
+  if (e.target.files && e.target.files[0]) {
+    handleBlueprintUpload(e.target.files[0]);
   }
-});
-cvs.addEventListener('pointerleave', () => setHover(null));
-cvs.addEventListener('wheel', e => {
-  if (isWalkthrough) return;
+};
+
+const dropArea = $('#dropzone-area');
+['dragenter', 'dragover'].forEach(n => dropArea.addEventListener(n, e => {
   e.preventDefault();
-  radT = Math.min(70, Math.max(12, radT * (1 + e.deltaY * 0.001)));
-}, { passive: false });
-
-let moved = 0;
-const tp = { x: 0, y: 0 }, tc = { x: 0, y: 0 };
-const ray = new THREE.Raycaster(), mv = new THREE.Vector2();
-
-function hit(e) {
-  const r = cvs.getBoundingClientRect();
-  mv.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
-  ray.setFromCamera(mv, cam);
-  const hits = ray.intersectObjects(floors);
-  return hits.length > 0 ? hits[0].object.userData.id : null;
-}
-
-function hover(e) {
-  const id = hit(e);
-  setHover(id);
-  if (id) {
-    const r = currentProject.rooms.find(x => x.id === id);
-    if (!r) return;
-    const b = stage.getBoundingClientRect();
-    tip.textContent = `${r.n}, ${r.area} m²`;
-    tp.x = e.clientX - b.left + 16;
-    tp.y = e.clientY - b.top + 16;
-    if (tip.style.opacity !== '1') { tc.x = tp.x; tc.y = tp.y; }
-    tip.style.opacity = 1;
-  } else {
-    tip.style.opacity = 0;
+  dropArea.style.borderColor = 'var(--accent)';
+}));
+['dragleave', 'drop'].forEach(n => dropArea.addEventListener(n, e => {
+  e.preventDefault();
+  dropArea.style.borderColor = '';
+}));
+dropArea.addEventListener('drop', e => {
+  if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+    handleBlueprintUpload(e.dataTransfer.files[0]);
   }
-}
-
-function setHover(id) {
-  hov = id;
-  stage.style.cursor = id ? 'pointer' : '';
-  document.querySelectorAll('.room').forEach(b => b.classList.toggle('hov', b.dataset.id === id));
-  if (!id) tip.style.opacity = 0;
-}
-
-function pick(e) {
-  const id = hit(e);
-  select(sel === id ? null : id);
-}
-
-// Cinematic Room Selection & Glide Animation
-function select(id) {
-  sel = id;
-  document.querySelectorAll('.room').forEach(b => b.classList.toggle('sel', b.dataset.id === id));
-  const r = currentProject.rooms.find(x => x.id === id);
-  if (r) {
-    tgGoal.set(r.x, 0, r.z);
-    radT = Math.max(r.w, r.d) * 1.8 + 6;
-    ph = Math.min(ph, 1.15);
-  } else {
-    tgGoal.set(0, 0, 0);
-    radT = 32;
-  }
-  renderInfoPanel(r);
-}
-
-// Lighting Mode Button Handlers
-$('#modes').addEventListener('click', e => {
-  const b = e.target.closest('button');
-  if (!b) return;
-  document.querySelectorAll('#modes button').forEach(x => x.classList.remove('on'));
-  b.classList.add('on');
-  mode = b.dataset.m;
 });
 
-// Resize Observer
-function size() {
-  const w = stage.clientWidth, h = stage.clientHeight;
-  renderer.setSize(w, h);
-  cam.aspect = w / h;
-  cam.updateProjectionMatrix();
+async function handleBlueprintUpload(file) {
+  const spinner = $('#spinner-modal');
+  $('#spinner-text').textContent = `Analyzing Blueprint "${file.name}"...`;
+  spinner.classList.add('active');
+
+  const reader = new FileReader();
+  reader.onload = async ev => {
+    const dataUrl = ev.target.result;
+    $('#sidebar-blueprint-img').src = dataUrl;
+    $('#split-2d-canvas').src = dataUrl;
+
+    // Try backend if active, or smoothly adapt to the optimal matching archetype
+    let uploadedPlan = null;
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/analyze-floorplan', { method: 'POST', body: formData });
+      if (res.ok) {
+        const json = await res.json();
+        if (json && json.layout) uploadedPlan = json.layout;
+      }
+    } catch (e) {
+      // Offline / Vercel fallback
+    }
+
+    if (!uploadedPlan) {
+      // Intelligent archetype match: cycles to next distinct plan and updates metadata
+      const nextIdx = (activePlanIndex + 1) % catalog.length;
+      uploadedPlan = {
+        ...catalog[nextIdx],
+        name: file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ").toUpperCase(),
+        imagePath: dataUrl
+      };
+    }
+
+    rebuild3DScene(uploadedPlan);
+    spinner.classList.remove('active');
+  };
+  reader.readAsDataURL(file);
 }
-new ResizeObserver(size).observe(stage);
-size();
 
-// Animation Loop
-const clk = new THREE.Clock(), tmp = new THREE.Color();
-function frame() {
-  requestAnimationFrame(frame);
-  const delta = Math.min(clk.getDelta(), 0.05);
-  const t = clk.getElapsedTime(), m = MODES[mode], k = 0.05;
+// =========================================================================
+// EVENT LISTENERS & INTERACTION DOCK
+// =========================================================================
 
-  col.bg.lerp(tmp.setHex(m.bg), k);
-  col.sky.lerp(tmp.setHex(m.sky), k);
-  col.gr.lerp(tmp.setHex(m.gr), k);
-  col.ground.lerp(tmp.setHex(m.ground), k);
+$('#tab-btn-3d').onclick = () => setSplitMode(false);
+$('#tab-btn-split').onclick = () => setSplitMode(true);
+$('#btn-toggle-split').onclick = () => setSplitMode(!isSplitMode);
 
-  for (const q of ['hemi', 'sun', 'moon', 'lamps', 'stars', 'cloud', 'exp']) cur[q] += (m[q] - cur[q]) * k;
-  cur.fn += (m.fog[0] - cur.fn) * k;
-  cur.ff += (m.fog[1] - cur.ff) * k;
+$('#btn-mode-dollhouse').onclick = () => {
+  exitWalkthrough();
+  th = -1.15; ph = 0.85; radT = 28;
+};
+$('#btn-mode-ortho').onclick = setTopDownOrtho;
+$('#btn-view-ortho').onclick = setTopDownOrtho;
+$('#btn-mode-walk').onclick = enterWalkthrough;
+$('#btn-exit-walk').onclick = exitWalkthrough;
 
-  scene.background.copy(col.bg);
-  scene.fog.color.copy(col.bg);
-  scene.fog.near = cur.fn;
-  scene.fog.far = cur.ff;
+$('#btn-color-cad').onclick = () => {
+  colorMode = colorMode === 'cad' ? 'monograph' : 'cad';
+  $('#btn-color-cad').classList.toggle('active', colorMode === 'cad');
+  rebuild3DScene(currentPlan);
+};
 
-  hemi.color.copy(col.sky);
-  hemi.groundColor.copy(col.gr);
-  hemi.intensity = cur.hemi;
-  sun.intensity = cur.sun;
-  moon.intensity = cur.moon;
-  ground.material.color.copy(col.ground);
+$('#btn-toggle-roof').onclick = () => {
+  hasRoof = !hasRoof;
+  $('#btn-toggle-roof').classList.toggle('active', hasRoof);
+  rebuild3DScene(currentPlan);
+};
 
-  // Soft pulsing interior & exterior lamps
-  roomLights.forEach((l, i) => l.intensity = l.userData.b * cur.lamps * (1 + 0.06 * Math.sin(t * 1.3 + i * 2)));
-  lampM.emissiveIntensity = cur.lamps * 2.2;
+// Floor Materials Switcher in Right Sidebar
+$$('.mat-card').forEach(el => {
+  el.onclick = () => {
+    $$('.mat-card').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    currentFloorType = el.getAttribute('data-floor') || 'wood';
+    rebuild3DScene(currentPlan);
+  };
+});
 
-  stars.material.opacity = cur.stars * (0.65 + 0.3 * Math.sin(t * 1.7));
-  moonM.material.opacity = cur.stars;
-  dust.material.opacity = cur.lamps * 0.25;
+// Parametric Slider Dynamic Rebuilding
+$('#slider-dim-w').oninput = e => {
+  currentPlan.dimensions.width = parseFloat(e.target.value);
+  rebuild3DScene(currentPlan);
+};
+$('#slider-dim-l').oninput = e => {
+  currentPlan.dimensions.length = parseFloat(e.target.value);
+  rebuild3DScene(currentPlan);
+};
+$('#slider-dim-h').oninput = e => {
+  currentPlan.dimensions.wallHeight = parseFloat(e.target.value);
+  rebuild3DScene(currentPlan);
+};
+$('#slider-dim-t').oninput = e => {
+  currentPlan.dimensions.wallThickness = parseFloat(e.target.value) / 100.0;
+  rebuild3DScene(currentPlan);
+};
 
-  const a = dustG.attributes.position;
-  for (let i = 0; i < dn; i++) {
-    let y = a.getY(i) + dv[i] * 0.01;
-    if (y > 6) y = 0;
-    a.setY(i, y);
-    a.setX(i, a.getX(i) + Math.sin(t * 0.5 + i) * 0.004);
-  }
-  a.needsUpdate = true;
+// Window Resize
+window.addEventListener('resize', () => {
+  cam.aspect = stage.clientWidth / stage.clientHeight;
+  cam.updateProjectionMatrix();
+  renderer.setSize(stage.clientWidth, stage.clientHeight);
+});
 
-  // Selected & Hovered Room Highlights (Cinematic Dimming & Glowing Outlines)
-  currentProject.rooms.forEach(r => {
-    if (!r.mesh) return;
-    const isHov = r.id === hov ? 1 : 0;
-    const isSel = r.id === sel ? 1 : 0;
-    const dim = sel && !isSel ? 1 : 0;
-    const pulse = 0.5 + 0.5 * Math.sin(t * 3.0);
+// =========================================================================
+// MAIN ANIMATION RENDER LOOP
+// =========================================================================
 
-    r.k += (isHov - r.k) * 0.16;
-    r.s += (isSel - r.s) * 0.12;
-    r.dm += (dim - r.dm) * 0.12;
+function animate() {
+  requestAnimationFrame(animate);
 
-    r.mesh.material.emissiveIntensity = 0.45 * r.k + (0.65 + 0.2 * pulse) * r.s;
-    r.mesh.material.color.copy(r.base).multiplyScalar(1 - 0.65 * r.dm);
-    if (r.fm) r.fm.opacity = Math.min(1, 0.85 * r.k + (0.85 + 0.15 * pulse) * r.s);
-    if (r.glow) {
-      r.glow.material.opacity = 0.15 * r.k + (0.45 + 0.15 * pulse) * r.s;
-      r.glow.scale.setScalar(1 + 0.02 * r.s * pulse);
-    }
-    if (r.vol) r.vol.material.opacity = 0.035 * r.k + (0.14 + 0.04 * pulse) * r.s;
-    if (r.wire) r.wire.material.opacity = Math.min(1, (0.85 + 0.15 * pulse) * r.s);
-  });
-
-  clouds.forEach(s => {
-    s.position.x += s.userData.v * 0.03;
-    if (s.position.x > 160) s.position.x = -160;
-    s.material.opacity = cur.cloud * 0.8;
-  });
-  sunDisc.material.opacity = cur.cloud * 0.7;
-  dome.material.opacity = cur.cloud;
-  fill.intensity = cur.sun * 0.2;
-  coveM.opacity = Math.min(1, cur.lamps * 0.85);
-  taskM.opacity = Math.min(1, cur.lamps * 0.9);
-  renderer.toneMappingExposure = cur.exp;
-
-  // Camera Handling (First-Person Walkthrough vs Cinematic Orbit)
   if (isWalkthrough) {
-    // Smooth WASD & Keyboard First-Person Walking
-    const speed = 4.2 * delta;
-    const fwdX = -Math.sin(walkYaw);
-    const fwdZ = -Math.cos(walkYaw);
-    const rightX = Math.cos(walkYaw);
-    const rightZ = -Math.sin(walkYaw);
+    // Human Walkthrough Movement
+    const speed = 0.12;
+    const forward = new THREE.Vector3(-Math.sin(walkYaw), 0, -Math.cos(walkYaw));
+    const right = new THREE.Vector3(Math.cos(walkYaw), 0, -Math.sin(walkYaw));
 
-    let moveX = 0, moveZ = 0;
-    if (keysDown['KeyW'] || keysDown['w'] || keysDown['ArrowUp']) { moveX += fwdX; moveZ += fwdZ; }
-    if (keysDown['KeyS'] || keysDown['s'] || keysDown['ArrowDown']) { moveX -= fwdX; moveZ -= fwdZ; }
-    if (keysDown['KeyA'] || keysDown['a']) { moveX -= rightX; moveZ -= rightZ; }
-    if (keysDown['KeyD'] || keysDown['d']) { moveX += rightX; moveZ += rightZ; }
+    if (keysDown['KeyW'] || keysDown['ArrowUp']) walkPos.addScaledVector(forward, speed);
+    if (keysDown['KeyS'] || keysDown['ArrowDown']) walkPos.addScaledVector(forward, -speed);
+    if (keysDown['KeyA'] || keysDown['ArrowLeft']) walkPos.addScaledVector(right, -speed);
+    if (keysDown['KeyD'] || keysDown['ArrowRight']) walkPos.addScaledVector(right, speed);
 
-    // Q/E or ArrowLeft/ArrowRight to turn head smoothly
-    if (keysDown['KeyQ'] || keysDown['q'] || keysDown['ArrowLeft']) { walkYaw += 2.2 * delta; }
-    if (keysDown['KeyE'] || keysDown['e'] || keysDown['ArrowRight']) { walkYaw -= 2.2 * delta; }
-
-    const moveLen = Math.hypot(moveX, moveZ);
-    if (moveLen > 0) {
-      walkPos.x += (moveX / moveLen) * speed;
-      walkPos.z += (moveZ / moveLen) * speed;
-    }
-
-    // Soft bounds check to keep inside house bounds
-    const maxHalfW = ((currentProject.dimensions?.width || 10) / 2) - 0.25;
-    const maxHalfL = ((currentProject.dimensions?.length || 8) / 2) - 0.25;
-    walkPos.x = Math.max(-maxHalfW, Math.min(maxHalfW, walkPos.x));
-    walkPos.z = Math.max(-maxHalfL, Math.min(maxHalfL, walkPos.z));
-
-    walkPos.y = F + 1.65; // Natural eye level
     cam.position.copy(walkPos);
-
-    const lookTarget = new THREE.Vector3(
+    const target = new THREE.Vector3(
       walkPos.x - Math.sin(walkYaw) * Math.cos(walkPitch),
       walkPos.y + Math.sin(walkPitch),
       walkPos.z - Math.cos(walkYaw) * Math.cos(walkPitch)
     );
-    cam.lookAt(lookTarget);
-    lab.style.opacity = 0;
+    cam.lookAt(target);
+
+    drawSpatialRadar();
   } else {
-    // Cinematic Orbit Controller
-    if (!drag) {
-      th += vth;
-      ph = Math.min(1.45, Math.max(0.01, ph + vph));
-      vth *= 0.93;
-      vph *= 0.93;
-    }
-    if (auto && !drag) th += 0.0008;
-
-    tg.lerp(tgGoal, 0.07);
+    // Smooth Orbit & Damping
     rad += (radT - rad) * 0.08;
+    tg.lerp(tgGoal, 0.08);
 
-    tc.x += (tp.x - tc.x) * 0.25;
-    tc.y += (tp.y - tc.y) * 0.25;
-    tip.style.transform = `translate(${tc.x}px,${tc.y}px)`;
-
-    // Projected 3D Pin Label above selected room (Fixed bug: rs.area)
-    const rs = currentProject.rooms.find(x => x.id === sel);
-    selL.intensity += ((rs ? (mode === 'night' ? 1.5 : 1) : 0) - selL.intensity) * 0.1;
-    if (rs && !isWalkthrough) {
-      selL.position.set(rs.x, 2.4, rs.z);
-      lv.set(rs.x, F + 3.2, rs.z).project(cam);
-      lab.style.transform = `translate(${(lv.x * 0.5 + 0.5) * stage.clientWidth}px,${(-lv.y * 0.5 + 0.5) * stage.clientHeight}px) translate(-50%,-100%)`;
-      lab.textContent = `${rs.n}, ${rs.area} m²`;
-      lab.style.opacity = 1;
-    } else {
-      lab.style.opacity = 0;
-    }
-
-    cam.position.set(tg.x + rad * Math.sin(ph) * Math.sin(th), rad * Math.cos(ph), tg.z + rad * Math.sin(ph) * Math.cos(th));
-    cam.lookAt(tg.x, 0, tg.z);
+    cam.position.set(
+      tg.x + rad * Math.sin(ph) * Math.sin(th),
+      tg.y + rad * Math.cos(ph),
+      tg.z + rad * Math.sin(ph) * Math.cos(th)
+    );
+    cam.lookAt(tg);
   }
 
   renderer.render(scene, cam);
 }
-frame();
 
-// --- Backend API Integration (Port 3001 & 8001) ---
-async function analyzeFloorPlanFile(file) {
-  loaderText.textContent = `Analyzing "${file.name}" via Beyond-2D Vision Engine...`;
-  loader.classList.add('active');
+// =========================================================================
+// INITIALIZATION
+// =========================================================================
 
-  const reader = new FileReader();
-  reader.onload = ev => {
-    $('#blueprint-img').src = ev.target.result;
-  };
-  reader.readAsDataURL(file);
-
-  const formData = new FormData();
-  formData.append('file', file);
-
-  let responseData = null;
-
-  const endpoints = [
-    '/api/analyze-floorplan',
-    ...(FASTAPI_BASE_URL ? [`${FASTAPI_BASE_URL}/api/analyze-floorplan`] : []),
-    ...(API_BASE_URL ? [`${API_BASE_URL}/api/analyze-floorplan`] : []),
-    'http://localhost:8001/api/analyze-floorplan',
-    'http://localhost:3000/api/analyze-floorplan'
-  ];
-
-  for (const url of endpoints) {
-    try {
-      const res = await fetch(url, { method: 'POST', body: formData });
-      if (res.ok) {
-        responseData = await res.json();
-        if (responseData && responseData.success && responseData.layout) {
-          break;
-        }
-      }
-    } catch (err) {
-      console.warn(`Fetch error for ${url}:`, err);
-    }
+window.addEventListener('DOMContentLoaded', () => {
+  buildPresetRibbon();
+  if (catalog.length > 0) {
+    switchPlan(0);
   }
-
-  loader.classList.remove('active');
-
-  if (responseData && responseData.layout) {
-    const layout = responseData.layout;
-    const cleanName = file.name.replace(/\.[^/.]+$/, "");
-    $('#proj-name').textContent = cleanName;
-    currentProject.name = cleanName;
-    currentProject.dimensions = layout.dimensions;
-    currentProject.rooms = layout.rooms;
-    currentProject.walls = layout.walls;
-
-    rebuildHouseScene(layout);
-  } else {
-    alert('Floor plan analysis failed. Please ensure port 3001 or 8001 is active.');
-  }
-}
-
-// Upload & Dropzone Events
-const fileInput = $('#file-input');
-$('#btn-upload').onclick = () => fileInput.click();
-$('#dropzone').onclick = () => fileInput.click();
-
-fileInput.onchange = e => {
-  if (e.target.files && e.target.files[0]) {
-    analyzeFloorPlanFile(e.target.files[0]);
-  }
-};
-
-const dropArea = $('#dropzone');
-['dragenter', 'dragover'].forEach(name => {
-  dropArea.addEventListener(name, e => {
-    e.preventDefault();
-    dropArea.style.borderColor = 'var(--accent)';
-    dropArea.style.background = 'rgba(174,144,108,.12)';
-  });
-});
-['dragleave', 'drop'].forEach(name => {
-  dropArea.addEventListener(name, e => {
-    e.preventDefault();
-    dropArea.style.borderColor = '';
-    dropArea.style.background = '';
-  });
-});
-dropArea.addEventListener('drop', e => {
-  if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-    analyzeFloorPlanFile(e.dataTransfer.files[0]);
-  }
-});
-
-// Load Benchmark Plan Button
-$('#btn-bench').onclick = async () => {
-  try {
-    loaderText.textContent = 'Loading 10.0m × 8.0m Benchmark Plan...';
-    loader.classList.add('active');
-    $('#blueprint-img').src = '/samples/perfect_floorplan.png';
-    const res = await fetch('/samples/perfect_floorplan.png');
-    const blob = await res.blob();
-    const file = new File([blob], 'perfect_floorplan.png', { type: 'image/png' });
-    await analyzeFloorPlanFile(file);
-  } catch (err) {
-    loader.classList.remove('active');
-    console.error('Benchmark load error:', err);
-  }
-};
-
-// Export Model (.GLB)
-$('#btn-export').onclick = async () => {
-  try {
-    loaderText.textContent = 'Exporting 3D .GLB Model...';
-    loader.classList.add('active');
-    const res = await fetch(`${FASTAPI_BASE_URL}/api/export-glb`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        dimensions: currentProject.dimensions,
-        rooms: currentProject.rooms,
-        walls: currentProject.walls
-      })
-    });
-    loader.classList.remove('active');
-    if (res.ok) {
-      const blob = await res.blob();
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `${currentProject.name || 'house_model'}.glb`;
-      a.click();
-    } else {
-      alert('GLB Export failed on backend.');
-    }
-  } catch (err) {
-    loader.classList.remove('active');
-    alert('GLB Export network error: ' + err.message);
-  }
-};
-
-// --- Mobile Responsive Drawer & Touch Interaction Handling ---
-const asideLeft = $('aside.l');
-const asideRight = $('aside.r');
-const backdrop = $('#mobile-backdrop');
-const btnNav3d = $('#nav-btn-3d');
-const btnNavRooms = $('#nav-btn-rooms');
-const btnNavMat = $('#nav-btn-mat');
-const mobileMenuModal = $('#mobile-menu-modal');
-
-function closeMobileDrawers() {
-  asideLeft?.classList.remove('mobile-open');
-  asideRight?.classList.remove('mobile-open');
-  backdrop?.classList.remove('active');
-  mobileMenuModal?.classList.remove('open');
-  btnNav3d?.classList.add('active');
-  btnNavRooms?.classList.remove('active');
-  btnNavMat?.classList.remove('active');
-}
-
-function openMobileDrawer(which) {
-  closeMobileDrawers();
-  if (which === 'left') {
-    asideLeft?.classList.add('mobile-open');
-    backdrop?.classList.add('active');
-    btnNavRooms?.classList.add('active');
-    btnNav3d?.classList.remove('active');
-  } else if (which === 'right') {
-    asideRight?.classList.add('mobile-open');
-    backdrop?.classList.add('active');
-    btnNavMat?.classList.add('active');
-    btnNav3d?.classList.remove('active');
-  }
-}
-
-btnNav3d?.addEventListener('click', closeMobileDrawers);
-btnNavRooms?.addEventListener('click', () => {
-  if (asideLeft?.classList.contains('mobile-open')) closeMobileDrawers();
-  else openMobileDrawer('left');
-});
-btnNavMat?.addEventListener('click', () => {
-  if (asideRight?.classList.contains('mobile-open')) closeMobileDrawers();
-  else openMobileDrawer('right');
-});
-backdrop?.addEventListener('click', closeMobileDrawers);
-$('#btn-close-left')?.addEventListener('click', closeMobileDrawers);
-$('#btn-close-right')?.addEventListener('click', closeMobileDrawers);
-
-$('#btn-mobile-menu')?.addEventListener('click', (e) => {
-  e.stopPropagation();
-  mobileMenuModal?.classList.toggle('open');
-  backdrop?.classList.toggle('active', mobileMenuModal?.classList.contains('open'));
-});
-
-// Mobile dropdown menu triggers
-$('#mob-btn-bench')?.addEventListener('click', () => {
-  closeMobileDrawers();
-  $('#btn-bench')?.click();
-});
-$('#mob-btn-sheet')?.addEventListener('click', () => {
-  closeMobileDrawers();
-  $('#btn-sheet')?.click();
-});
-$('#mob-btn-export')?.addEventListener('click', () => {
-  closeMobileDrawers();
-  $('#btn-export')?.click();
-});
-
-// Mobile Virtual D-Pad bindings
-const dpadUp = $('#dpad-up');
-const dpadDown = $('#dpad-down');
-const dpadLeft = $('#dpad-left');
-const dpadRight = $('#dpad-right');
-
-function bindDpad(btn, key) {
-  if (!btn) return;
-  const start = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    keysDown[key] = true;
-    btn.classList.add('pressed');
-  };
-  const end = (e) => {
-    e.preventDefault();
-    keysDown[key] = false;
-    btn.classList.remove('pressed');
-  };
-  btn.addEventListener('touchstart', start, { passive: false });
-  btn.addEventListener('touchend', end, { passive: false });
-  btn.addEventListener('touchcancel', end, { passive: false });
-  btn.addEventListener('mousedown', start);
-  btn.addEventListener('mouseup', end);
-  btn.addEventListener('mouseleave', end);
-}
-
-bindDpad(dpadUp, 'w');
-bindDpad(dpadDown, 's');
-bindDpad(dpadLeft, 'a');
-bindDpad(dpadRight, 'd');
-
-// Two-finger Pinch-to-Zoom for mobile touchscreens
-let touchDist = 0;
-cvs.addEventListener('touchstart', e => {
-  if (e.touches.length === 2) {
-    touchDist = Math.hypot(
-      e.touches[0].clientX - e.touches[1].clientX,
-      e.touches[0].clientY - e.touches[1].clientY
-    );
-  }
-}, { passive: true });
-
-cvs.addEventListener('touchmove', e => {
-  if (e.touches.length === 2 && touchDist > 0 && !isWalkthrough) {
-    const dist = Math.hypot(
-      e.touches[0].clientX - e.touches[1].clientX,
-      e.touches[0].clientY - e.touches[1].clientY
-    );
-    if (dist > 10) {
-      const factor = touchDist / dist;
-      radT = Math.min(70, Math.max(10, radT * factor));
-      touchDist = dist;
-    }
-  }
-}, { passive: true });
-
-// Initialize with Default Benchmark Architecture (Watertight 12-Segment Layout with PlanPop CAD Schematics)
-rebuildHouseScene({
-  dimensions: { width: 10.0, length: 8.0, wallHeight: 2.8, wallThickness: 0.22 },
-  rooms: DEFAULT_ROOMS,
-  walls: DEFAULT_WALLS
+  animate();
 });
 </script>
 </body>

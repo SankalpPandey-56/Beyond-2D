@@ -42,26 +42,30 @@ Reading traditional 2D architectural blueprints is challenging for non-specialis
 
 ## ✨ Key Features
 
+- **🏛️ 10 Curated Architectural Presets Suite**:
+  - Instant 1-click switching between 10 verified architectural layouts ($24\text{ m}^2$ Micro Pod to $210\text{ m}^2$ Penthouse Suite).
+  - Standalone, zero-failure client-side catalog ensuring the live demo and screen recordings run at 60 FPS without external API limits.
+- **⬌ Interactive Draggable Before/After Split-Screen Slider**:
+  - Side-by-side interactive comparison overlaying 2D architectural blueprint drawings with real-time 3D extruded models.
 - **⚡ Deterministic Computer Vision + Gemini Vision AI**:
   - Automatically isolates building footprints, filters dimension annotations, and identifies structural walls using OpenCV morphological closing (`cv2.morphologyEx`).
   - Analyzes room topologies and exact window/door opening coordinates via Gemini Vision without hallucinating unwanted openings on solid or bathroom walls.
 - **📐 Watertight Planar Geometry Engine**:
-  - Uses Shapely 2D planar boolean operations (`unary_union`, boundary intersection) to construct $100\%$ watertight rectilinear wall networks with clean adjoining partitions.
+  - Multi-opening wall segmentation algorithm slicing arbitrary door and window intervals along any continuous wall segment with lintels, sills, and swung leaves.
 - **🎨 Interactive 3D Studio (Three.js)**:
-  - Studio-grade lighting, filmic ACES tone-mapping, PCF soft shadow maps, and ambient fog.
-  - Interactive PlanPop CAD color mode (Red walls, Blue doors, Cyan windows) and realistic Monograph architectural finishes.
+  - Studio-grade lighting, filmic ACES tone-mapping, PCF soft shadow maps, warm recessed downlights, and PBR material finishes (Herringbone oak, honed travertine, polished concrete, terrazzo).
+  - Interactive PlanPop CAD color mode (Red walls, Blue doors, Cyan windows) and realistic Monograph finishes.
 - **🚶 First-Person Eye-Level Walkthrough Mode**:
   - Smooth camera transition to $1.65\text{ m}$ human eye-level with natural $80^\circ$ FOV.
-  - Fully navigable on desktop via **WASD / Arrow Keys** and on mobile via an **on-screen touch D-Pad**.
+  - Interactive Mini-Radar spatial floor map in the corner tracking player position and viewing direction.
+  - Fully navigable on desktop via **WASD / Arrow Keys** and mouse look.
 - **☀️ Real-Time Sun Path Heliodon**:
   - Dynamic solar slider simulating daylight color temperatures ($2800\text{ K}$ golden hour to $6500\text{ K}$ midday) and physical cast shadow angles.
 - **📏 Live Parametric Dimension Controls**:
   - Real-time sliders for width ($X$), length ($Z$), wall height ($Y$), and wall thickness with instant 3D mesh regeneration.
-- **📱 Native Mobile Phone Responsiveness**:
-  - Fully touch-responsive layout with sliding bottom sheets for Room Lists and Material Catalogs, two-finger pinch-to-zoom, and safe area insets.
 - **💾 Multi-Format Architectural Export**:
-  - One-click binary **GLB 3D model** export for Blender/Unreal Engine.
-  - High-resolution $2400 \times 1600\text{ px}$ **Architectural Presentation Board** export with title block.
+  - Direct in-browser binary **GLB 3D model** export via `THREE.GLTFExporter`.
+  - High-resolution $2400 \times 1600\text{ px}$ **Architectural Presentation Board** export with certified title block and BIM room schedule.
 
 ---
 

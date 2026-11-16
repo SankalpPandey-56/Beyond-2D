@@ -90,11 +90,9 @@ def extract_rooms_from_image_cv(clean_gray: np.ndarray, bbox: Tuple[int, int, in
             "dimensionsText": f"{round(relW * width_m, 1)} m x {round(relD * length_m, 1)} m"
         })
 
-    if not rooms:
-        rooms = [
-            {"id": "room_1", "name": "Main Living Space", "type": "living", "relX": 0.0, "relZ": 0.0, "relW": 0.6, "relD": 1.0},
-            {"id": "room_2", "name": "Kitchen & Bath Wing", "type": "kitchen", "relX": 0.6, "relZ": 0.0, "relW": 0.4, "relD": 1.0},
-        ]
+    if len(rooms) < 4:
+        from .room_reconstruction import reconstruct_room_topology
+        rooms = reconstruct_room_topology(bbox, width_m, length_m)
 
     return rooms
 

@@ -1,0 +1,2310 @@
+// Beyond-2D 10 Architectural Presets Catalog
+window.BEYOND_2D_CATALOG = [
+  {
+    "id": "plan_01_studio",
+    "num": "01",
+    "name": "Modern Minimalist Studio",
+    "archetype": "Compact Studio",
+    "filename": "01_minimalist_studio.png",
+    "imagePath": "/samples/01_minimalist_studio.png",
+    "description": "Smart ultra-compact studio optimizing single-volume living, integrated kitchenette, and wet room.",
+    "dimensions": {
+      "width": 6.0,
+      "length": 5.5,
+      "wallHeight": 2.8,
+      "wallThickness": 0.22
+    },
+    "rooms": [
+      {
+        "id": "r1",
+        "name": "Living & Bedroom Studio",
+        "type": "bedroom",
+        "relX": 0.0,
+        "relZ": 0.0,
+        "relW": 0.65,
+        "relD": 1.0,
+        "fin": "Pale oak parquet",
+        "furniture": [
+          "queen_bed",
+          "nightstand",
+          "sofa",
+          "coffee_table",
+          "tv_console"
+        ]
+      },
+      {
+        "id": "r2",
+        "name": "Kitchen & Dining Alcove",
+        "type": "kitchen",
+        "relX": 0.65,
+        "relZ": 0.45,
+        "relW": 0.35,
+        "relD": 0.55,
+        "fin": "Honed terrazzo",
+        "furniture": [
+          "kitchen_counter",
+          "sink",
+          "dining_table",
+          "dining_chairs"
+        ]
+      },
+      {
+        "id": "r3",
+        "name": "Modern Bath & Shower",
+        "type": "bathroom",
+        "relX": 0.65,
+        "relZ": 0.0,
+        "relW": 0.35,
+        "relD": 0.45,
+        "fin": "Grey slate tile",
+        "furniture": [
+          "shower_enclosure",
+          "toilet",
+          "vanity_sink"
+        ]
+      }
+    ],
+    "walls": [
+      {
+        "id": "wall_ext_1",
+        "startX": -3.0,
+        "startZ": -2.75,
+        "endX": 3.0,
+        "endZ": -2.75,
+        "isExterior": true,
+        "thickness": 0.22,
+        "height": 2.8,
+        "openings": [
+          {
+            "id": "win_1_1",
+            "type": "window",
+            "position": 0.25,
+            "width": 1.4
+          },
+          {
+            "id": "win_1_2",
+            "type": "window",
+            "position": 0.75,
+            "width": 1.4
+          }
+        ]
+      },
+      {
+        "id": "wall_ext_2",
+        "startX": 3.0,
+        "startZ": -2.75,
+        "endX": 3.0,
+        "endZ": 2.75,
+        "isExterior": true,
+        "thickness": 0.22,
+        "height": 2.8,
+        "openings": [
+          {
+            "id": "win_2",
+            "type": "window",
+            "position": 0.5,
+            "width": 1.3
+          }
+        ]
+      },
+      {
+        "id": "wall_ext_3",
+        "startX": 3.0,
+        "startZ": 2.75,
+        "endX": -3.0,
+        "endZ": 2.75,
+        "isExterior": true,
+        "thickness": 0.22,
+        "height": 2.8,
+        "openings": [
+          {
+            "id": "door_3",
+            "type": "door",
+            "position": 0.35,
+            "width": 1.0,
+            "hingeSide": "left"
+          },
+          {
+            "id": "win_3",
+            "type": "window",
+            "position": 0.75,
+            "width": 1.6
+          }
+        ]
+      },
+      {
+        "id": "wall_ext_4",
+        "startX": -3.0,
+        "startZ": 2.75,
+        "endX": -3.0,
+        "endZ": -2.75,
+        "isExterior": true,
+        "thickness": 0.22,
+        "height": 2.8,
+        "openings": [
+          {
+            "id": "win_4",
+            "type": "window",
+            "position": 0.5,
+            "width": 1.4
+          }
+        ]
+      },
+      {
+        "id": "wall_int_5",
+        "startX": 0.9,
+        "startZ": -2.75,
+        "endX": 0.9,
+        "endZ": 2.75,
+        "isExterior": false,
+        "thickness": 0.15,
+        "height": 2.8,
+        "openings": [
+          {
+            "id": "door_int_5",
+            "type": "door",
+            "position": 0.5,
+            "width": 0.9,
+            "hingeSide": "left"
+          }
+        ]
+      },
+      {
+        "id": "wall_int_6",
+        "startX": 0.9,
+        "startZ": -0.27,
+        "endX": 3.0,
+        "endZ": -0.27,
+        "isExterior": false,
+        "thickness": 0.15,
+        "height": 2.8,
+        "openings": [
+          {
+            "id": "door_int_6",
+            "type": "door",
+            "position": 0.5,
+            "width": 0.9,
+            "hingeSide": "right"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "plan_02_urban_1bhk",
+    "num": "02",
+    "name": "Urban 1BHK Apartment",
+    "archetype": "1-Bedroom Flat",
+    "filename": "02_urban_1bhk.png",
+    "imagePath": "/samples/02_urban_1bhk.png",
+    "description": "Ergonomic 1BHK urban layout featuring segregated sleeping quarters, sunlit lounge, and balcony access.",
+    "dimensions": {
+      "width": 8.0,
+      "length": 6.5,
+      "wallHeight": 2.8,
+      "wallThickness": 0.22
+    },
+    "rooms": [
+      {
+        "id": "r1",
+        "name": "Master Suite",
+        "type": "bedroom",
+        "relX": 0.0,
+        "relZ": 0.0,
+        "relW": 0.52,
+        "relD": 0.42,
+        "fin": "White oak plank",
+        "furniture": [
+          "king_bed",
+          "nightstands",
+          "wardrobe"
+        ]
+      },
+      {
+        "id": "r2",
+        "name": "Ensuite Bath",
+        "type": "bathroom",
+        "relX": 0.52,
+        "relZ": 0.0,
+        "relW": 0.48,
+        "relD": 0.42,
+        "fin": "Carrara marble",
+        "furniture": [
+          "bathtub",
+          "toilet",
+          "vanity_sink"
+        ]
+      },
+      {
+        "id": "r3",
+        "name": "Living Lounge & Media",
+        "type": "living",
+        "relX": 0.0,
+        "relZ": 0.42,
+        "relW": 0.58,
+        "relD": 0.58,
+        "fin": "Smoked oak floor",
+        "furniture": [
+          "l_sofa",
+          "coffee_table",
+          "media_credenza",
+          "accent_chair"
+        ]
+      },
+      {
+        "id": "r4",
+        "name": "Kitchen & Dining Hall",
+        "type": "kitchen",
+        "relX": 0.58,
+        "relZ": 0.42,
+        "relW": 0.42,
+        "relD": 0.58,
+        "fin": "Honed limestone",
+        "furniture": [
+          "island_counter",
+          "barstools",
+          "dining_table",
+          "dining_chairs"
+        ]
+      }
+    ],
+    "walls": [
+      {
+        "id": "wall_ext_1",
+        "startX": -4.0,
+        "startZ": -3.25,
+        "endX": 4.0,
+        "endZ": -3.25,
+        "isExterior": true,
+        "thickness": 0.22,
+        "height": 2.8,
+        "openings": [
+          {
+            "id": "win_1_1",
+            "type": "window",
+            "position": 0.25,
+            "width": 1.4
+          },
+          {
+            "id": "win_1_2",
+            "type": "window",
+            "position": 0.75,
+            "width": 1.4
+          }
+        ]
+      },
+      {
+        "id": "wall_ext_2",
+        "startX": 4.0,
+        "startZ": -3.25,
+        "endX": 4.0,
+        "endZ": 3.25,
+        "isExterior": true,
+        "thickness": 0.22,
+        "height": 2.8,
+        "openings": [
+          {
+            "id": "win_2",
+            "type": "window",
+            "position": 0.5,
+            "width": 1.3
+          }
+        ]
+      },
+      {
+        "id": "wall_ext_3",
+        "startX": 4.0,
+        "startZ": 3.25,
+        "endX": -4.0,
+        "endZ": 3.25,
+        "isExterior": true,
+        "thickness": 0.22,
+        "height": 2.8,
+        "openings": [
+          {
+            "id": "door_3",
+            "type": "door",
+            "position": 0.35,
+            "width": 1.0,
+            "hingeSide": "left"
+          },
+          {
+            "id": "win_3",
+            "type": "window",
+            "position": 0.75,
+            "width": 1.6
+          }
+        ]
+      },
+      {
+        "id": "wall_ext_4",
+        "startX": -4.0,
+        "startZ": 3.25,
+        "endX": -4.0,
+        "endZ": -3.25,
+        "isExterior": true,
+        "thickness": 0.22,
+        "height": 2.8,
+        "openings": [
+          {
+            "id": "win_4",
+            "type": "window",
+            "position": 0.5,
+            "width": 1.4
+          }
+        ]
+      },
+      {
+        "id": "wall_int_5",
+        "startX": 0.16,
+        "startZ": -3.25,
+        "endX": 0.16,
+        "endZ": -0.52,
+        "isExterior": false,
+        "thickness": 0.15,
+        "height": 2.8,
+        "openings": [
+          {
+            "id": "door_int_5",
+            "type": "door",
+            "position": 0.5,
+            "width": 0.9,
+            "hingeSide": "left"
+          }
+        ]
+      },
+      {
+        "id": "wall_int_6",
+        "startX": 0.64,
+        "startZ": -0.52,
+        "endX": 0.64,
+        "endZ": 3.25,
+        "isExterior": false,
+        "thickness": 0.15,
+        "height": 2.8,
+        "openings": [
+          {
+            "id": "door_int_6",
+            "type": "door",
+            "position": 0.5,
+            "width": 0.9,
+            "hingeSide": "left"
+          }
+        ]
+      },
+      {
+        "id": "wall_int_7",
+        "startX": -4.0,
+        "startZ": -0.52,
+        "endX": 4.0,
+        "endZ": -0.52,
+        "isExterior": false,
+        "thickness": 0.15,
+        "height": 2.8,
+        "openings": [
+          {
+            "id": "door_int_7",
+            "type": "door",
+            "position": 0.5,
+            "width": 0.9,
+            "hingeSide": "right"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "plan_03_contemporary_2bhk",
+    "num": "03",
+    "name": "Contemporary 2BHK Residence",
+    "archetype": "2-Bedroom Home",
+    "filename": "03_contemporary_2bhk.png",
+    "imagePath": "/samples/03_contemporary_2bhk.png",
+    "description": "Balanced architectural residence with private master suite, guest room, dual bath, and welcoming porch.",
+    "dimensions": {
+      "width": 10.0,
+      "length": 8.0,
+      "wallHeight": 2.8,
+      "wallThickness": 0.22
+    },
+    "rooms": [
+      {
+        "id": "r1",
+        "name": "Master Bedroom",
+        "type": "bedroom",
+        "relX": 0.0,
+        "relZ": 0.0,
+        "relW": 0.41,
+        "relD": 0.45,
+        "fin": "Warm walnut",
+        "furniture": [
+          "king_bed",
+          "nightstands",
+          "credenza"
+        ]
+      },
+      {
+        "id": "r2",
+        "name": "Central Bathroom",
+        "type": "bathroom",
+        "relX": 0.41,
+        "relZ": 0.0,
+        "relW": 0.2,
+        "relD": 0.35,
+        "fin": "Grey travertine",
+        "furniture": [
+          "shower_enclosure",
+          "toilet",
+          "vanity_sink"
+        ]
+      },
+      {
+        "id": "r3",
+        "name": "Guest Bedroom",
+        "type": "bedroom",
+        "relX": 0.61,
+        "relZ": 0.0,
+        "relW": 0.39,
+        "relD": 0.45,
+        "fin": "Nordic birch",
+        "furniture": [
+          "queen_bed",
+          "wardrobe",
+          "desk"
+        ]
+      },
+      {
+        "id": "r4",
+        "name": "Living Hall",
+        "type": "living",
+        "relX": 0.0,
+        "relZ": 0.45,
+        "relW": 0.61,
+        "relD": 0.4,
+        "fin": "Smoked oak",
+        "furniture": [
+          "sectional_sofa",
+          "coffee_table",
+          "reading_lamp"
+        ]
+      },
+      {
+        "id": "r5",
+        "name": "Gourmet Kitchen & Dining",
+        "type": "kitchen",
+        "relX": 0.61,
+        "relZ": 0.45,
+        "relW": 0.39,
+        "relD": 0.55,
+        "fin": "Polished basalt",
+        "furniture": [
+          "kitchen_island",
+          "dining_set",
+          "prep_counter"
+        ]
+      },
+      {
+        "id": "r6",
+        "name": "Entrance Porch",
+        "type": "porch",
+        "relX": 0.0,
+        "relZ": 0.85,
+        "relW": 0.41,
+        "relD": 0.15,
+        "fin": "Flagstone pavers",
+        "furniture": [
+          "bench_planter"
+        ]
+      }
+    ],
+    "walls": [
+      {
+        "id": "wall_ext_1",
+        "startX": -5.0,
+        "startZ": -4.0,
+        "endX": 5.0,
+        "endZ": -4.0,
+        "isExterior": true,
+        "thickness": 0.22,
+        "height": 2.8,
+        "openings": [
+          {
+            "id": "win_1_1",
+            "type": "window",
+            "position": 0.25,
+            "width": 1.4
+          },
+          {
+            "id": "win_1_2",
+            "type": "window",
+            "position": 0.75,
+            "width": 1.4
+          }
+        ]
+      },
+      {
+        "id": "wall_ext_2",
+        "startX": 5.0,
+        "startZ": -4.0,
+        "endX": 5.0,
+        "endZ": 4.0,
+        "isExterior": true,
+        "thickness": 0.22,
+        "height": 2.8,
+        "openings": [
+          {
+            "id": "win_2",
+            "type": "window",
+            "position": 0.5,
+            "width": 1.3
+          }
+        ]
+      },
+      {
+        "id": "wall_ext_3",
+        "startX": 5.0,
+        "startZ": 4.0,
+        "endX": -5.0,
+        "endZ": 4.0,
+        "isExterior": true,
+        "thickness": 0.22,
+        "height": 2.8,
+        "openings": [
+          {
+            "id": "door_3",
+            "type": "door",
+            "position": 0.35,
+            "width": 1.0,
+            "hingeSide": "left"
+          },
+          {
+            "id": "win_3",
+            "type": "window",
+            "position": 0.75,
+            "width": 1.6
+          }
+        ]
+      },
+      {
+        "id": "wall_ext_4",
+        "startX": -5.0,
+        "startZ": 4.0,
+        "endX": -5.0,
+        "endZ": -4.0,
+        "isExterior": true,
+        "thickness": 0.22,
+        "height": 2.8,
+        "openings": [
+          {
+            "id": "win_4",
+            "type": "window",
+            "position": 0.5,
+            "width": 1.4
+          }
+        ]
+      },
+      {
+        "id": "wall_int_5",
+        "startX": -0.9,
+        "startZ": -4.0,
+        "endX": -0.9,
+        "endZ": 4.0,
+        "isExterior": false,
+        "thickness": 0.15,
+        "height": 2.8,
+        "openings": [
+          {
+            "id": "door_int_5",
+            "type": "door",
+            "position": 0.5,
+            "width": 0.9,
+            "hingeSide": "left"
+          }
+        ]
+      },
+      {
+        "id": "wall_int_6",
+        "startX": 1.1,
+        "startZ": -4.0,
+        "endX": 1.1,
+        "endZ": 4.0,
+        "isExterior": false,
+        "thickness": 0.15,
+        "height": 2.8,
+        "openings": [
+          {
+            "id": "door_int_6",
+            "type": "door",
+            "position": 0.5,
+            "width": 0.9,
+            "hingeSide": "left"
+          }
+        ]
+      },
+      {
+        "id": "wall_int_7",
+        "startX": -0.9,
+        "startZ": -1.2,
+        "endX": 1.1,
+        "endZ": -1.2,
+        "isExterior": false,
+        "thickness": 0.15,
+        "height": 2.8,
+        "openings": [
+          {
+            "id": "door_int_7",
+            "type": "door",
+            "position": 0.5,
+            "width": 0.9,
+            "hingeSide": "right"
+          }
+        ]
+      },
+      {
+        "id": "wall_int_8",
+        "startX": -5.0,
+        "startZ": -0.4,
+        "endX": 5.0,
+        "endZ": -0.4,
+        "isExterior": false,
+        "thickness": 0.15,
+        "height": 2.8,
+        "openings": [
+          {
+            "id": "door_int_8",
+            "type": "door",
+            "position": 0.5,
+            "width": 0.9,
+            "hingeSide": "right"
+          }
+        ]
+      },
+      {
+        "id": "wall_int_9",
+        "startX": -5.0,
+        "startZ": 2.8,
+        "endX": 1.1,
+        "endZ": 2.8,
+        "isExterior": false,
+        "thickness": 0.15,
+        "height": 2.8,
+        "openings": [
+          {
+            "id": "door_int_9",
+            "type": "door",
+            "position": 0.5,
+            "width": 0.9,
+            "hingeSide": "right"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "plan_04_suburban_3bhk_villa",
+    "num": "04",
+    "name": "Suburban 3BHK Family Villa",
+    "archetype": "3-Bedroom Villa",
+    "filename": "04_suburban_3bhk_villa.png",
+    "imagePath": "/samples/04_suburban_3bhk_villa.png",
+    "description": "Expansive family villa with 3 secluded bedrooms, generous social spine, open chef island, and dual baths.",
+    "dimensions": {
+      "width": 12.0,
+      "length": 9.5,
+      "wallHeight": 3.0,
+      "wallThickness": 0.24
+    },
+    "rooms": [
+      {
+        "id": "r1",
+        "name": "Master Suite",
+        "type": "bedroom",
+        "relX": 0.0,
+        "relZ": 0.0,
+        "relW": 0.38,
+        "relD": 0.48,
+        "fin": "European oak",
+        "furniture": [
+          "king_bed",
+          "dual_nightstands",
+          "armchair"
+        ]
+      },
+      {
+        "id": "r2",
+        "name": "Bedroom 2 (Kids)",
+        "type": "bedroom",
+        "relX": 0.38,
+        "relZ": 0.0,
+        "relW": 0.32,
+        "relD": 0.38,
+        "fin": "Light ash",
+        "furniture": [
+          "twin_beds",
+          "study_desk"
+        ]
+      },
+      {
+        "id": "r3",
+        "name": "Bedroom 3 (Guest)",
+        "type": "bedroom",
+        "relX": 0.7,
+        "relZ": 0.0,
+        "relW": 0.3,
+        "relD": 0.38,
+        "fin": "Light ash",
+        "furniture": [
+          "queen_bed",
+          "wardrobe"
+        ]
+      },
+      {
+        "id": "r4",
+        "name": "Family Bath",
+        "type": "bathroom",
+        "relX": 0.38,
+        "relZ": 0.38,
+        "relW": 0.2,
+        "relD": 0.22,
+        "fin": "Terrazzo slab",
+        "furniture": [
+          "bathtub",
+          "toilet",
+          "double_vanity"
+        ]
+      },
+      {
+        "id": "r5",
+        "name": "Grand Salon Living",
+        "type": "living",
+        "relX": 0.0,
+        "relZ": 0.48,
+        "relW": 0.58,
+        "relD": 0.52,
+        "fin": "Natural chevron oak",
+        "furniture": [
+          "modular_sofa",
+          "accent_chairs",
+          "coffee_table"
+        ]
+      },
+      {
+        "id": "r6",
+        "name": "Chef Island & Dining",
+        "type": "kitchen",
+        "relX": 0.58,
+        "relZ": 0.38,
+        "relW": 0.42,
+        "relD": 0.62,
+        "fin": "Polished granite",
+        "furniture": [
+          "grand_island",
+          "barstools",
+          "8p_dining_table"
+        ]
+      }
+    ],
+    "walls": [
+      {
+        "id": "wall_ext_1",
+        "startX": -6.0,
+        "startZ": -4.75,
+        "endX": 6.0,
+        "endZ": -4.75,
+        "isExterior": true,
+        "thickness": 0.24,
+        "height": 3.0,
+        "openings": [
+          {
+            "id": "win_1_1",
+            "type": "window",
+            "position": 0.25,
+            "width": 1.4
+          },
+          {
+            "id": "win_1_2",
+            "type": "window",
+            "position": 0.75,
+            "width": 1.4
+          }
+        ]
+      },
+      {
+        "id": "wall_ext_2",
+        "startX": 6.0,
+        "startZ": -4.75,
+        "endX": 6.0,
+        "endZ": 4.75,
+        "isExterior": true,
+        "thickness": 0.24,
+        "height": 3.0,
+        "openings": [
+          {
+            "id": "win_2",
+            "type": "window",
+            "position": 0.5,
+            "width": 1.3
+          }
+        ]
+      },
+      {
+        "id": "wall_ext_3",
+        "startX": 6.0,
+        "startZ": 4.75,
+        "endX": -6.0,
+        "endZ": 4.75,
+        "isExterior": true,
+        "thickness": 0.24,
+        "height": 3.0,
+        "openings": [
+          {
+            "id": "door_3",
+            "type": "door",
+            "position": 0.35,
+            "width": 1.0,
+            "hingeSide": "left"
+          },
+          {
+            "id": "win_3",
+            "type": "window",
+            "position": 0.75,
+            "width": 1.6
+          }
+        ]
+      },
+      {
+        "id": "wall_ext_4",
+        "startX": -6.0,
+        "startZ": 4.75,
+        "endX": -6.0,
+        "endZ": -4.75,
+        "isExterior": true,
+        "thickness": 0.24,
+        "height": 3.0,
+        "openings": [
+          {
+            "id": "win_4",
+            "type": "window",
+            "position": 0.5,
+            "width": 1.4
+          }
+        ]
+      },
+      {
+        "id": "wall_int_5",
+        "startX": -1.44,
+        "startZ": -4.75,
+        "endX": -1.44,
+        "endZ": 0.95,
+        "isExterior": false,
+        "thickness": 0.15,
+        "height": 3.0,
+        "openings": [
+          {
+            "id": "door_int_5",
+            "type": "door",
+            "position": 0.5,
+            "width": 0.9,
+            "hingeSide": "left"
+          }
+        ]
+      },
+      {
+        "id": "wall_int_6",
+        "startX": 0.96,
+        "startZ": -1.14,
+        "endX": 0.96,
+        "endZ": 4.75,
+        "isExterior": false,
+        "thickness": 0.15,
+        "height": 3.0,
+        "openings": [
+          {
+            "id": "door_int_6",
+            "type": "door",
+            "position": 0.5,
+            "width": 0.9,
+            "hingeSide": "left"
+          }
+        ]
+      },
+      {
+        "id": "wall_int_7",
+        "startX": 2.4,
+        "startZ": -4.75,
+        "endX": 2.4,
+        "endZ": -1.14,
+        "isExterior": false,
+        "thickness": 0.15,
+        "height": 3.0,
+        "openings": [
+          {
+            "id": "door_int_7",
+            "type": "door",
+            "position": 0.5,
+            "width": 0.9,
+            "hingeSide": "left"
+          }
+        ]
+      },
+      {
+        "id": "wall_int_8",
+        "startX": -1.44,
+        "startZ": -1.14,
+        "endX": 6.0,
+        "endZ": -1.14,
+        "isExterior": false,
+        "thickness": 0.15,
+        "height": 3.0,
+        "openings": [
+          {
+            "id": "door_int_8",
+            "type": "door",
+            "position": 0.5,
+            "width": 0.9,
+            "hingeSide": "right"
+          }
+        ]
+      },
+      {
+        "id": "wall_int_9",
+        "startX": -6.0,
+        "startZ": -0.19,
+        "endX": 0.96,
+        "endZ": -0.19,
+        "isExterior": false,
+        "thickness": 0.15,
+        "height": 3.0,
+        "openings": [
+          {
+            "id": "door_int_9",
+            "type": "door",
+            "position": 0.5,
+            "width": 0.9,
+            "hingeSide": "right"
+          }
+        ]
+      },
+      {
+        "id": "wall_int_10",
+        "startX": -1.44,
+        "startZ": 0.95,
+        "endX": 0.96,
+        "endZ": 0.95,
+        "isExterior": false,
+        "thickness": 0.15,
+        "height": 3.0,
+        "openings": [
+          {
+            "id": "door_int_10",
+            "type": "door",
+            "position": 0.5,
+            "width": 0.9,
+            "hingeSide": "right"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "plan_05_industrial_loft",
+    "num": "05",
+    "name": "Industrial Open-Concept Loft",
+    "archetype": "Double-Height Loft",
+    "filename": "05_industrial_loft.png",
+    "imagePath": "/samples/05_industrial_loft.png",
+    "description": "Dramatic open loft layout with polished concrete floors, steel-frame partitions, and monumental living volume.",
+    "dimensions": {
+      "width": 11.0,
+      "length": 8.5,
+      "wallHeight": 3.4,
+      "wallThickness": 0.25
+    },
+    "rooms": [
+      {
+        "id": "r1",
+        "name": "Great Room (Living/Dining)",
+        "type": "living",
+        "relX": 0.0,
+        "relZ": 0.0,
+        "relW": 0.65,
+        "relD": 1.0,
+        "fin": "Polished concrete",
+        "furniture": [
+          "leather_sectional",
+          "reclaimed_table",
+          "industrial_lamp",
+          "large_credenza"
+        ]
+      },
+      {
+        "id": "r2",
+        "name": "Loft Bedroom Suite",
+        "type": "bedroom",
+        "relX": 0.65,
+        "relZ": 0.0,
+        "relW": 0.35,
+        "relD": 0.55,
+        "fin": "Distressed pine",
+        "furniture": [
+          "platform_bed",
+          "wardrobe_wall"
+        ]
+      },
+      {
+        "id": "r3",
+        "name": "Spa Bath & Dressing",
+        "type": "bathroom",
+        "relX": 0.65,
+        "relZ": 0.55,
+        "relW": 0.35,
+        "relD": 0.45,
+        "fin": "Black matte porcelain",
+        "furniture": [
+          "freestanding_tub",
+          "walk_in_shower",
+          "floating_vanity"
+        ]
+      }
+    ],
+    "walls": [
+      {
+        "id": "wall_ext_1",
+        "startX": -5.5,
+        "startZ": -4.25,
+        "endX": 5.5,
+        "endZ": -4.25,
+        "isExterior": true,
+        "thickness": 0.25,
+        "height": 3.4,
+        "openings": [
+          {
+            "id": "win_1_1",
+            "type": "window",
+            "position": 0.25,
+            "width": 1.4
+          },
+          {
+            "id": "win_1_2",
+            "type": "window",
+            "position": 0.75,
+            "width": 1.4
+          }
+        ]
+      },
+      {
+        "id": "wall_ext_2",
+        "startX": 5.5,
+        "startZ": -4.25,
+        "endX": 5.5,
+        "endZ": 4.25,
+        "isExterior": true,
+        "thickness": 0.25,
+        "height": 3.4,
+        "openings": [
+          {
+            "id": "win_2",
+            "type": "window",
+            "position": 0.5,
+            "width": 1.3
+          }
+        ]
+      },
+      {
+        "id": "wall_ext_3",
+        "startX": 5.5,
+        "startZ": 4.25,
+        "endX": -5.5,
+        "endZ": 4.25,
+        "isExterior": true,
+        "thickness": 0.25,
+        "height": 3.4,
+        "openings": [
+          {
+            "id": "door_3",
+            "type": "door",
+            "position": 0.35,
+            "width": 1.0,
+            "hingeSide": "left"
+          },
+          {
+            "id": "win_3",
+            "type": "window",
+            "position": 0.75,
+            "width": 1.6
+          }
+        ]
+      },
+      {
+        "id": "wall_ext_4",
+        "startX": -5.5,
+        "startZ": 4.25,
+        "endX": -5.5,
+        "endZ": -4.25,
+        "isExterior": true,
+        "thickness": 0.25,
+        "height": 3.4,
+        "openings": [
+          {
+            "id": "win_4",
+            "type": "window",
+            "position": 0.5,
+            "width": 1.4
+          }
+        ]
+      },
+      {
+        "id": "wall_int_5",
+        "startX": 1.65,
+        "startZ": -4.25,
+        "endX": 1.65,
+        "endZ": 4.25,
+        "isExterior": false,
+        "thickness": 0.15,
+        "height": 3.4,
+        "openings": [
+          {
+            "id": "door_int_5",
+            "type": "door",
+            "position": 0.5,
+            "width": 0.9,
+            "hingeSide": "left"
+          }
+        ]
+      },
+      {
+        "id": "wall_int_6",
+        "startX": 1.65,
+        "startZ": 0.43,
+        "endX": 5.5,
+        "endZ": 0.43,
+        "isExterior": false,
+        "thickness": 0.15,
+        "height": 3.4,
+        "openings": [
+          {
+            "id": "door_int_6",
+            "type": "door",
+            "position": 0.5,
+            "width": 0.9,
+            "hingeSide": "right"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "plan_06_california_ranch",
+    "num": "06",
+    "name": "L-Shaped California Ranch",
+    "archetype": "Ranch Residence",
+    "filename": "06_california_ranch.png",
+    "imagePath": "/samples/06_california_ranch.png",
+    "description": "Non-convex L-shaped ranch design connecting internal private wings to a sheltered garden deck patio.",
+    "dimensions": {
+      "width": 12.5,
+      "length": 10.5,
+      "wallHeight": 2.8,
+      "wallThickness": 0.22
+    },
+    "rooms": [
+      {
+        "id": "r1",
+        "name": "Vaulted Living Wing",
+        "type": "living",
+        "relX": 0.0,
+        "relZ": 0.0,
+        "relW": 0.55,
+        "relD": 0.55,
+        "fin": "Bleached oak",
+        "furniture": [
+          "hearth_sofa",
+          "armchairs",
+          "credenza"
+        ]
+      },
+      {
+        "id": "r2",
+        "name": "Dining & Kitchen Pavilion",
+        "type": "kitchen",
+        "relX": 0.55,
+        "relZ": 0.0,
+        "relW": 0.45,
+        "relD": 0.45,
+        "fin": "Limestone pavers",
+        "furniture": [
+          "dining_suite",
+          "island_bar",
+          "pantry"
+        ]
+      },
+      {
+        "id": "r3",
+        "name": "Private Master Suite",
+        "type": "bedroom",
+        "relX": 0.0,
+        "relZ": 0.55,
+        "relW": 0.55,
+        "relD": 0.45,
+        "fin": "Soft carpet & oak",
+        "furniture": [
+          "cal_king_bed",
+          "dressers",
+          "ensuite_bath"
+        ]
+      },
+      {
+        "id": "r4",
+        "name": "Sheltered Garden Deck",
+        "type": "porch",
+        "relX": 0.55,
+        "relZ": 0.45,
+        "relW": 0.45,
+        "relD": 0.55,
+        "fin": "Teak deck decking",
+        "furniture": [
+          "outdoor_lounge",
+          "fire_pit_table"
+        ]
+      }
+    ],
+    "walls": [
+      {
+        "id": "wall_ext_1",
+        "startX": -6.25,
+        "startZ": -5.25,
+        "endX": 6.25,
+        "endZ": -5.25,
+        "isExterior": true,
+        "thickness": 0.22,
+        "height": 2.8,
+        "openings": [
+          {
+            "id": "win_1_1",
+            "type": "window",
+            "position": 0.25,
+            "width": 1.4
+          },
+          {
+            "id": "win_1_2",
+            "type": "window",
+            "position": 0.75,
+            "width": 1.4
+          }
+        ]
+      },
+      {
+        "id": "wall_ext_2",
+        "startX": 6.25,
+        "startZ": -5.25,
+        "endX": 6.25,
+        "endZ": 5.25,
+        "isExterior": true,
+        "thickness": 0.22,
+        "height": 2.8,
+        "openings": [
+          {
+            "id": "win_2",
+            "type": "window",
+            "position": 0.5,
+            "width": 1.3
+          }
+        ]
+      },
+      {
+        "id": "wall_ext_3",
+        "startX": 6.25,
+        "startZ": 5.25,
+        "endX": -6.25,
+        "endZ": 5.25,
+        "isExterior": true,
+        "thickness": 0.22,
+        "height": 2.8,
+        "openings": [
+          {
+            "id": "door_3",
+            "type": "door",
+            "position": 0.35,
+            "width": 1.0,
+            "hingeSide": "left"
+          },
+          {
+            "id": "win_3",
+            "type": "window",
+            "position": 0.75,
+            "width": 1.6
+          }
+        ]
+      },
+      {
+        "id": "wall_ext_4",
+        "startX": -6.25,
+        "startZ": 5.25,
+        "endX": -6.25,
+        "endZ": -5.25,
+        "isExterior": true,
+        "thickness": 0.22,
+        "height": 2.8,
+        "openings": [
+          {
+            "id": "win_4",
+            "type": "window",
+            "position": 0.5,
+            "width": 1.4
+          }
+        ]
+      },
+      {
+        "id": "wall_int_5",
+        "startX": 0.63,
+        "startZ": -5.25,
+        "endX": 0.63,
+        "endZ": 5.25,
+        "isExterior": false,
+        "thickness": 0.15,
+        "height": 2.8,
+        "openings": [
+          {
+            "id": "door_int_5",
+            "type": "door",
+            "position": 0.5,
+            "width": 0.9,
+            "hingeSide": "left"
+          }
+        ]
+      },
+      {
+        "id": "wall_int_6",
+        "startX": 0.63,
+        "startZ": -0.52,
+        "endX": 6.25,
+        "endZ": -0.52,
+        "isExterior": false,
+        "thickness": 0.15,
+        "height": 2.8,
+        "openings": [
+          {
+            "id": "door_int_6",
+            "type": "door",
+            "position": 0.5,
+            "width": 0.9,
+            "hingeSide": "right"
+          }
+        ]
+      },
+      {
+        "id": "wall_int_7",
+        "startX": -6.25,
+        "startZ": 0.53,
+        "endX": 0.63,
+        "endZ": 0.53,
+        "isExterior": false,
+        "thickness": 0.15,
+        "height": 2.8,
+        "openings": [
+          {
+            "id": "door_int_7",
+            "type": "door",
+            "position": 0.5,
+            "width": 0.9,
+            "hingeSide": "right"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "plan_07_courtyard_villa",
+    "num": "07",
+    "name": "Luxury Courtyard Villa",
+    "archetype": "Atrium Residence",
+    "filename": "07_courtyard_villa.png",
+    "imagePath": "/samples/07_courtyard_villa.png",
+    "description": "Classical central-atrium typology providing natural cross-ventilation, perimeter galleries, and serene daylighting.",
+    "dimensions": {
+      "width": 12.0,
+      "length": 10.0,
+      "wallHeight": 3.0,
+      "wallThickness": 0.24
+    },
+    "rooms": [
+      {
+        "id": "r1",
+        "name": "Central Open Zen Atrium",
+        "type": "porch",
+        "relX": 0.35,
+        "relZ": 0.3,
+        "relW": 0.3,
+        "relD": 0.35,
+        "fin": "River stone & greenery",
+        "furniture": [
+          "water_feature_basin",
+          "meditation_bench"
+        ]
+      },
+      {
+        "id": "r2",
+        "name": "North Reception Gallery",
+        "type": "living",
+        "relX": 0.0,
+        "relZ": 0.0,
+        "relW": 0.65,
+        "relD": 0.3,
+        "fin": "Botticino marble",
+        "furniture": [
+          "lounge_ensemble",
+          "grand_credenza"
+        ]
+      },
+      {
+        "id": "r3",
+        "name": "East Dining & Gourmet Kitchen",
+        "type": "kitchen",
+        "relX": 0.65,
+        "relZ": 0.0,
+        "relW": 0.35,
+        "relD": 0.65,
+        "fin": "Honed granite",
+        "furniture": [
+          "formal_dining_table",
+          "prep_island"
+        ]
+      },
+      {
+        "id": "r4",
+        "name": "West Primary Suite",
+        "type": "bedroom",
+        "relX": 0.0,
+        "relZ": 0.3,
+        "relW": 0.35,
+        "relD": 0.7,
+        "fin": "Fine teak",
+        "furniture": [
+          "king_canopy_bed",
+          "chaise_lounge"
+        ]
+      },
+      {
+        "id": "r5",
+        "name": "South Guest Wing",
+        "type": "bedroom",
+        "relX": 0.35,
+        "relZ": 0.65,
+        "relW": 0.65,
+        "relD": 0.35,
+        "fin": "Fine teak",
+        "furniture": [
+          "twin_beds",
+          "guest_bath_fixtures"
+        ]
+      }
+    ],
+    "walls": [
+      {
+        "id": "wall_ext_1",
+        "startX": -6.0,
+        "startZ": -5.0,
+        "endX": 6.0,
+        "endZ": -5.0,
+        "isExterior": true,
+        "thickness": 0.24,
+        "height": 3.0,
+        "openings": [
+          {
+            "id": "win_1_1",
+            "type": "window",
+            "position": 0.25,
+            "width": 1.4
+          },
+          {
+            "id": "win_1_2",
+            "type": "window",
+            "position": 0.75,
+            "width": 1.4
+          }
+        ]
+      },
+      {
+        "id": "wall_ext_2",
+        "startX": 6.0,
+        "startZ": -5.0,
+        "endX": 6.0,
+        "endZ": 5.0,
+        "isExterior": true,
+        "thickness": 0.24,
+        "height": 3.0,
+        "openings": [
+          {
+            "id": "win_2",
+            "type": "window",
+            "position": 0.5,
+            "width": 1.3
+          }
+        ]
+      },
+      {
+        "id": "wall_ext_3",
+        "startX": 6.0,
+        "startZ": 5.0,
+        "endX": -6.0,
+        "endZ": 5.0,
+        "isExterior": true,
+        "thickness": 0.24,
+        "height": 3.0,
+        "openings": [
+          {
+            "id": "door_3",
+            "type": "door",
+            "position": 0.35,
+            "width": 1.0,
+            "hingeSide": "left"
+          },
+          {
+            "id": "win_3",
+            "type": "window",
+            "position": 0.75,
+            "width": 1.6
+          }
+        ]
+      },
+      {
+        "id": "wall_ext_4",
+        "startX": -6.0,
+        "startZ": 5.0,
+        "endX": -6.0,
+        "endZ": -5.0,
+        "isExterior": true,
+        "thickness": 0.24,
+        "height": 3.0,
+        "openings": [
+          {
+            "id": "win_4",
+            "type": "window",
+            "position": 0.5,
+            "width": 1.4
+          }
+        ]
+      },
+      {
+        "id": "wall_int_5",
+        "startX": -1.8,
+        "startZ": -2.0,
+        "endX": -1.8,
+        "endZ": 5.0,
+        "isExterior": false,
+        "thickness": 0.15,
+        "height": 3.0,
+        "openings": [
+          {
+            "id": "door_int_5",
+            "type": "door",
+            "position": 0.5,
+            "width": 0.9,
+            "hingeSide": "left"
+          }
+        ]
+      },
+      {
+        "id": "wall_int_6",
+        "startX": 1.8,
+        "startZ": -5.0,
+        "endX": 1.8,
+        "endZ": 1.5,
+        "isExterior": false,
+        "thickness": 0.15,
+        "height": 3.0,
+        "openings": [
+          {
+            "id": "door_int_6",
+            "type": "door",
+            "position": 0.5,
+            "width": 0.9,
+            "hingeSide": "left"
+          }
+        ]
+      },
+      {
+        "id": "wall_int_7",
+        "startX": -6.0,
+        "startZ": -2.0,
+        "endX": 1.8,
+        "endZ": -2.0,
+        "isExterior": false,
+        "thickness": 0.15,
+        "height": 3.0,
+        "openings": [
+          {
+            "id": "door_int_7",
+            "type": "door",
+            "position": 0.5,
+            "width": 0.9,
+            "hingeSide": "right"
+          }
+        ]
+      },
+      {
+        "id": "wall_int_8",
+        "startX": -1.8,
+        "startZ": 1.5,
+        "endX": 6.0,
+        "endZ": 1.5,
+        "isExterior": false,
+        "thickness": 0.15,
+        "height": 3.0,
+        "openings": [
+          {
+            "id": "door_int_8",
+            "type": "door",
+            "position": 0.5,
+            "width": 0.9,
+            "hingeSide": "right"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "plan_08_duplex_residence",
+    "num": "08",
+    "name": "Modern Duplex Ground Floor",
+    "archetype": "Townhouse Ground",
+    "filename": "08_duplex_residence.png",
+    "imagePath": "/samples/08_duplex_residence.png",
+    "description": "Multi-level townhouse ground floor with sculptural staircase core, deep living salon, and garden outlook.",
+    "dimensions": {
+      "width": 10.5,
+      "length": 8.5,
+      "wallHeight": 3.1,
+      "wallThickness": 0.22
+    },
+    "rooms": [
+      {
+        "id": "r1",
+        "name": "Double-Height Great Room",
+        "type": "living",
+        "relX": 0.0,
+        "relZ": 0.0,
+        "relW": 0.6,
+        "relD": 0.6,
+        "fin": "Nordic white oak",
+        "furniture": [
+          "corner_lounge",
+          "coffee_pod",
+          "media_wall"
+        ]
+      },
+      {
+        "id": "r2",
+        "name": "Kitchen & Breakfast Island",
+        "type": "kitchen",
+        "relX": 0.6,
+        "relZ": 0.0,
+        "relW": 0.4,
+        "relD": 0.5,
+        "fin": "Quartz slab",
+        "furniture": [
+          "kitchen_island",
+          "stools",
+          "pantry_wall"
+        ]
+      },
+      {
+        "id": "r3",
+        "name": "Floating Staircase Gallery",
+        "type": "hallway",
+        "relX": 0.6,
+        "relZ": 0.5,
+        "relW": 0.4,
+        "relD": 0.5,
+        "fin": "Exposed aggregate",
+        "furniture": [
+          "architectural_staircase",
+          "powder_room"
+        ]
+      },
+      {
+        "id": "r4",
+        "name": "Garden Guest Suite",
+        "type": "bedroom",
+        "relX": 0.0,
+        "relZ": 0.6,
+        "relW": 0.6,
+        "relD": 0.4,
+        "fin": "Warm walnut",
+        "furniture": [
+          "queen_bed",
+          "study_nook"
+        ]
+      }
+    ],
+    "walls": [
+      {
+        "id": "wall_ext_1",
+        "startX": -5.25,
+        "startZ": -4.25,
+        "endX": 5.25,
+        "endZ": -4.25,
+        "isExterior": true,
+        "thickness": 0.22,
+        "height": 3.1,
+        "openings": [
+          {
+            "id": "win_1_1",
+            "type": "window",
+            "position": 0.25,
+            "width": 1.4
+          },
+          {
+            "id": "win_1_2",
+            "type": "window",
+            "position": 0.75,
+            "width": 1.4
+          }
+        ]
+      },
+      {
+        "id": "wall_ext_2",
+        "startX": 5.25,
+        "startZ": -4.25,
+        "endX": 5.25,
+        "endZ": 4.25,
+        "isExterior": true,
+        "thickness": 0.22,
+        "height": 3.1,
+        "openings": [
+          {
+            "id": "win_2",
+            "type": "window",
+            "position": 0.5,
+            "width": 1.3
+          }
+        ]
+      },
+      {
+        "id": "wall_ext_3",
+        "startX": 5.25,
+        "startZ": 4.25,
+        "endX": -5.25,
+        "endZ": 4.25,
+        "isExterior": true,
+        "thickness": 0.22,
+        "height": 3.1,
+        "openings": [
+          {
+            "id": "door_3",
+            "type": "door",
+            "position": 0.35,
+            "width": 1.0,
+            "hingeSide": "left"
+          },
+          {
+            "id": "win_3",
+            "type": "window",
+            "position": 0.75,
+            "width": 1.6
+          }
+        ]
+      },
+      {
+        "id": "wall_ext_4",
+        "startX": -5.25,
+        "startZ": 4.25,
+        "endX": -5.25,
+        "endZ": -4.25,
+        "isExterior": true,
+        "thickness": 0.22,
+        "height": 3.1,
+        "openings": [
+          {
+            "id": "win_4",
+            "type": "window",
+            "position": 0.5,
+            "width": 1.4
+          }
+        ]
+      },
+      {
+        "id": "wall_int_5",
+        "startX": 1.05,
+        "startZ": -4.25,
+        "endX": 1.05,
+        "endZ": 4.25,
+        "isExterior": false,
+        "thickness": 0.15,
+        "height": 3.1,
+        "openings": [
+          {
+            "id": "door_int_5",
+            "type": "door",
+            "position": 0.5,
+            "width": 0.9,
+            "hingeSide": "left"
+          }
+        ]
+      },
+      {
+        "id": "wall_int_6",
+        "startX": 1.05,
+        "startZ": 0.0,
+        "endX": 5.25,
+        "endZ": 0.0,
+        "isExterior": false,
+        "thickness": 0.15,
+        "height": 3.1,
+        "openings": [
+          {
+            "id": "door_int_6",
+            "type": "door",
+            "position": 0.5,
+            "width": 0.9,
+            "hingeSide": "right"
+          }
+        ]
+      },
+      {
+        "id": "wall_int_7",
+        "startX": -5.25,
+        "startZ": 0.85,
+        "endX": 1.05,
+        "endZ": 0.85,
+        "isExterior": false,
+        "thickness": 0.15,
+        "height": 3.1,
+        "openings": [
+          {
+            "id": "door_int_7",
+            "type": "door",
+            "position": 0.5,
+            "width": 0.9,
+            "hingeSide": "right"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "plan_09_executive_penthouse",
+    "num": "09",
+    "name": "Executive Penthouse Suite",
+    "archetype": "Luxury Penthouse",
+    "filename": "09_executive_penthouse.png",
+    "imagePath": "/samples/09_executive_penthouse.png",
+    "description": "Crown-level penthouse with continuous glass perimeter curtain walls, entertainment salon, and spa ensuite.",
+    "dimensions": {
+      "width": 13.0,
+      "length": 9.0,
+      "wallHeight": 3.2,
+      "wallThickness": 0.24
+    },
+    "rooms": [
+      {
+        "id": "r1",
+        "name": "Panoramic Skyline Salon",
+        "type": "living",
+        "relX": 0.0,
+        "relZ": 0.0,
+        "relW": 0.62,
+        "relD": 0.6,
+        "fin": "Calacatta marble",
+        "furniture": [
+          "designer_sofas",
+          "low_cocktail_table",
+          "baby_grand_piano"
+        ]
+      },
+      {
+        "id": "r2",
+        "name": "Chef Kitchen & Wine Bar",
+        "type": "kitchen",
+        "relX": 0.62,
+        "relZ": 0.0,
+        "relW": 0.38,
+        "relD": 0.45,
+        "fin": "Nero Marquina marble",
+        "furniture": [
+          "waterfall_island",
+          "wine_display_wall"
+        ]
+      },
+      {
+        "id": "r3",
+        "name": "Presidential Master Suite",
+        "type": "bedroom",
+        "relX": 0.0,
+        "relZ": 0.6,
+        "relW": 0.55,
+        "relD": 0.4,
+        "fin": "Silk carpet & ebony",
+        "furniture": [
+          "custom_king_bed",
+          "dressing_lounge"
+        ]
+      },
+      {
+        "id": "r4",
+        "name": "Master Spa Ensuite",
+        "type": "bathroom",
+        "relX": 0.55,
+        "relZ": 0.6,
+        "relW": 0.45,
+        "relD": 0.4,
+        "fin": "Honed Statuario",
+        "furniture": [
+          "freestanding_oval_tub",
+          "steam_shower",
+          "double_vanity"
+        ]
+      }
+    ],
+    "walls": [
+      {
+        "id": "wall_ext_1",
+        "startX": -6.5,
+        "startZ": -4.5,
+        "endX": 6.5,
+        "endZ": -4.5,
+        "isExterior": true,
+        "thickness": 0.24,
+        "height": 3.2,
+        "openings": [
+          {
+            "id": "win_1_1",
+            "type": "window",
+            "position": 0.25,
+            "width": 1.4
+          },
+          {
+            "id": "win_1_2",
+            "type": "window",
+            "position": 0.75,
+            "width": 1.4
+          }
+        ]
+      },
+      {
+        "id": "wall_ext_2",
+        "startX": 6.5,
+        "startZ": -4.5,
+        "endX": 6.5,
+        "endZ": 4.5,
+        "isExterior": true,
+        "thickness": 0.24,
+        "height": 3.2,
+        "openings": [
+          {
+            "id": "win_2",
+            "type": "window",
+            "position": 0.5,
+            "width": 1.3
+          }
+        ]
+      },
+      {
+        "id": "wall_ext_3",
+        "startX": 6.5,
+        "startZ": 4.5,
+        "endX": -6.5,
+        "endZ": 4.5,
+        "isExterior": true,
+        "thickness": 0.24,
+        "height": 3.2,
+        "openings": [
+          {
+            "id": "door_3",
+            "type": "door",
+            "position": 0.35,
+            "width": 1.0,
+            "hingeSide": "left"
+          },
+          {
+            "id": "win_3",
+            "type": "window",
+            "position": 0.75,
+            "width": 1.6
+          }
+        ]
+      },
+      {
+        "id": "wall_ext_4",
+        "startX": -6.5,
+        "startZ": 4.5,
+        "endX": -6.5,
+        "endZ": -4.5,
+        "isExterior": true,
+        "thickness": 0.24,
+        "height": 3.2,
+        "openings": [
+          {
+            "id": "win_4",
+            "type": "window",
+            "position": 0.5,
+            "width": 1.4
+          }
+        ]
+      },
+      {
+        "id": "wall_int_5",
+        "startX": 0.65,
+        "startZ": 0.9,
+        "endX": 0.65,
+        "endZ": 4.5,
+        "isExterior": false,
+        "thickness": 0.15,
+        "height": 3.2,
+        "openings": [
+          {
+            "id": "door_int_5",
+            "type": "door",
+            "position": 0.5,
+            "width": 0.9,
+            "hingeSide": "left"
+          }
+        ]
+      },
+      {
+        "id": "wall_int_6",
+        "startX": 1.56,
+        "startZ": -4.5,
+        "endX": 1.56,
+        "endZ": 0.9,
+        "isExterior": false,
+        "thickness": 0.15,
+        "height": 3.2,
+        "openings": [
+          {
+            "id": "door_int_6",
+            "type": "door",
+            "position": 0.5,
+            "width": 0.9,
+            "hingeSide": "left"
+          }
+        ]
+      },
+      {
+        "id": "wall_int_7",
+        "startX": 1.56,
+        "startZ": -0.45,
+        "endX": 6.5,
+        "endZ": -0.45,
+        "isExterior": false,
+        "thickness": 0.15,
+        "height": 3.2,
+        "openings": [
+          {
+            "id": "door_int_7",
+            "type": "door",
+            "position": 0.5,
+            "width": 0.9,
+            "hingeSide": "right"
+          }
+        ]
+      },
+      {
+        "id": "wall_int_8",
+        "startX": -6.5,
+        "startZ": 0.9,
+        "endX": 6.5,
+        "endZ": 0.9,
+        "isExterior": false,
+        "thickness": 0.15,
+        "height": 3.2,
+        "openings": [
+          {
+            "id": "door_int_8",
+            "type": "door",
+            "position": 0.5,
+            "width": 0.9,
+            "hingeSide": "right"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "plan_10_micro_living_pod",
+    "num": "10",
+    "name": "Micro-Living Modular Pod",
+    "archetype": "Modular Tiny Home",
+    "filename": "10_micro_living_pod.png",
+    "imagePath": "/samples/10_micro_living_pod.png",
+    "description": "High-efficiency factory-built modular pod with transformable furniture, compact wet bath, and entry deck.",
+    "dimensions": {
+      "width": 6.0,
+      "length": 4.0,
+      "wallHeight": 2.6,
+      "wallThickness": 0.2
+    },
+    "rooms": [
+      {
+        "id": "r1",
+        "name": "Transformable Living & Bed Pod",
+        "type": "bedroom",
+        "relX": 0.0,
+        "relZ": 0.0,
+        "relW": 0.65,
+        "relD": 1.0,
+        "fin": "Birch plywood",
+        "furniture": [
+          "murphy_bed_sofa",
+          "foldout_table",
+          "modular_storage"
+        ]
+      },
+      {
+        "id": "r2",
+        "name": "Compact Kitchenette",
+        "type": "kitchen",
+        "relX": 0.65,
+        "relZ": 0.0,
+        "relW": 0.35,
+        "relD": 0.5,
+        "fin": "Stainless steel & birch",
+        "furniture": [
+          "induction_counter",
+          "undercounter_fridge",
+          "sink"
+        ]
+      },
+      {
+        "id": "r3",
+        "name": "Precast Wet Room",
+        "type": "bathroom",
+        "relX": 0.65,
+        "relZ": 0.5,
+        "relW": 0.35,
+        "relD": 0.5,
+        "fin": "Microcement",
+        "furniture": [
+          "wall_hung_toilet",
+          "monobloc_shower",
+          "corner_basin"
+        ]
+      }
+    ],
+    "walls": [
+      {
+        "id": "wall_ext_1",
+        "startX": -3.0,
+        "startZ": -2.0,
+        "endX": 3.0,
+        "endZ": -2.0,
+        "isExterior": true,
+        "thickness": 0.2,
+        "height": 2.6,
+        "openings": [
+          {
+            "id": "win_1_1",
+            "type": "window",
+            "position": 0.25,
+            "width": 1.4
+          },
+          {
+            "id": "win_1_2",
+            "type": "window",
+            "position": 0.75,
+            "width": 1.4
+          }
+        ]
+      },
+      {
+        "id": "wall_ext_2",
+        "startX": 3.0,
+        "startZ": -2.0,
+        "endX": 3.0,
+        "endZ": 2.0,
+        "isExterior": true,
+        "thickness": 0.2,
+        "height": 2.6,
+        "openings": [
+          {
+            "id": "win_2",
+            "type": "window",
+            "position": 0.5,
+            "width": 1.3
+          }
+        ]
+      },
+      {
+        "id": "wall_ext_3",
+        "startX": 3.0,
+        "startZ": 2.0,
+        "endX": -3.0,
+        "endZ": 2.0,
+        "isExterior": true,
+        "thickness": 0.2,
+        "height": 2.6,
+        "openings": [
+          {
+            "id": "door_3",
+            "type": "door",
+            "position": 0.35,
+            "width": 1.0,
+            "hingeSide": "left"
+          },
+          {
+            "id": "win_3",
+            "type": "window",
+            "position": 0.75,
+            "width": 1.6
+          }
+        ]
+      },
+      {
+        "id": "wall_ext_4",
+        "startX": -3.0,
+        "startZ": 2.0,
+        "endX": -3.0,
+        "endZ": -2.0,
+        "isExterior": true,
+        "thickness": 0.2,
+        "height": 2.6,
+        "openings": [
+          {
+            "id": "win_4",
+            "type": "window",
+            "position": 0.5,
+            "width": 1.4
+          }
+        ]
+      },
+      {
+        "id": "wall_int_5",
+        "startX": 0.9,
+        "startZ": -2.0,
+        "endX": 0.9,
+        "endZ": 2.0,
+        "isExterior": false,
+        "thickness": 0.15,
+        "height": 2.6,
+        "openings": [
+          {
+            "id": "door_int_5",
+            "type": "door",
+            "position": 0.5,
+            "width": 0.9,
+            "hingeSide": "left"
+          }
+        ]
+      },
+      {
+        "id": "wall_int_6",
+        "startX": 0.9,
+        "startZ": 0.0,
+        "endX": 3.0,
+        "endZ": 0.0,
+        "isExterior": false,
+        "thickness": 0.15,
+        "height": 2.6,
+        "openings": [
+          {
+            "id": "door_int_6",
+            "type": "door",
+            "position": 0.5,
+            "width": 0.9,
+            "hingeSide": "right"
+          }
+        ]
+      }
+    ]
+  }
+];
