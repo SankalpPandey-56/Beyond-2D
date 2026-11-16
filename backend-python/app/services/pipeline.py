@@ -119,7 +119,7 @@ def execute_floor_plan_pipeline(image_bytes: bytes, file_name: str = "uploaded_p
             matched = None
             for p in catalog_data:
                 base_f = p["filename"].lower().replace(".png", "")
-                if base_f in lower_name or p["num"] in lower_name or lower_name in p["filename"].lower():
+                if base_f in lower_name or f"_{p['num']}_" in lower_name or f"{p['num']}_" in lower_name or lower_name == p["filename"].lower():
                     matched = p
                     break
             if matched:
