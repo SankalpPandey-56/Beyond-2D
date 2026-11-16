@@ -67,6 +67,59 @@
   box-sizing: border-box;
 }
 
+/* Night Mode UI Architectural Palette (User Specified) */
+body.theme-night,
+[data-theme="night"] {
+  --background: #111318;
+  --sidebar: #181B22;
+  --surface: #20242D;
+  --surface-hover: #292E39;
+  --workspace: #0D0F14;
+  --toolbar: rgba(24, 27, 34, 0.94);
+
+  --border: #343A46;
+  --border-subtle: #292F38;
+  --border-focus: #9297FF;
+
+  --text-primary: #F0F1F4;
+  --text-secondary: #B0B6C2;
+  --text-muted: #858D9B;
+
+  --accent: #9297FF;
+  --accent-hover: #A4A8FF;
+  --accent-subtle: rgba(146, 151, 255, 0.12);
+  --technical-cyan: #75BFD0;
+
+  --success: #63BC91;
+  --warning: #D6AD68;
+  --error: #E47A83;
+
+  /* Aliases */
+  --bg: var(--background);
+  --panel: var(--sidebar);
+  --panel-alt: var(--surface);
+  --line: var(--border);
+  --line-subtle: var(--border-subtle);
+  --text: var(--text-primary);
+  --text-dim: var(--text-secondary);
+  --mute: var(--text-muted);
+  --amber: var(--warning);
+  --green: var(--success);
+  --red: var(--error);
+  --cyan: var(--technical-cyan);
+  --accent-glow: rgba(146, 151, 255, 0.22);
+
+  color-scheme: dark;
+}
+
+body.theme-night .hero-upload-overlay {
+  background: radial-gradient(circle at center, rgba(24, 27, 34, 0.94) 0%, rgba(17, 19, 24, 0.98) 100%) !important;
+}
+
+body, nav, aside.sidebar-left, .preset-card, .param-box, .dock-bar, .dock-popover, .hero-upload-card, .compare-col {
+  transition: background-color 0.35s ease, border-color 0.35s ease, color 0.35s ease, box-shadow 0.35s ease;
+}
+
       *,
       *::before,
       *::after {
@@ -262,17 +315,22 @@
   color: #FFF;
 }
 
-      /* Main Workspace Grid */
+      /* Main Workspace Grid (Expanded Sidebar) */
       main {
         display: grid;
-        grid-template-columns: 320px 1fr;
+        grid-template-columns: 350px 1fr;
         height: calc(100vh - 52px);
         min-height: 0;
         background: var(--background);
         transition: grid-template-columns 0.25s cubic-bezier(0.16, 1, 0.3, 1);
       }
+      @media (max-width: 1100px) {
+        main {
+          grid-template-columns: 320px 1fr;
+        }
+      }
       main.sidebar-collapsed {
-        grid-template-columns: 0px 1fr;
+        grid-template-columns: 0px 1fr !important;
       }
       main.sidebar-collapsed aside.sidebar-left {
         padding: 0;
@@ -285,12 +343,12 @@
       aside.sidebar-left {
         background: var(--sidebar);
         border-right: 1px solid var(--border);
-        padding: 14px;
+        padding: 16px 18px;
         overflow-y: auto;
         overflow-x: hidden;
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 14px;
         z-index: 20;
         scrollbar-width: thin;
         scrollbar-color: var(--border) var(--sidebar);
@@ -367,17 +425,17 @@
         background: var(--surface);
         border: 1px solid var(--border);
         border-radius: var(--radius-md);
-        padding: 12px;
+        padding: 14px 16px;
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: 8px;
         transition: border-color 0.15s ease;
       }
       .preset-card:hover {
         border-color: rgba(133, 139, 255, 0.35);
       }
       .active-plan-title {
-        font-size: 13px;
+        font-size: 13.5px;
         font-weight: 600;
         color: var(--text-primary);
         margin-top: 2px;
@@ -385,6 +443,7 @@
       .active-plan-subtitle {
         font-size: 11px;
         color: var(--text-secondary);
+        line-height: 1.4;
       }
 
 /* 2D Plan Preview Card */
@@ -396,7 +455,7 @@
   position: relative;
 }
 .blueprint-card-header {
-  padding: 8px 10px;
+  padding: 8px 12px;
   background: var(--surface-hover);
   border-bottom: 1px solid var(--border-subtle);
   display: flex;
@@ -415,12 +474,12 @@
 }
 .blueprint-img-wrap {
   width: 100%;
-  height: 155px;
+  height: 160px;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #F5F6FA;
+  background: var(--background);
   overflow: hidden;
 }
 .blueprint-img-wrap img {
@@ -442,7 +501,7 @@
   gap: 6px;
   color: var(--text-muted);
   text-align: center;
-  padding: 14px;
+  padding: 16px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -460,7 +519,7 @@
   border: 0;
   border-top: 1px solid var(--border-subtle);
   color: var(--text-secondary);
-  padding: 7px;
+  padding: 8px 12px;
   font-size: 11.5px;
   font-weight: 500;
   cursor: pointer;
@@ -480,15 +539,15 @@
         background: var(--surface);
         border: 1px solid var(--border);
         border-radius: var(--radius-md);
-        padding: 12px;
+        padding: 14px 16px;
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 12px;
       }
       .param-row {
         display: flex;
         flex-direction: column;
-        gap: 5px;
+        gap: 6px;
       }
       .param-label {
         display: flex;
@@ -544,8 +603,8 @@
         background: transparent;
         border: 1px solid transparent;
         border-radius: var(--radius-sm);
-        padding: 0 10px;
-        height: 34px;
+        padding: 0 12px;
+        height: 38px;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -568,7 +627,7 @@
       }
       .room-meta-pill {
         font-family: "JetBrains Mono", monospace;
-        font-size: 10.5px;
+        font-size: 11px;
         color: var(--technical-cyan);
         font-weight: 500;
       }
@@ -577,7 +636,7 @@
 .dropzone-box {
   border: 1.5px dashed var(--border);
   border-radius: var(--radius-md);
-  padding: 12px 10px;
+  padding: 16px 14px;
   text-align: center;
   cursor: pointer;
   transition: all 0.18s ease;
@@ -585,7 +644,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
 .dropzone-box:hover {
   border-color: var(--accent);
@@ -620,6 +679,51 @@
   padding: 10px 12px 12px 10px;
   background: var(--workspace);
   display: flex;
+}
+/* Immersive Fullscreen 3D Viewer */
+.viewport-workspace.is-fullscreen {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 9999 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: var(--workspace) !important;
+}
+.viewport-workspace.is-fullscreen #stage-wrap {
+  border-radius: 0 !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+.btn-exit-fullscreen {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: none;
+  align-items: center;
+  gap: 6px;
+  background: var(--toolbar);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  z-index: 1060;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transition: all 0.18s ease;
+}
+.btn-exit-fullscreen:hover {
+  background: var(--surface-hover);
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-1px);
+}
+.viewport-workspace.is-fullscreen .btn-exit-fullscreen {
+  display: flex !important;
 }
 #stage-wrap {
   position: relative;
@@ -703,9 +807,10 @@
   pointer-events: auto;
 }
 .hero-upload-overlay.hidden {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
 }
 .hero-upload-card {
   max-width: 500px;
@@ -831,7 +936,7 @@
   padding: 4px 6px;
   border-radius: var(--radius-md);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  z-index: 40;
+  z-index: 1050;
   max-width: 95%;
 }
 .dock-group {
@@ -880,16 +985,16 @@
   position: absolute;
   bottom: calc(100% + 10px);
   right: 0;
-  width: 260px;
-  background: var(--sidebar);
+  width: 280px;
+  background: var(--sidebar) !important;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   padding: 12px 14px;
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
   display: none;
   flex-direction: column;
-  gap: 10px;
-  z-index: 35;
+  gap: 8px;
+  z-index: 1060;
   backdrop-filter: blur(16px);
 }
 .dock-popover.active {
@@ -934,6 +1039,34 @@
 }
 
 /* Environment Settings Popover */
+.env-slider-box {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 4px 0 6px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 4px;
+}
+.env-slider-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+.daynight-switch {
+  margin-bottom: 6px;
+  padding-top: 0;
+  border-top: 0;
+}
+.daynight-switch .env-mode-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 0;
+}
 .env-toggle-row {
   display: flex;
   align-items: center;
@@ -1339,17 +1472,17 @@
 .mat-picker-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 6px;
+  gap: 8px;
 }
 .mat-card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: 8px 10px;
+  padding: 10px 12px;
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
   transition: all 0.15s ease;
 }
 .mat-card:hover {
@@ -1361,10 +1494,10 @@
   background: var(--accent-subtle);
 }
 .mat-swatch {
-  height: 26px;
-  border-radius: 4px;
+  height: 28px;
+  border-radius: 5px;
   border: 1px solid var(--border-subtle);
-  margin-bottom: 2px;
+  margin-bottom: 3px;
 }
 .mat-name {
   font-size: 11px;
@@ -1970,6 +2103,12 @@
           <span class="viewport-grid-tag" id="viewport-scale-tag">1:100 CAD</span>
         </div>
 
+        <!-- Floating Fullscreen Exit Button -->
+        <button class="btn-exit-fullscreen" id="btn-exit-fullscreen" title="Exit Fullscreen (ESC)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>
+          <span>Exit Fullscreen [ESC]</span>
+        </button>
+
         <!-- Hero Upload Overlay (Initial Clean Studio State) -->
         <div id="hero-upload-overlay" class="hero-upload-overlay">
           <div class="hero-upload-card" id="hero-dropzone">
@@ -2332,7 +2471,24 @@
               </button>
               <div class="dock-popover" id="env-popover">
                 <div class="dock-popover-header">
-                  <span class="dock-popover-title">Surroundings & Trees</span>
+                  <span class="dock-popover-title">Environment & Atmosphere</span>
+                </div>
+                <div class="env-mode-switch daynight-switch">
+                  <button class="env-mode-btn active" id="btn-env-day" title="Realistic Daylight">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                    <span>Day</span>
+                  </button>
+                  <button class="env-mode-btn" id="btn-env-night" title="Realistic Nighttime & Architectural Glow">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                    <span>Night</span>
+                  </button>
+                </div>
+                <div class="env-slider-box">
+                  <div class="env-slider-label">
+                    <span>Lighting Brightness</span>
+                    <span id="val-env-intensity">100%</span>
+                  </div>
+                  <input type="range" id="slider-env-intensity" min="30" max="150" step="5" value="100" class="slider-styled">
                 </div>
                 <div class="env-toggle-row">
                   <label class="env-switch-label">
@@ -2352,12 +2508,43 @@
                     <span>Landscaped Lawn & Terrace</span>
                   </label>
                 </div>
-                <div class="env-mode-switch">
+                <div class="env-toggle-row">
+                  <label class="env-switch-label">
+                    <input type="checkbox" id="chk-light-poles" checked>
+                    <span>Environmental Light Poles</span>
+                  </label>
+                </div>
+                <div class="env-toggle-row">
+                  <label class="env-switch-label">
+                    <input type="checkbox" id="chk-fireflies" checked>
+                    <span>Night Fireflies</span>
+                  </label>
+                </div>
+                <div class="env-toggle-row">
+                  <label class="env-switch-label">
+                    <input type="checkbox" id="chk-arch-lighting" checked>
+                    <span>Architectural Glow</span>
+                  </label>
+                </div>
+                <div class="env-mode-switch" style="margin-top: 6px;">
                   <button class="env-mode-btn active" id="btn-env-architectural">Architectural</button>
                   <button class="env-mode-btn" id="btn-env-studio">Clean Studio</button>
                 </div>
               </div>
             </div>
+
+            <button class="dock-btn" id="btn-toggle-daynight" title="Toggle Day / Night Mode [N]">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+              <span id="dock-daynight-text">Day</span>
+            </button>
+          </div>
+
+          <!-- Group 4: Workspace Viewport -->
+          <div class="dock-group">
+            <button class="dock-btn" id="btn-dock-fullscreen" title="Toggle Immersive Fullscreen [F]">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+              <span>Fullscreen</span>
+            </button>
           </div>
         </div>
       </div>
@@ -2473,6 +2660,36 @@ landscapeGroup.add(lawnMesh);
 let isEnvActive = true;
 let showTrees = true;
 let showGround = true;
+let isNightMode = false;
+let envTransitionT = 0.0;
+let targetEnvT = 0.0;
+let envIntensityMultiplier = 1.0;
+let showLightPoles = true;
+let showFireflies = true;
+let showArchLighting = true;
+
+// Environmental Light Poles Group (strictly outside houseGroup for watertight GLB export)
+const lightPoleGroup = new THREE.Group();
+envGroup.add(lightPoleGroup);
+let poleLights = [];
+let poleFixtureMats = [];
+
+// Architectural Glow Lights (Entrance & Interior Ambient)
+const archGlowGroup = new THREE.Group();
+envGroup.add(archGlowGroup);
+const archEntranceLight = new THREE.PointLight(0xFFE2B6, 0, 11, 2);
+archGlowGroup.add(archEntranceLight);
+const archWindowLight1 = new THREE.PointLight(0xFFD8A8, 0, 13, 2);
+archGlowGroup.add(archWindowLight1);
+const archWindowLight2 = new THREE.PointLight(0xFFD8A8, 0, 13, 2);
+archGlowGroup.add(archWindowLight2);
+
+// Fireflies Group
+const fireflyCount = 36;
+const fireflyGroup = new THREE.Group();
+envGroup.add(fireflyGroup);
+let fireflyPoints = null;
+let fireflyData = [];
 
 // Studio Ground Plane Fallback (when Clean Studio mode is selected)
 const groundGeo = new THREE.PlaneGeometry(300, 300);
@@ -2574,9 +2791,143 @@ function createArchitecturalTree(x, z, scale = 1, variant = 0) {
   return tree;
 }
 
+function createLightPole(x, z, rotY = 0) {
+  const poleGroup = new THREE.Group();
+  poleGroup.position.set(x, 0, z);
+  poleGroup.rotation.y = rotY;
+
+  // Dark graphite/matte black material
+  const poleMat = new THREE.MeshStandardMaterial({
+    color: 0x1E2228,
+    roughness: 0.72,
+    metalness: 0.28
+  });
+
+  // Base mount plate
+  const baseGeo = new THREE.CylinderGeometry(0.18, 0.22, 0.08, 12);
+  const baseMesh = new THREE.Mesh(baseGeo, poleMat);
+  baseMesh.position.y = -0.16;
+  baseMesh.receiveShadow = true;
+  poleGroup.add(baseMesh);
+
+  // Vertical pole shaft (height 3.2m)
+  const shaftGeo = new THREE.CylinderGeometry(0.045, 0.06, 3.2, 10);
+  const shaftMesh = new THREE.Mesh(shaftGeo, poleMat);
+  shaftMesh.position.y = 1.44;
+  shaftMesh.castShadow = true;
+  shaftMesh.receiveShadow = true;
+  poleGroup.add(shaftMesh);
+
+  // Horizontal cantilever arm extending 0.55m forward (+Z in local coords)
+  const armGeo = new THREE.BoxGeometry(0.06, 0.05, 0.55);
+  const armMesh = new THREE.Mesh(armGeo, poleMat);
+  armMesh.position.set(0, 3.02, 0.25);
+  armMesh.castShadow = true;
+  poleGroup.add(armMesh);
+
+  // Lamp Head Fixture Box
+  const headGeo = new THREE.BoxGeometry(0.16, 0.08, 0.28);
+  const headMesh = new THREE.Mesh(headGeo, poleMat);
+  headMesh.position.set(0, 3.0, 0.48);
+  headMesh.castShadow = true;
+  poleGroup.add(headMesh);
+
+  // Frosted Translucent Glass / LED Lens (faces downwards)
+  const lensGeo = new THREE.PlaneGeometry(0.13, 0.22);
+  const lensMat = new THREE.MeshStandardMaterial({
+    color: 0xFFF2D6,
+    emissive: 0x000000,
+    emissiveIntensity: 0,
+    roughness: 0.25,
+    metalness: 0.1
+  });
+  const lensMesh = new THREE.Mesh(lensGeo, lensMat);
+  lensMesh.rotation.x = Math.PI / 2;
+  lensMesh.position.set(0, 2.955, 0.48);
+  poleGroup.add(lensMesh);
+  poleFixtureMats.push(lensMat);
+
+  // Warm Spot / Point Light
+  const light = new THREE.PointLight(0xFFE6B8, 0, 14, 1.8);
+  light.position.set(0, 2.85, 0.48);
+  light.castShadow = true;
+  light.shadow.bias = -0.002;
+  light.shadow.mapSize.width = 512;
+  light.shadow.mapSize.height = 512;
+  poleGroup.add(light);
+  poleLights.push(light);
+
+  return poleGroup;
+}
+
+function initFireflies() {
+  if (fireflyPoints) {
+    fireflyGroup.remove(fireflyPoints);
+    if (fireflyPoints.geometry) fireflyPoints.geometry.dispose();
+  }
+  fireflyData = [];
+
+  const c = document.createElement('canvas');
+  c.width = 64;
+  c.height = 64;
+  const ctx = c.getContext('2d');
+  const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+  grad.addColorStop(0, 'rgba(255, 245, 180, 1)');
+  grad.addColorStop(0.3, 'rgba(245, 217, 130, 0.85)');
+  grad.addColorStop(0.7, 'rgba(230, 190, 80, 0.25)');
+  grad.addColorStop(1, 'rgba(230, 190, 80, 0)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 64, 64);
+  const fireflyTex = new THREE.CanvasTexture(c);
+
+  const geo = new THREE.BufferGeometry();
+  const positions = new Float32Array(fireflyCount * 3);
+
+  const W = currentPlan ? currentPlan.dimensions.width : 16;
+  const L = currentPlan ? currentPlan.dimensions.length : 14;
+
+  for (let i = 0; i < fireflyCount; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const dist = (Math.max(W, L) / 2 + 1.5) + Math.random() * 8.0;
+    const bx = Math.cos(angle) * dist;
+    const bz = Math.sin(angle) * dist;
+    const by = 0.4 + Math.random() * 2.2;
+
+    positions[i * 3] = bx;
+    positions[i * 3 + 1] = by;
+    positions[i * 3 + 2] = bz;
+
+    fireflyData.push({
+      bx, by, bz,
+      speed: 0.6 + Math.random() * 0.8,
+      wobbleSpeed: 1.2 + Math.random() * 1.5,
+      phase: Math.random() * Math.PI * 2,
+      ampY: 0.35 + Math.random() * 0.45,
+      ampXZ: 0.4 + Math.random() * 0.6
+    });
+  }
+
+  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+  const mat = new THREE.PointsMaterial({
+    size: 0.45,
+    map: fireflyTex,
+    transparent: true,
+    opacity: 0,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false
+  });
+
+  fireflyPoints = new THREE.Points(geo, mat);
+  fireflyGroup.add(fireflyPoints);
+}
+
 function rebuildEnvironment(plan) {
   while (treeGroup.children.length > 0) treeGroup.remove(treeGroup.children[0]);
   while (pathGroup.children.length > 0) pathGroup.remove(pathGroup.children[0]);
+  while (lightPoleGroup.children.length > 0) lightPoleGroup.remove(lightPoleGroup.children[0]);
+  poleLights = [];
+  poleFixtureMats = [];
 
   if (!plan) return;
   const W = plan.dimensions.width;
@@ -2635,6 +2986,32 @@ function rebuildEnvironment(plan) {
     shrub.receiveShadow = true;
     pathGroup.add(shrub);
   });
+
+  // 3. Environmental Light Poles around terrace & entrance pathway
+  const polePositions = [
+    { x: -1.8, z: L / 2 + 2.4, r: Math.PI },
+    { x: 1.8, z: L / 2 + 2.4, r: Math.PI },
+    { x: -W / 2 - 1.8, z: L / 2 + 1.6, r: -Math.PI / 4 },
+    { x: W / 2 + 1.8, z: L / 2 + 1.6, r: Math.PI / 4 },
+    { x: -W / 2 - 1.8, z: -L / 2 - 1.8, r: -3 * Math.PI / 4 },
+    { x: W / 2 + 1.8, z: -L / 2 - 1.8, r: 3 * Math.PI / 4 }
+  ];
+  polePositions.forEach(p => {
+    lightPoleGroup.add(createLightPole(p.x, p.z, p.r));
+  });
+
+  // 4. Architectural Entrance & Window Glow Lights
+  archEntranceLight.position.set(0, 1.8, L / 2 + 0.6);
+  archWindowLight1.position.set(-W * 0.25, 1.6, 0);
+  archWindowLight2.position.set(W * 0.25, 1.6, 0);
+
+  // 5. Fireflies initialization
+  initFireflies();
+
+  // 6. Update lighting
+  if (typeof updateEnvironmentLighting === 'function') {
+    updateEnvironmentLighting();
+  }
 }
 
       // Procedural Canvas Textures (Linear Nordic Ash Parquet)
@@ -4845,6 +5222,9 @@ function setEnvMode(mode) {
     envGroup.visible = true;
     if (landscapeGroup) landscapeGroup.visible = showGround;
     if (treeGroup) treeGroup.visible = showTrees;
+    if (lightPoleGroup) lightPoleGroup.visible = showLightPoles;
+    if (fireflyGroup) fireflyGroup.visible = showFireflies && envTransitionT > 0.05;
+    if (archGlowGroup) archGlowGroup.visible = showArchLighting;
     gridHelper.visible = false;
     ground.visible = false;
     if ($('#btn-env-architectural')) $('#btn-env-architectural').classList.add('active');
@@ -4863,6 +5243,194 @@ function setEnvMode(mode) {
   }
 }
 
+// =========================================================================
+// DAY & NIGHT ARCHITECTURAL ENVIRONMENT & LIGHTING
+// =========================================================================
+
+function updateEnvironmentLighting() {
+  const t = envTransitionT; // 0.0 (Day) -> 1.0 (Night)
+  const mult = envIntensityMultiplier;
+
+  // Sky / Background / Fog
+  const dayBg = new THREE.Color(0xEDF0F5);
+  const nightBg = new THREE.Color(0x0F1420);
+  const curBg = dayBg.clone().lerp(nightBg, t);
+  scene.background.copy(curBg);
+  scene.fog.color.copy(curBg);
+
+  // Ambient Light
+  const dayAmbColor = new THREE.Color(0xFFFFFF);
+  const nightAmbColor = new THREE.Color(0x243047);
+  ambLight.color.copy(dayAmbColor.clone().lerp(nightAmbColor, t));
+  ambLight.intensity = THREE.MathUtils.lerp(0.65, 0.38, t) * mult;
+
+  // Hemisphere Light (Natural atmospheric bounce)
+  const dayHemiSky = new THREE.Color(0xF4F7FA);
+  const nightHemiSky = new THREE.Color(0x1E293B);
+  const dayHemiGnd = new THREE.Color(0xCBD5E1);
+  const nightHemiGnd = new THREE.Color(0x0F1420);
+  hemiLight.color.copy(dayHemiSky.clone().lerp(nightHemiSky, t));
+  hemiLight.groundColor.copy(dayHemiGnd.clone().lerp(nightHemiGnd, t));
+  hemiLight.intensity = THREE.MathUtils.lerp(0.55, 0.32, t) * mult;
+
+  // Directional Sun / Soft Moonlight
+  const daySunColor = new THREE.Color(0xFFFDF5);
+  const nightMoonColor = new THREE.Color(0x8EA5C8);
+  sunLight.color.copy(daySunColor.clone().lerp(nightMoonColor, t));
+  sunLight.intensity = THREE.MathUtils.lerp(1.4, 0.42, t) * mult;
+
+  // Fallback Studio Ground Plane
+  const dayGround = new THREE.Color(0xEDF0F5);
+  const nightGround = new THREE.Color(0x121722);
+  groundMat.color.copy(dayGround.clone().lerp(nightGround, t));
+
+  // Landscaped Lawn
+  const dayLawn = new THREE.Color(0x587E5C);
+  const nightLawn = new THREE.Color(0x1B2E21);
+  lawnMat.color.copy(dayLawn.clone().lerp(nightLawn, t));
+
+  // Environmental Light Poles (Warm white #FFE6B8 illuminated at night)
+  const poleTargetIntensity = THREE.MathUtils.lerp(0, 1.45, t) * mult;
+  const poleEmissiveHex = t > 0.05 ? 0xFFE6B8 : 0x000000;
+  const poleEmissiveInt = THREE.MathUtils.lerp(0, 2.2, t);
+  for (let i = 0; i < poleLights.length; i++) {
+    poleLights[i].intensity = showLightPoles ? poleTargetIntensity : 0;
+  }
+  for (let i = 0; i < poleFixtureMats.length; i++) {
+    poleFixtureMats[i].emissive.setHex(poleEmissiveHex);
+    poleFixtureMats[i].emissiveIntensity = showLightPoles ? poleEmissiveInt : 0;
+  }
+  lightPoleGroup.visible = showLightPoles && isEnvActive;
+
+  // Architectural Glow (Entrance & Interior Windows)
+  const archTargetIntensity = THREE.MathUtils.lerp(0, 0.85, t) * mult;
+  archEntranceLight.intensity = showArchLighting ? archTargetIntensity * 1.1 : 0;
+  archWindowLight1.intensity = showArchLighting ? archTargetIntensity * 0.9 : 0;
+  archWindowLight2.intensity = showArchLighting ? archTargetIntensity * 0.9 : 0;
+  archGlowGroup.visible = showArchLighting;
+
+  // Night Fireflies
+  if (fireflyPoints) {
+    fireflyGroup.visible = showFireflies && isEnvActive && t > 0.05;
+    fireflyPoints.material.opacity = THREE.MathUtils.lerp(0, 0.85, t);
+  }
+}
+
+let transitionStartTime = 0;
+let transitionDuration = 1200; // ms
+let transitionStartT = 0;
+let isTransitioning = false;
+
+function setDayNightMode(isNight, instant = false) {
+  isNightMode = isNight;
+  targetEnvT = isNight ? 1.0 : 0.0;
+
+  // Toggle Website UI theme (Night Mode Architectural Palette)
+  document.body.classList.toggle('theme-night', isNight);
+  document.documentElement.setAttribute('data-theme', isNight ? 'night' : 'light');
+
+  // Update Dock Bar Button
+  const dockBtn = $('#btn-toggle-daynight');
+  const dockText = $('#dock-daynight-text');
+  if (dockBtn) {
+    dockBtn.classList.toggle('active', isNight);
+    dockBtn.title = isNight ? 'Switch to Day Mode [N]' : 'Switch to Night Mode [N]';
+  }
+  if (dockText) {
+    dockText.textContent = isNight ? 'Night' : 'Day';
+  }
+
+  // Update Popover Segmented Buttons
+  if ($('#btn-env-day')) $('#btn-env-day').classList.toggle('active', !isNight);
+  if ($('#btn-env-night')) $('#btn-env-night').classList.toggle('active', isNight);
+
+  // Ensure fireflies exist if switching to night
+  if (isNight && (!fireflyPoints || fireflyData.length === 0)) {
+    initFireflies();
+  }
+
+  if (instant) {
+    envTransitionT = targetEnvT;
+    isTransitioning = false;
+    updateEnvironmentLighting();
+  } else {
+    transitionStartTime = performance.now();
+    transitionStartT = envTransitionT;
+    isTransitioning = true;
+  }
+}
+
+// =========================================================================
+// IMMERSIVE FULLSCREEN 3D WORKSPACE
+// =========================================================================
+
+function toggleFullscreen(enable) {
+  const workspace = $('.viewport-workspace');
+  const mainLayout = $('main');
+  const btnDockFs = $('#btn-dock-fullscreen');
+  const isFull = enable !== undefined ? enable : !workspace.classList.contains('is-fullscreen');
+
+  if (isFull) {
+    workspace.classList.add('is-fullscreen');
+    if (mainLayout) mainLayout.classList.add('sidebar-collapsed');
+    if (btnDockFs) btnDockFs.classList.add('active');
+    try {
+      if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      }
+    } catch (_) {}
+  } else {
+    workspace.classList.remove('is-fullscreen');
+    if (mainLayout) mainLayout.classList.remove('sidebar-collapsed');
+    if (btnDockFs) btnDockFs.classList.remove('active');
+    try {
+      if (document.fullscreenElement && document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      }
+    } catch (_) {}
+  }
+
+  setTimeout(() => {
+    const w = stage.clientWidth;
+    const h = stage.clientHeight;
+    cam.aspect = w / h;
+    cam.updateProjectionMatrix();
+    orthoCam.left = -stage.clientWidth / 60;
+    orthoCam.right = stage.clientWidth / 60;
+    orthoCam.top = stage.clientHeight / 60;
+    orthoCam.bottom = -stage.clientHeight / 60;
+    orthoCam.updateProjectionMatrix();
+    renderer.setSize(w, h);
+  }, 60);
+}
+
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement) {
+    const workspace = $('.viewport-workspace');
+    if (workspace && workspace.classList.contains('is-fullscreen')) {
+      toggleFullscreen(false);
+    }
+  }
+});
+
+// Controls & Popover Event Handlers
+if ($('#btn-toggle-daynight')) {
+  $('#btn-toggle-daynight').onclick = () => setDayNightMode(!isNightMode);
+}
+if ($('#btn-env-day')) {
+  $('#btn-env-day').onclick = () => setDayNightMode(false);
+}
+if ($('#btn-env-night')) {
+  $('#btn-env-night').onclick = () => setDayNightMode(true);
+}
+if ($('#slider-env-intensity')) {
+  $('#slider-env-intensity').oninput = e => {
+    const val = parseInt(e.target.value, 10);
+    envIntensityMultiplier = val / 100.0;
+    if ($('#val-env-intensity')) $('#val-env-intensity').textContent = `${val}%`;
+    updateEnvironmentLighting();
+  };
+}
 if ($('#chk-env-active')) {
   $('#chk-env-active').onchange = e => {
     setEnvMode(e.target.checked ? 'architectural' : 'studio');
@@ -4880,15 +5448,100 @@ if ($('#chk-env-ground')) {
     landscapeGroup.visible = showGround && isEnvActive;
   };
 }
+if ($('#chk-light-poles')) {
+  $('#chk-light-poles').onchange = e => {
+    showLightPoles = e.target.checked;
+    updateEnvironmentLighting();
+  };
+}
+if ($('#chk-fireflies')) {
+  $('#chk-fireflies').onchange = e => {
+    showFireflies = e.target.checked;
+    updateEnvironmentLighting();
+  };
+}
+if ($('#chk-arch-lighting')) {
+  $('#chk-arch-lighting').onchange = e => {
+    showArchLighting = e.target.checked;
+    updateEnvironmentLighting();
+  };
+}
 if ($('#btn-env-architectural')) {
   $('#btn-env-architectural').onclick = () => setEnvMode('architectural');
 }
 if ($('#btn-env-studio')) {
   $('#btn-env-studio').onclick = () => setEnvMode('studio');
 }
+if ($('#btn-dock-fullscreen')) {
+  $('#btn-dock-fullscreen').onclick = () => toggleFullscreen();
+}
+if ($('#btn-exit-fullscreen')) {
+  $('#btn-exit-fullscreen').onclick = () => toggleFullscreen(false);
+}
+
+// Global Keyboard Shortcuts (F for Fullscreen, N for Day/Night, Esc for Fullscreen/Walkthrough)
+window.addEventListener('keydown', e => {
+  const activeEl = document.activeElement;
+  const isInput = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');
+
+  if (e.key === 'Escape') {
+    if (isWalkthrough) {
+      exitWalkthrough();
+      return;
+    }
+    const workspace = $('.viewport-workspace');
+    if (workspace && workspace.classList.contains('is-fullscreen')) {
+      toggleFullscreen(false);
+      return;
+    }
+  }
+
+  if (!isInput && !e.ctrlKey && !e.metaKey && !e.altKey) {
+    if (e.key === 'f' || e.key === 'F') {
+      e.preventDefault();
+      toggleFullscreen();
+    } else if (e.key === 'n' || e.key === 'N') {
+      e.preventDefault();
+      setDayNightMode(!isNightMode);
+    }
+  }
+});
 
       function animate() {
         requestAnimationFrame(animate);
+
+        // Smooth Day & Night Environment Lighting Transition
+        if (isTransitioning) {
+          const elapsed = performance.now() - transitionStartTime;
+          const progress = Math.min(1.0, elapsed / transitionDuration);
+          const ease = progress < 0.5 ? 4 * progress * progress * progress : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+          envTransitionT = THREE.MathUtils.lerp(transitionStartT, targetEnvT, ease);
+          updateEnvironmentLighting();
+          if (progress >= 1.0) {
+            isTransitioning = false;
+            envTransitionT = targetEnvT;
+            updateEnvironmentLighting();
+          }
+        } else if (Math.abs(targetEnvT - envTransitionT) > 0.001) {
+          envTransitionT += (targetEnvT - envTransitionT) * 0.055;
+          updateEnvironmentLighting();
+        }
+
+        // Fireflies Organic Floating Motion
+        if (fireflyPoints && fireflyGroup.visible && showFireflies && envTransitionT > 0.05) {
+          const positions = fireflyPoints.geometry.attributes.position.array;
+          const time = Date.now() * 0.001;
+          for (let i = 0; i < fireflyCount; i++) {
+            const d = fireflyData[i];
+            if (!d) continue;
+            const idx = i * 3;
+            positions[idx] = d.bx + Math.cos(time * d.speed + d.phase) * d.ampXZ;
+            positions[idx + 1] = d.by + Math.sin(time * d.wobbleSpeed + d.phase) * d.ampY;
+            positions[idx + 2] = d.bz + Math.sin(time * d.speed * 0.8 + d.phase) * d.ampXZ;
+          }
+          fireflyPoints.geometry.attributes.position.needsUpdate = true;
+          fireflyPoints.material.opacity = envTransitionT * (showFireflies ? 0.85 : 0);
+        }
 
         if (isWalkthrough) {
           // Human Walkthrough Movement
@@ -4974,7 +5627,25 @@ if ($('#btn-env-studio')) {
               if (params.has("compare")) {
                 setTimeout(() => setSplitMode(true), 250);
               }
+              if (params.has("night")) {
+                setTimeout(() => setDayNightMode(true, true), 250);
+              }
+              if (params.has("fullscreen")) {
+                setTimeout(() => toggleFullscreen(true), 350);
+              }
+              if (params.has("envpopover")) {
+                setTimeout(() => {
+                  const pop = $('#env-popover');
+                  const btn = $('#btn-toggle-env-popover');
+                  if (pop) pop.classList.add('active');
+                  if (btn) btn.classList.add('active');
+                }, 400);
+              }
             }, 150);
+          }
+        } else {
+          if (params.has("night")) {
+            setDayNightMode(true);
           }
         }
       });
