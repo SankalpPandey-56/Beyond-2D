@@ -9,23 +9,25 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #090D14;
-  --panel: #101622;
-  --panel-alt: #0C111A;
-  --panel-glass: rgba(16, 22, 34, 0.85);
-  --line: #1F293D;
-  --line-active: #38BDF8;
-  --text: #F8FAFC;
-  --text-dim: #94A3B8;
-  --mute: #64748B;
-  --accent: #38BDF8;
-  --accent-hover: #0EA5E9;
-  --accent-glow: rgba(56, 189, 248, 0.35);
+  --bg: #08090A;
+  --panel: #0E1013;
+  --panel-alt: #141518;
+  --panel-glass: rgba(14, 16, 19, 0.88);
+  --line: rgba(255, 255, 255, 0.08);
+  --line-subtle: rgba(255, 255, 255, 0.05);
+  --line-active: #5E6AD2;
+  --text: #F4F5F6;
+  --text-dim: #8B8F97;
+  --mute: #585C64;
+  --accent: #5E6AD2;
+  --accent-hover: #727DE0;
+  --accent-glow: rgba(94, 106, 210, 0.35);
+  --accent-subtle: rgba(94, 106, 210, 0.12);
   --amber: #F59E0B;
-  --green: #10B981;
-  --red: #EF4444;
-  --cyan: #06B6D4;
-  --radius: 12px;
+  --green: #22C55E;
+  --red: #E11D48;
+  --cyan: #38BDF8;
+  --radius: 10px;
   color-scheme: dark;
   box-sizing: border-box;
 }
@@ -36,94 +38,216 @@ html, body { height: 100%; margin: 0; padding: 0; background: var(--bg); color: 
 .app { display: grid; grid-template-rows: 60px 1fr; height: 100vh; overflow: hidden; }
 
 /* Top Navigation Bar */
-nav { display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: rgba(9, 13, 20, 0.95); border-bottom: 1px solid var(--line); backdrop-filter: blur(16px); z-index: 50; }
+nav { display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: rgba(8, 9, 10, 0.95); border-bottom: 1px solid var(--line); backdrop-filter: blur(16px); z-index: 50; }
 .nav-left { display: flex; align-items: center; gap: 16px; }
 .logo-box { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-.logo-icon { width: 32px; height: 32px; background: linear-gradient(135deg, #38BDF8 0%, #2563EB 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 16px rgba(56, 189, 248, 0.4); font-size: 16px; font-weight: 800; color: #FFF; }
-.logo-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; font-weight: 800; letter-spacing: -0.02em; background: linear-gradient(to right, #FFF, #94A3B8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.version-pill { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: rgba(56, 189, 248, 0.12); color: var(--accent); border: 1px solid rgba(56, 189, 248, 0.3); letter-spacing: 0.04em; text-transform: uppercase; display: flex; align-items: center; gap: 5px; }
-.pulsing-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: pulse 2s infinite; }
+.logo-icon { width: 32px; height: 32px; background: linear-gradient(135deg, #5E6AD2 0%, #4338CA 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 16px var(--accent-glow); font-size: 15px; font-weight: 800; color: #FFF; }
+.logo-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 17px; font-weight: 800; letter-spacing: -0.02em; background: linear-gradient(to right, #FFF, #94A3B8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.version-pill { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: var(--accent-subtle); color: #828FFF; border: 1px solid rgba(94, 106, 210, 0.3); letter-spacing: 0.04em; text-transform: uppercase; display: flex; align-items: center; gap: 5px; }
+.pulsing-dot { width: 6px; height: 6px; border-radius: 50%; background: #5E6AD2; box-shadow: 0 0 8px #5E6AD2; animation: pulse 2s infinite; }
 @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } }
 
 .nav-tabs { display: flex; gap: 4px; background: rgba(255, 255, 255, 0.04); padding: 3px; border-radius: 10px; border: 1px solid var(--line); }
 .nav-tab { background: none; border: 0; color: var(--text-dim); font-size: 12.5px; font-weight: 600; padding: 6px 14px; border-radius: 7px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
-.nav-tab:hover { color: var(--text); background: rgba(255, 255, 255, 0.05); }
-.nav-tab.active { background: var(--panel); color: var(--accent); border: 1px solid rgba(56, 189, 248, 0.25); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); }
+.nav-tab:hover { color: var(--text); background: rgba(255, 255, 255, 0.06); }
+.nav-tab.active { background: var(--panel-alt); color: #F4F5F6; border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4); }
 
 .nav-right { display: flex; align-items: center; gap: 10px; }
-.btn-nav { background: rgba(255, 255, 255, 0.04); border: 1px solid var(--line); color: var(--text); border-radius: 9px; padding: 7px 13px; font-size: 12.5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 7px; transition: all 0.2s; }
-.btn-nav:hover { background: rgba(255, 255, 255, 0.08); border-color: var(--accent); transform: translateY(-1px); }
-.btn-primary { background: linear-gradient(135deg, #38BDF8 0%, #2563EB 100%); color: #070D18; border: 0; font-weight: 700; box-shadow: 0 4px 16px var(--accent-glow); }
-.btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+.btn-nav { background: rgba(255, 255, 255, 0.04); border: 1px solid var(--line); color: var(--text); border-radius: 8px; padding: 7px 13px; font-size: 12.5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 7px; transition: all 0.2s; }
+.btn-nav:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.2); transform: translateY(-1px); }
+.btn-primary { background: linear-gradient(135deg, #5E6AD2 0%, #4338CA 100%); color: #FFF; border: 0; font-weight: 700; box-shadow: 0 4px 16px var(--accent-glow); }
+.btn-primary:hover { filter: brightness(1.12); transform: translateY(-1px); }
 
 /* Main Workspace Grid */
-main { display: grid; grid-template-columns: 310px 1fr 310px; height: calc(100vh - 60px); min-height: 0; }
+main { display: grid; grid-template-columns: 320px 1fr; height: calc(100vh - 60px); min-height: 0; }
 
 /* Sidebars */
 aside { background: var(--panel); padding: 18px 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; border-color: var(--line); z-index: 20; }
 aside.sidebar-left { border-right: 1px solid var(--line); }
-aside.sidebar-right { border-left: 1px solid var(--line); }
 
 .section-head { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--mute); margin-bottom: 2px; }
-.badge-count { background: rgba(56, 189, 248, 0.15); color: var(--accent); padding: 2px 7px; border-radius: 6px; font-size: 10px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+.badge-count { background: rgba(94, 106, 210, 0.15); color: #828FFF; padding: 2px 7px; border-radius: 6px; font-size: 10px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
 
-/* Preset Selector Dropdown / Grid in Left Sidebar */
-.preset-card { background: var(--panel-alt); border: 1px solid var(--line); border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 8px; transition: all 0.2s; }
-.preset-card:hover { border-color: rgba(56, 189, 248, 0.4); }
-.preset-select { width: 100%; background: #131A26; border: 1px solid var(--line); color: var(--text); border-radius: 8px; padding: 8px 10px; font-size: 12.5px; font-weight: 600; cursor: pointer; outline: none; }
-.preset-select:focus { border-color: var(--accent); }
+/* Preset Selector / Active Blueprint Card in Left Sidebar */
+.preset-card { background: var(--panel-alt); border: 1px solid var(--line); border-radius: 10px; padding: 12px 10px; display: flex; flex-direction: column; gap: 6px; transition: all 0.2s; }
+.preset-card:hover { border-color: rgba(94, 106, 210, 0.4); }
 
 /* 2D Plan Preview Card */
-.blueprint-card { background: #070B12; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; position: relative; }
+.blueprint-card { background: #090A0D; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; position: relative; }
 .blueprint-card-header { padding: 8px 12px; background: rgba(255, 255, 255, 0.02); border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; }
-.blueprint-card-title { font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 6px; }
-.blueprint-img-wrap { width: 100%; height: 165px; position: relative; display: flex; align-items: center; justify-content: center; background: #06090F; overflow: hidden; }
+.blueprint-card-title { font-size: 11px; font-weight: 700; color: #828FFF; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 6px; }
+.blueprint-img-wrap { width: 100%; height: 165px; position: relative; display: flex; align-items: center; justify-content: center; background: #0B0C0E; overflow: hidden; }
 .blueprint-img-wrap img { max-width: 96%; max-height: 96%; object-fit: contain; transition: transform 0.3s; }
 .blueprint-img-wrap:hover img { transform: scale(1.04); }
+.blueprint-empty-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: var(--mute); text-align: center; padding: 14px; cursor: pointer; transition: all 0.2s; }
+.blueprint-empty-placeholder:hover { background: rgba(94, 106, 210, 0.06); color: #828FFF; }
+.blueprint-empty-placeholder svg { color: #828FFF; opacity: 0.8; margin-bottom: 2px; }
 .btn-ortho { width: 100%; background: rgba(255, 255, 255, 0.03); border: 0; border-top: 1px solid var(--line); color: var(--text-dim); padding: 7px; font-size: 11.5px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
-.btn-ortho:hover { color: var(--accent); background: rgba(56, 189, 248, 0.08); }
+.btn-ortho:hover { color: #828FFF; background: rgba(94, 106, 210, 0.08); }
 
 /* Parametric Sliders */
 .param-box { background: var(--panel-alt); border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
 .param-row { display: flex; flex-direction: column; gap: 4px; }
 .param-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-dim); font-weight: 500; }
-.param-val { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--accent); font-weight: 600; }
-.slider-styled { -webkit-appearance: none; width: 100%; height: 5px; border-radius: 3px; background: #1B2433; outline: none; cursor: pointer; }
+.param-val { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: #828FFF; font-weight: 600; }
+.slider-styled { -webkit-appearance: none; width: 100%; height: 5px; border-radius: 3px; background: #1C1E23; outline: none; cursor: pointer; }
 .slider-styled::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--accent); cursor: pointer; box-shadow: 0 0 10px var(--accent-glow); border: 2px solid #FFF; }
 
 /* Rooms List in Left Sidebar */
-.rooms-container { display: flex; flex-direction: column; gap: 4px; max-height: 180px; overflow-y: auto; padding-right: 2px; }
-.room-item { background: rgba(255, 255, 255, 0.02); border: 1px solid transparent; border-radius: 8px; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text); cursor: pointer; transition: all 0.2s; }
-.room-item:hover { background: rgba(56, 189, 248, 0.08); border-color: rgba(56, 189, 248, 0.3); transform: translateX(3px); }
-.room-item.active { background: rgba(56, 189, 248, 0.15); border-color: var(--accent); font-weight: 600; }
-.room-meta-pill { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--text-dim); }
+.rooms-container { display: flex; flex-direction: column; gap: 5px; max-height: 210px; overflow-y: auto; overflow-x: hidden; padding-right: 4px; scrollbar-width: thin; }
+.room-item { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text); cursor: pointer; user-select: none; flex-shrink: 0; transition: background 0.15s ease, border-color 0.15s ease; }
+.room-item:hover { background: rgba(94, 106, 210, 0.12); border-color: rgba(94, 106, 210, 0.4); }
+.room-item.active { background: rgba(94, 106, 210, 0.22); border-color: #5E6AD2; font-weight: 700; box-shadow: 0 0 14px var(--accent-glow); }
+.room-meta-pill { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #828FFF; font-weight: 600; }
 
 /* Dropzone for Uploads */
 .dropzone-box { border: 1.5px dashed var(--line); border-radius: 10px; padding: 14px 10px; text-align: center; cursor: pointer; transition: all 0.2s; background: rgba(0, 0, 0, 0.15); display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.dropzone-box:hover { border-color: var(--accent); background: rgba(56, 189, 248, 0.05); }
+.dropzone-box:hover { border-color: var(--accent); background: rgba(94, 106, 210, 0.05); }
 .dropzone-icon { font-size: 20px; color: var(--accent); }
 .dropzone-main { font-size: 11.5px; font-weight: 600; color: var(--text); }
 .dropzone-sub { font-size: 10px; color: var(--mute); }
 
 /* 3D Viewport Stage */
-#stage-wrap { position: relative; width: 100%; height: 100%; min-width: 0; min-height: 0; background: #070B12; overflow: hidden; }
+#stage-wrap { position: relative; width: 100%; height: 100%; min-width: 0; min-height: 0; background: #08090A; overflow: hidden; }
 #stage { width: 100%; height: 100%; cursor: grab; }
 #stage:active { cursor: grabbing; }
 
-/* 10-Floor-Plan Preset Ribbon (Floating at Top of Viewport) */
-.preset-ribbon { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; background: rgba(13, 19, 31, 0.88); border: 1px solid rgba(255, 255, 255, 0.08); padding: 5px; border-radius: 999px; backdrop-filter: blur(20px); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5); z-index: 30; max-width: 95%; overflow-x: auto; scrollbar-width: none; }
-.preset-ribbon::-webkit-scrollbar { display: none; }
-.preset-pill { background: none; border: 1px solid transparent; color: var(--text-dim); font-size: 11px; font-weight: 600; padding: 6px 12px; border-radius: 999px; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
-.preset-pill:hover { color: var(--text); background: rgba(255, 255, 255, 0.06); }
-.preset-pill.active { background: var(--accent); color: #070D18; font-weight: 700; box-shadow: 0 2px 12px var(--accent-glow); }
-.preset-pill-num { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; opacity: 0.8; }
+/* Hero Upload Overlay (Initial Clean Studio State) */
+.hero-upload-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 35;
+  background: radial-gradient(circle at center, rgba(14, 16, 19, 0.72) 0%, rgba(8, 9, 10, 0.94) 100%);
+  backdrop-filter: blur(10px);
+  transition: opacity 0.35s ease, visibility 0.35s ease;
+  pointer-events: auto;
+}
+.hero-upload-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.hero-upload-card {
+  max-width: 560px;
+  width: 90%;
+  background: rgba(14, 16, 19, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  padding: 38px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(94, 106, 210, 0.15);
+  transition: transform 0.25s ease, border-color 0.25s ease;
+}
+.hero-upload-card.drag-over {
+  border-color: #5E6AD2;
+  box-shadow: 0 24px 70px rgba(94, 106, 210, 0.35);
+  transform: scale(1.02);
+}
+.hero-upload-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(94, 106, 210, 0.12);
+  border: 1px solid rgba(94, 106, 210, 0.3);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #828FFF;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+.hero-upload-icon {
+  width: 76px;
+  height: 76px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(94, 106, 210, 0.18), rgba(67, 56, 202, 0.3));
+  border: 1.5px dashed rgba(94, 106, 210, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #828FFF;
+  margin-bottom: 18px;
+  transition: all 0.25s;
+}
+.hero-upload-card:hover .hero-upload-icon {
+  border-color: #5E6AD2;
+  transform: scale(1.06);
+  box-shadow: 0 0 25px rgba(94, 106, 210, 0.4);
+}
+.hero-upload-title {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 0 0 10px 0;
+  background: linear-gradient(to right, #FFFFFF, #CBD5E1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hero-upload-sub {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--text-dim);
+  margin: 0 0 22px 0;
+  max-width: 440px;
+}
+.hero-upload-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.btn-hero-upload {
+  background: linear-gradient(135deg, #5E6AD2 0%, #4338CA 100%);
+  color: #FFF;
+  border: 0;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  box-shadow: 0 4px 20px var(--accent-glow);
+  transition: all 0.2s;
+}
+.btn-hero-upload:hover {
+  filter: brightness(1.12);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px var(--accent-glow);
+}
+.hero-upload-footer {
+  font-size: 11.5px;
+  color: var(--mute);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.hero-upload-footer code {
+  font-family: 'JetBrains Mono', monospace;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #828FFF;
+}
 
 /* Floating Bottom Control Dock */
-.dock-bar { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; background: rgba(13, 19, 31, 0.9); border: 1px solid rgba(255, 255, 255, 0.08); padding: 6px 10px; border-radius: 14px; backdrop-filter: blur(20px); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6); z-index: 30; max-width: 95%; }
+.dock-bar { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; background: rgba(14, 16, 19, 0.92); border: 1px solid rgba(255, 255, 255, 0.08); padding: 6px 10px; border-radius: 12px; backdrop-filter: blur(20px); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6); z-index: 30; max-width: 95%; }
 .dock-group { display: flex; gap: 3px; border-right: 1px solid var(--line); padding-right: 8px; margin-right: 2px; }
-.dock-btn { background: none; border: 0; color: var(--text-dim); font-size: 11.5px; font-weight: 600; padding: 7px 11px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
+.dock-btn { background: none; border: 0; color: var(--text-dim); font-size: 11.5px; font-weight: 600; padding: 7px 11px; border-radius: 7px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
 .dock-btn:hover { color: var(--text); background: rgba(255, 255, 255, 0.06); }
-.dock-btn.active { background: rgba(56, 189, 248, 0.15); color: var(--accent); border: 1px solid rgba(56, 189, 248, 0.3); font-weight: 700; }
+.dock-btn.active { background: rgba(94, 106, 210, 0.16); color: #828FFF; border: 1px solid rgba(94, 106, 210, 0.35); font-weight: 700; }
 
 .dock-sun { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-dim); padding: 0 6px; }
 .dock-sun input { width: 70px; accent-color: var(--amber); cursor: pointer; }
@@ -132,40 +256,84 @@ aside.sidebar-right { border-left: 1px solid var(--line); }
 /* Draggable Split-Screen Slider Overlay */
 #split-overlay { position: absolute; inset: 0; pointer-events: none; z-index: 25; display: none; }
 #split-overlay.active { display: block; }
+#split-2d-wrap { position: absolute; inset: 0; width: 100%; height: 100%; background: #08090A; pointer-events: none; overflow: hidden; clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%); }
 #split-2d-canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
-#split-divider { position: absolute; top: 0; bottom: 0; width: 4px; background: var(--accent); cursor: ew-resize; pointer-events: auto; box-shadow: 0 0 12px var(--accent-glow); z-index: 26; }
-#split-handle { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--accent); color: #070D18; font-size: 10px; font-weight: 800; padding: 8px 12px; border-radius: 999px; white-space: nowrap; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6); pointer-events: auto; letter-spacing: 0.06em; }
+.split-tag { position: absolute; top: 18px; display: flex; align-items: center; gap: 6px; background: rgba(14, 16, 19, 0.92); border: 1px solid rgba(255, 255, 255, 0.12); backdrop-filter: blur(10px); padding: 6px 14px; border-radius: 999px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; color: var(--text); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5); pointer-events: none; user-select: none; z-index: 28; }
+.split-tag-dot { width: 6px; height: 6px; border-radius: 50%; }
+.split-tag-2d { left: 20px; }
+.split-tag-3d { right: 20px; }
+#split-divider { position: absolute; top: 0; bottom: 0; left: 50%; width: 4px; margin-left: -2px; background: #5E6AD2; cursor: ew-resize; pointer-events: auto; box-shadow: 0 0 16px var(--accent-glow), 0 0 4px rgba(255, 255, 255, 0.5); z-index: 30; touch-action: none; }
+#split-divider::before { content: ''; position: absolute; top: 0; bottom: 0; left: -25px; right: -25px; cursor: ew-resize; }
+#split-handle { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #0E1013; border: 1.5px solid #5E6AD2; color: #F4F5F6; font-size: 10px; font-weight: 800; padding: 7px 13px; border-radius: 999px; white-space: nowrap; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8), 0 0 14px var(--accent-glow); pointer-events: auto; letter-spacing: 0.08em; display: flex; align-items: center; gap: 5px; user-select: none; cursor: ew-resize; }
 
 /* Walkthrough Mini-Radar Floor Map */
-#radar-widget { position: absolute; bottom: 85px; left: 20px; width: 170px; height: 130px; background: rgba(13, 19, 31, 0.92); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 8px; backdrop-filter: blur(16px); z-index: 30; display: none; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6); }
+#radar-widget { position: absolute; bottom: 85px; left: 20px; width: 170px; height: 130px; background: rgba(14, 16, 19, 0.92); border: 1px solid rgba(94, 106, 210, 0.3); border-radius: 12px; padding: 8px; backdrop-filter: blur(16px); z-index: 30; display: none; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6); }
 #radar-widget.active { display: flex; flex-direction: column; gap: 6px; }
-.radar-title { font-size: 9.5px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; display: flex; justify-content: space-between; }
-#radar-canvas { width: 100%; height: 95px; background: #06090F; border-radius: 6px; }
+.radar-title { font-size: 9.5px; font-weight: 700; color: #828FFF; text-transform: uppercase; letter-spacing: 0.05em; display: flex; justify-content: space-between; }
+#radar-canvas { width: 100%; height: 95px; background: #090A0D; border-radius: 6px; }
 
 /* Walkthrough HUD Instructions */
-#walk-hud { position: absolute; top: 75px; left: 50%; transform: translateX(-50%); background: rgba(13, 19, 31, 0.9); border: 1px solid var(--line); border-radius: 10px; padding: 8px 16px; font-size: 11.5px; color: var(--text); display: none; align-items: center; gap: 12px; backdrop-filter: blur(16px); z-index: 30; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5); }
+#walk-hud { position: absolute; top: 75px; left: 50%; transform: translateX(-50%); background: rgba(14, 16, 19, 0.92); border: 1px solid var(--line); border-radius: 10px; padding: 8px 16px; font-size: 11.5px; color: var(--text); display: none; align-items: center; gap: 12px; backdrop-filter: blur(16px); z-index: 30; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5); }
 #walk-hud.active { display: flex; }
-.hud-key { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); padding: 2px 6px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: var(--accent); }
-#btn-exit-walk { background: rgba(239, 68, 68, 0.2); border: 1px solid var(--red); color: #FCA5A5; font-size: 10.5px; font-weight: 700; padding: 4px 10px; border-radius: 6px; cursor: pointer; }
+.hud-key { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); padding: 2px 6px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: #828FFF; }
+#btn-exit-walk { background: rgba(225, 29, 72, 0.15); border: 1px solid var(--red); color: #FDA4AF; font-size: 10.5px; font-weight: 700; padding: 4px 10px; border-radius: 6px; cursor: pointer; }
 #btn-exit-walk:hover { background: var(--red); color: #FFF; }
 
-/* Right Sidebar BIM Schedules & Materials */
-.tab-content { display: none; flex-direction: column; gap: 14px; }
-.tab-content.active { display: flex; }
-.bim-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.04); font-size: 12px; }
-.bim-label { color: var(--text-dim); }
-.bim-val { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--text); }
-
+/* Architectural Finishes Picker */
 .mat-picker-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
 .mat-card { background: var(--panel-alt); border: 1px solid var(--line); border-radius: 8px; padding: 8px; cursor: pointer; display: flex; flex-direction: column; gap: 4px; transition: all 0.2s; }
 .mat-card:hover { border-color: var(--accent); transform: translateY(-2px); }
-.mat-card.active { border-color: var(--accent); background: rgba(56, 189, 248, 0.1); }
+.mat-card.active { border-color: var(--accent); background: rgba(94, 106, 210, 0.12); }
 .mat-swatch { height: 26px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.08); }
 .mat-name { font-size: 11px; font-weight: 600; color: var(--text); }
 .mat-sub { font-size: 9.5px; color: var(--mute); }
 
-/* Room Hover Badge */
-#room-tag-tooltip { position: absolute; pointer-events: none; background: rgba(13, 19, 31, 0.95); border: 1px solid var(--accent); border-radius: 8px; padding: 6px 12px; font-size: 11.5px; opacity: 0; transition: opacity 0.15s; white-space: nowrap; z-index: 40; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6); }
+/* Glassmorphic Room Focus HUD Card */
+.room-focus-hud {
+  position: absolute;
+  bottom: 85px;
+  right: 24px;
+  width: 310px;
+  background: rgba(14, 16, 19, 0.95);
+  border: 1px solid rgba(94, 106, 210, 0.45);
+  border-radius: 12px;
+  padding: 16px;
+  backdrop-filter: blur(24px);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), 0 0 24px var(--accent-glow);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.room-focus-hud.active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+.rf-header { display: flex; justify-content: space-between; align-items: center; }
+.rf-badge-row { display: flex; align-items: center; gap: 6px; }
+.rf-dot { width: 7px; height: 7px; border-radius: 50%; background: #22C55E; box-shadow: 0 0 8px #22C55E; }
+.rf-type { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #828FFF; }
+.rf-area-pill { background: rgba(94, 106, 210, 0.18); border: 1px solid rgba(94, 106, 210, 0.3); color: #F4F5F6; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 6px; }
+.rf-close { background: rgba(255, 255, 255, 0.06); border: 0; color: #8B8F97; width: 22px; height: 22px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.rf-close:hover { background: rgba(225, 29, 72, 0.2); color: #FDA4AF; }
+.rf-title { font-size: 15px; font-weight: 800; color: #F4F5F6; letter-spacing: -0.01em; }
+.rf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+.rf-metric { display: flex; flex-direction: column; gap: 2px; }
+.rf-label { font-size: 9px; font-weight: 700; color: var(--mute); letter-spacing: 0.06em; text-transform: uppercase; }
+.rf-val { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; font-weight: 700; color: #F4F5F6; }
+.rf-actions { display: flex; gap: 6px; margin-top: 2px; }
+.rf-btn { flex: 1; background: rgba(94, 106, 210, 0.15); border: 1px solid rgba(94, 106, 210, 0.4); color: #828FFF; font-size: 11px; font-weight: 700; padding: 7px 10px; border-radius: 7px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; }
+.rf-btn:hover { background: #5E6AD2; color: #FFF; }
+.rf-btn-reset { flex: 0 0 auto; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--line); color: #8B8F97; }
+.rf-btn-reset:hover { background: rgba(255, 255, 255, 0.08); color: #F4F5F6; }
+
+/* Quick Hover Tooltip */
+#room-tag-tooltip { position: absolute; pointer-events: none; background: rgba(14, 16, 19, 0.94); border: 1px solid var(--accent); border-radius: 8px; padding: 6px 12px; font-size: 11.5px; color: var(--text); display: none; align-items: center; gap: 8px; white-space: nowrap; z-index: 40; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6); transform: translate(12px, 12px); }
 
 /* Loading Spinner */
 #spinner-modal { position: absolute; inset: 0; background: rgba(9, 13, 20, 0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.3s; backdrop-filter: blur(10px); }
@@ -199,10 +367,6 @@ aside.sidebar-right { border-left: 1px solid var(--line); }
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 3v18"/></svg>
           Split 2D / 3D
         </button>
-        <button class="nav-tab" id="tab-btn-bim">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          BIM Schedule
-        </button>
       </div>
     </div>
 
@@ -225,14 +389,23 @@ aside.sidebar-right { border-left: 1px solid var(--line); }
 
   <!-- Main Viewport Area -->
   <main>
-    <!-- Left Sidebar: Architectural Parameters & Preset Picker -->
+    <!-- Left Sidebar: Architectural Parameters & Active Blueprint -->
     <aside class="sidebar-left">
-      <div class="preset-card">
+      <div class="preset-card" id="card-active-plan">
         <div class="section-head">
-          <span>Active Preset</span>
-          <span class="badge-count" id="badge-plan-num">01 / 10</span>
+          <span>Active Blueprint</span>
+          <span class="badge-count" id="badge-plan-num">Awaiting Upload</span>
         </div>
-        <select class="preset-select" id="select-preset"></select>
+        <div style="font-size: 13px; font-weight: 700; color: var(--text); margin-top: 2px;" id="lbl-active-plan-title">
+          No Blueprint Loaded
+        </div>
+        <div style="font-size: 11px; color: var(--text-dim);" id="lbl-active-plan-subtitle">
+          Upload any 2D blueprint to begin 3D extrusion
+        </div>
+        <button class="btn-nav" id="btn-change-plan" style="width: 100%; justify-content: center; margin-top: 4px; display: none;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Upload Different Blueprint
+        </button>
       </div>
 
       <!-- 2D Blueprint Preview -->
@@ -242,12 +415,17 @@ aside.sidebar-right { border-left: 1px solid var(--line); }
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
             2D Blueprint
           </span>
-          <span style="font-size:10px; color:var(--text-dim); font-family:'JetBrains Mono'">1:100 CAD</span>
+          <span id="blueprint-scale-tag" style="font-size:10px; color:var(--text-dim); font-family:'JetBrains Mono'">Awaiting File</span>
         </div>
-        <div class="blueprint-img-wrap">
-          <img id="sidebar-blueprint-img" src="/samples/01_minimalist_studio.png" alt="Architectural Floor Plan">
+        <div class="blueprint-img-wrap" id="blueprint-img-wrap">
+          <div class="blueprint-empty-placeholder" id="blueprint-placeholder-prompt">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span style="font-weight:600; color:var(--text)">No Blueprint Loaded</span>
+            <span style="font-size:10px; color:var(--mute)">Click to browse or drop file</span>
+          </div>
+          <img id="sidebar-blueprint-img" src="" alt="Architectural Floor Plan" style="display:none">
         </div>
-        <button class="btn-ortho" id="btn-view-ortho">
+        <button class="btn-ortho" id="btn-view-ortho" style="opacity: 0.5; pointer-events: none;">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="12" x2="16" y2="16"/></svg>
           Top-Down Ortho View [7]
         </button>
@@ -257,33 +435,33 @@ aside.sidebar-right { border-left: 1px solid var(--line); }
       <div class="param-box">
         <div class="section-head">
           <span>Building Dimensions</span>
-          <span class="badge-count" id="param-total-m2">33.0 m²</span>
+          <span class="badge-count" id="param-total-m2">-- m²</span>
         </div>
         <div class="param-row">
           <div class="param-label">
             <span>Width (X-Axis)</span>
-            <span class="param-val" id="val-dim-w">6.0 m</span>
+            <span class="param-val" id="val-dim-w">-- m</span>
           </div>
           <input type="range" class="slider-styled" id="slider-dim-w" min="4.0" max="18.0" step="0.2" value="6.0">
         </div>
         <div class="param-row">
           <div class="param-label">
             <span>Length (Z-Axis)</span>
-            <span class="param-val" id="val-dim-l">5.5 m</span>
+            <span class="param-val" id="val-dim-l">-- m</span>
           </div>
           <input type="range" class="slider-styled" id="slider-dim-l" min="4.0" max="16.0" step="0.2" value="5.5">
         </div>
         <div class="param-row">
           <div class="param-label">
             <span>Ceiling Height</span>
-            <span class="param-val" id="val-dim-h">2.8 m</span>
+            <span class="param-val" id="val-dim-h">-- m</span>
           </div>
           <input type="range" class="slider-styled" id="slider-dim-h" min="2.4" max="4.0" step="0.1" value="2.8">
         </div>
         <div class="param-row">
           <div class="param-label">
             <span>Wall Thickness</span>
-            <span class="param-val" id="val-dim-t">22 cm</span>
+            <span class="param-val" id="val-dim-t">-- cm</span>
           </div>
           <input type="range" class="slider-styled" id="slider-dim-t" min="15" max="35" step="1" value="22">
         </div>
@@ -292,33 +470,119 @@ aside.sidebar-right { border-left: 1px solid var(--line); }
       <!-- Room Program -->
       <div>
         <div class="section-head" style="margin-bottom:8px">
-          <span>Room Schedule</span>
-          <span class="badge-count" id="room-badge-count">3 Spaces</span>
+          <span>Room Spaces</span>
+          <span class="badge-count" id="room-badge-count">0 Spaces</span>
         </div>
-        <div class="rooms-container" id="sidebar-rooms-list"></div>
+        <div class="rooms-container" id="sidebar-rooms-list">
+          <div style="font-size:11.5px; color:var(--mute); padding:14px 8px; text-align:center; line-height:1.5;">
+            Upload a 2D floor plan to detect rooms, boundaries & area calculations.
+          </div>
+        </div>
+      </div>
+
+      <!-- Architectural Finishes -->
+      <div>
+        <div class="section-head" style="margin-bottom:8px">
+          <span>Architectural Finishes</span>
+          <span class="badge-count">PBR</span>
+        </div>
+        <div class="mat-picker-grid">
+          <div class="mat-card active" data-floor="wood">
+            <div class="mat-swatch" style="background:linear-gradient(45deg, #c9c3ba, #a8a299)"></div>
+            <span class="mat-name">Nordic White Ash</span>
+            <span class="mat-sub">Living & Bedrooms</span>
+          </div>
+          <div class="mat-card" data-floor="concrete">
+            <div class="mat-swatch" style="background:#4B515D"></div>
+            <span class="mat-name">Graphite Concrete</span>
+            <span class="mat-sub">Industrial Microcement</span>
+          </div>
+          <div class="mat-card" data-floor="travertine">
+            <div class="mat-swatch" style="background:#E5E0D8"></div>
+            <span class="mat-name">Honed Travertine</span>
+            <span class="mat-sub">Luxury Stone</span>
+          </div>
+          <div class="mat-card" data-floor="terrazzo">
+            <div class="mat-swatch" style="background:#D8D9DD"></div>
+            <span class="mat-name">Architectural Terrazzo</span>
+            <span class="mat-sub">Kitchen & Bath</span>
+          </div>
+        </div>
       </div>
 
       <!-- Custom Upload Dropzone -->
       <div class="dropzone-box" id="dropzone-area">
         <div class="dropzone-icon">⇪</div>
-        <div class="dropzone-main">Drop Custom Blueprint</div>
-        <div class="dropzone-sub">PNG, JPG, SVG with instant 3D extrusion</div>
+        <div class="dropzone-main">Drop Blueprint Image Here</div>
+        <div class="dropzone-sub">PNG, JPG, WEBP with automatic 3D extrusion</div>
       </div>
     </aside>
 
     <!-- Center 3D Viewport Stage -->
     <div id="stage-wrap">
-      <!-- 10 Architectural Presets Ribbon (Top of Viewport) -->
-      <div class="preset-ribbon" id="ribbon-presets"></div>
-
       <!-- Three.js Canvas Container -->
       <div id="stage"></div>
 
+      <!-- Hero Upload Overlay (Initial Clean Studio State) -->
+      <div id="hero-upload-overlay" class="hero-upload-overlay">
+        <div class="hero-upload-card" id="hero-dropzone">
+          <div class="hero-upload-badge">
+            <span class="pulsing-dot"></span>
+            <span>Architectural Vision CAD Engine</span>
+          </div>
+          <div class="hero-upload-icon">
+            <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+          </div>
+          <h1 class="hero-upload-title">Upload 2D Blueprint</h1>
+          <p class="hero-upload-sub">
+            Drag & drop an architectural floor plan image here or browse files to automatically detect room boundaries and extrude an accurate, watertight 3D model.
+          </p>
+          <div class="hero-upload-actions">
+            <button class="btn-hero-upload" id="btn-hero-browse">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <polyline points="21 15 16 10 5 21"/>
+              </svg>
+              Select Blueprint File
+            </button>
+          </div>
+          <div class="hero-upload-footer">
+            <span>Supported: PNG, JPG, WEBP</span>
+            <span>•</span>
+            <span>10 Tested Archetypes in <code>floorplans/</code></span>
+          </div>
+        </div>
+      </div>
+
       <!-- Split-Screen 2D/3D Slider Overlay -->
       <div id="split-overlay">
-        <img id="split-2d-canvas" src="/samples/01_minimalist_studio.png" alt="2D CAD Underlay">
+        <!-- 2D Blueprint Side (clipped from 0 to pct%) -->
+        <div id="split-2d-wrap">
+          <img id="split-2d-canvas" src="" alt="2D CAD Blueprint">
+          <div class="split-tag split-tag-2d">
+            <span class="split-tag-dot" style="background:#5E6AD2"></span>
+            <span>2D CAD BLUEPRINT</span>
+          </div>
+        </div>
+
+        <!-- 3D Model Side Label (Right) -->
+        <div class="split-tag split-tag-3d">
+          <span class="split-tag-dot" style="background:#22C55E"></span>
+          <span>3D EXTRUDED MODEL</span>
+        </div>
+
+        <!-- Draggable Divider Line & Handle -->
         <div id="split-divider">
-          <div id="split-handle">⬌ DRAG TO REVEAL 3D</div>
+          <div id="split-handle">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+            <span>SLIDE</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
         </div>
       </div>
 
@@ -336,6 +600,48 @@ aside.sidebar-right { border-left: 1px solid var(--line); }
           <span style="font-family:'JetBrains Mono'">1.65m EYE</span>
         </div>
         <canvas id="radar-canvas"></canvas>
+      </div>
+
+      <!-- Glassmorphic Room Focus HUD Card -->
+      <div id="room-focus-hud" class="room-focus-hud">
+        <div class="rf-header">
+          <div class="rf-badge-row">
+            <span class="rf-dot"></span>
+            <span class="rf-type" id="rf-type">LIVING SPACE</span>
+            <span class="rf-area-pill" id="rf-area">-- m²</span>
+          </div>
+          <button class="rf-close" id="btn-close-room-hud" title="Reset Camera View to Full Floor Plan">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="rf-title" id="rf-title">Selected Room</div>
+        <div class="rf-grid">
+          <div class="rf-metric">
+            <span class="rf-label">WIDTH (X)</span>
+            <span class="rf-val" id="rf-w">-- m</span>
+          </div>
+          <div class="rf-metric">
+            <span class="rf-label">LENGTH (Z)</span>
+            <span class="rf-val" id="rf-d">-- m</span>
+          </div>
+          <div class="rf-metric">
+            <span class="rf-label">CEILING</span>
+            <span class="rf-val" id="rf-h">-- m</span>
+          </div>
+          <div class="rf-metric">
+            <span class="rf-label">FINISH</span>
+            <span class="rf-val" id="rf-fin">--</span>
+          </div>
+        </div>
+        <div class="rf-actions">
+          <button class="rf-btn" id="btn-walk-into-room">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>
+            Walk Inside
+          </button>
+          <button class="rf-btn rf-btn-reset" id="btn-reset-focus">
+            Overview
+          </button>
+        </div>
       </div>
 
       <!-- Floating Room Hover Tooltip -->
@@ -380,93 +686,6 @@ aside.sidebar-right { border-left: 1px solid var(--line); }
         </div>
       </div>
     </div>
-
-    <!-- Right Sidebar: BIM Materials & Spatial Specs -->
-    <aside class="sidebar-right">
-      <div class="section-head">
-        <span>BIM Specification</span>
-        <span class="badge-count">LOD 350</span>
-      </div>
-
-      <div class="bim-row">
-        <span class="bim-label">Gross Footprint</span>
-        <span class="bim-val" id="spec-gross-area">33.0 m²</span>
-      </div>
-      <div class="bim-row">
-        <span class="bim-label">Net Habitable Area</span>
-        <span class="bim-val" id="spec-net-area">30.2 m²</span>
-      </div>
-      <div class="bim-row">
-        <span class="bim-label">Exterior Walls</span>
-        <span class="bim-val" id="spec-ext-walls">4 Segments</span>
-      </div>
-      <div class="bim-row">
-        <span class="bim-label">Interior Partitions</span>
-        <span class="bim-val" id="spec-int-walls">2 Segments</span>
-      </div>
-      <div class="bim-row">
-        <span class="bim-label">Door Count</span>
-        <span class="bim-val" id="spec-doors">3 Openings</span>
-      </div>
-      <div class="bim-row">
-        <span class="bim-label">Window Sills</span>
-        <span class="bim-val" id="spec-windows">4 Openings</span>
-      </div>
-      <div class="bim-row">
-        <span class="bim-label">Watertight Topology</span>
-        <span class="bim-val" style="color:var(--green)">100% Certified</span>
-      </div>
-
-      <div style="margin-top:10px">
-        <div class="section-head" style="margin-bottom:8px">
-          <span>Architectural Finishes</span>
-          <span class="badge-count">PBR</span>
-        </div>
-        <div class="mat-picker-grid">
-          <div class="mat-card active" data-floor="wood">
-            <div class="mat-swatch" style="background:linear-gradient(45deg, #c2a67e, #a88960)"></div>
-            <span class="mat-name">Herringbone Oak</span>
-            <span class="mat-sub">Living & Bedrooms</span>
-          </div>
-          <div class="mat-card" data-floor="concrete">
-            <div class="mat-swatch" style="background:#858E99"></div>
-            <span class="mat-name">Polished Concrete</span>
-            <span class="mat-sub">Modern Lofts</span>
-          </div>
-          <div class="mat-card" data-floor="travertine">
-            <div class="mat-swatch" style="background:#E2DDD4"></div>
-            <span class="mat-name">Honed Travertine</span>
-            <span class="mat-sub">Luxury Stone</span>
-          </div>
-          <div class="mat-card" data-floor="terrazzo">
-            <div class="mat-swatch" style="background:radial-gradient(circle, #555 10%, #DDD 90%)"></div>
-            <span class="mat-name">Venetian Terrazzo</span>
-            <span class="mat-sub">Kitchen & Bath</span>
-          </div>
-        </div>
-      </div>
-
-      <div style="margin-top:10px">
-        <div class="section-head" style="margin-bottom:8px">
-          <span>Active Space Finishes</span>
-        </div>
-        <div class="param-box" id="active-room-box">
-          <div style="font-size:12.5px; font-weight:700; color:var(--text)" id="inspect-room-name">Living & Bedroom Studio</div>
-          <div class="bim-row">
-            <span class="bim-label">Floor Area</span>
-            <span class="bim-val" id="inspect-room-area">21.4 m²</span>
-          </div>
-          <div class="bim-row">
-            <span class="bim-label">Floor Finish</span>
-            <span class="bim-val" id="inspect-room-floor">Pale oak parquet</span>
-          </div>
-          <div class="bim-row">
-            <span class="bim-label">Wall Coating</span>
-            <span class="bim-val" id="inspect-room-wall">Warm bone plaster</span>
-          </div>
-        </div>
-      </div>
-    </aside>
   </main>
 </div>
 
@@ -492,8 +711,8 @@ const $$ = s => document.querySelectorAll(s);
 
 // Global State
 let catalog = window.BEYOND_2D_CATALOG || [];
-let activePlanIndex = 0;
-let currentPlan = catalog[0] || null;
+let activePlanIndex = -1;
+let currentPlan = null;
 let colorMode = 'monograph'; // 'monograph' | 'cad'
 let hasRoof = false;
 let isSplitMode = false;
@@ -503,8 +722,8 @@ let splitDividerX = 0.5;
 // Three.js Core
 const stage = $('#stage');
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x090D14);
-scene.fog = new THREE.FogExp2(0x090D14, 0.015);
+scene.background = new THREE.Color(0x08090A);
+scene.fog = new THREE.FogExp2(0x08090A, 0.012);
 
 const cam = new THREE.PerspectiveCamera(45, stage.clientWidth / stage.clientHeight, 0.1, 500);
 const orthoCam = new THREE.OrthographicCamera(-15, 15, 15, -15, 0.1, 500);
@@ -519,14 +738,14 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.05;
 stage.appendChild(renderer.domElement);
 
-// Lighting Architecture
-const ambLight = new THREE.AmbientLight(0xE2E8F0, 0.45);
+// Lighting Architecture (Linear Obsidian Studio Lighting)
+const ambLight = new THREE.AmbientLight(0xEAECEF, 0.45);
 scene.add(ambLight);
 
-const hemiLight = new THREE.HemisphereLight(0x87CEEB, 0x1E293B, 0.35);
+const hemiLight = new THREE.HemisphereLight(0x8FA0B5, 0x14151A, 0.35);
 scene.add(hemiLight);
 
-const sunLight = new THREE.DirectionalLight(0xFFF7ED, 1.3);
+const sunLight = new THREE.DirectionalLight(0xFFFDF8, 1.35);
 sunLight.position.set(25, 40, 20);
 sunLight.castShadow = true;
 sunLight.shadow.mapSize.width = 2048;
@@ -544,8 +763,24 @@ scene.add(sunLight);
 const houseGroup = new THREE.Group();
 scene.add(houseGroup);
 
+// Dedicated Room Focus & Dimension Overlay Group
+const roomHighlightGroup = new THREE.Group();
+scene.add(roomHighlightGroup);
+
+// Dedicated Architectural Focus Spotlight & Glow
+const roomFocusSpot = new THREE.SpotLight(0xFFF2DE, 0, 35, Math.PI / 3.4, 0.45, 1.2);
+roomFocusSpot.castShadow = true;
+scene.add(roomFocusSpot);
+scene.add(roomFocusSpot.target);
+
+const roomFocusGlow = new THREE.PointLight(0x828FFF, 0, 10, 1.6);
+scene.add(roomFocusGlow);
+
+let selectedRoom = null;
+let hoveredRoomMesh = null;
+
 const groundGeo = new THREE.PlaneGeometry(300, 300);
-const groundMat = new THREE.MeshStandardMaterial({ color: 0x0C111A, roughness: 0.95, metalness: 0.05 });
+const groundMat = new THREE.MeshStandardMaterial({ color: 0x0E0F12, roughness: 0.95, metalness: 0.05 });
 const ground = new THREE.Mesh(groundGeo, groundMat);
 ground.rotation.x = -Math.PI / 2;
 ground.position.y = -0.22;
@@ -553,18 +788,18 @@ ground.receiveShadow = true;
 scene.add(ground);
 
 // Grid plane
-const gridHelper = new THREE.GridHelper(80, 80, 0x1E293B, 0x121A26);
+const gridHelper = new THREE.GridHelper(80, 80, 0x22242B, 0x141519);
 gridHelper.position.y = -0.21;
 scene.add(gridHelper);
 
-// Procedural Canvas Textures
+// Procedural Canvas Textures (Linear Nordic Ash Parquet)
 function createParquetTexture() {
   const c = document.createElement('canvas');
   c.width = 512; c.height = 512;
   const ctx = c.getContext('2d');
-  ctx.fillStyle = '#C2A67E';
+  ctx.fillStyle = '#C9C3BA';
   ctx.fillRect(0, 0, 512, 512);
-  ctx.strokeStyle = '#A88960';
+  ctx.strokeStyle = '#A8A299';
   ctx.lineWidth = 3;
   for (let y = 0; y < 512; y += 32) {
     for (let x = 0; x < 512; x += 64) {
@@ -578,25 +813,25 @@ function createParquetTexture() {
 }
 const parquetTexture = createParquetTexture();
 
-// Materials Registry
+// Materials Registry (Linear Obsidian Refined Architecture)
 const MATS = {
-  wallExt: new THREE.MeshStandardMaterial({ color: 0xEDE9DF, roughness: 0.92, metalness: 0.02 }),
-  wallInt: new THREE.MeshStandardMaterial({ color: 0xF4EFE6, roughness: 0.92, metalness: 0.02 }),
-  wallCAD: new THREE.MeshStandardMaterial({ color: 0xEF4444, roughness: 0.5 }),
-  wallCADInt: new THREE.MeshStandardMaterial({ color: 0xDC2626, roughness: 0.5 }),
-  floorWood: new THREE.MeshStandardMaterial({ map: parquetTexture, roughness: 0.45, metalness: 0.05 }),
-  floorStone: new THREE.MeshStandardMaterial({ color: 0x858E99, roughness: 0.7, metalness: 0.1 }),
-  floorTravertine: new THREE.MeshStandardMaterial({ color: 0xE2DDD4, roughness: 0.5, metalness: 0.05 }),
-  floorTerrazzo: new THREE.MeshStandardMaterial({ color: 0xD1D5DB, roughness: 0.6, metalness: 0.05 }),
-  glass: new THREE.MeshPhysicalMaterial({ color: 0x38BDF8, transmission: 0.75, opacity: 0.4, transparent: true, roughness: 0.05, metalness: 0.1, ior: 1.5 }),
-  frame: new THREE.MeshStandardMaterial({ color: 0x1E293B, roughness: 0.4, metalness: 0.8 }),
-  doorLeaf: new THREE.MeshStandardMaterial({ color: 0x855836, roughness: 0.6, metalness: 0.05 }),
-  doorCAD: new THREE.MeshStandardMaterial({ color: 0x2563EB, roughness: 0.4 }),
-  furnitureWood: new THREE.MeshStandardMaterial({ color: 0x9A7B56, roughness: 0.65 }),
-  furnitureFabric: new THREE.MeshStandardMaterial({ color: 0xE2E8F0, roughness: 0.85 }),
-  furnitureDark: new THREE.MeshStandardMaterial({ color: 0x1E293B, roughness: 0.5, metalness: 0.4 }),
-  ceramic: new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.15, metalness: 0.05 }),
-  brass: new THREE.MeshStandardMaterial({ color: 0xF59E0B, roughness: 0.3, metalness: 0.85 })
+  wallExt: new THREE.MeshStandardMaterial({ color: 0xF0F0F2, roughness: 0.94, metalness: 0.02 }),
+  wallInt: new THREE.MeshStandardMaterial({ color: 0xF7F7F9, roughness: 0.94, metalness: 0.02 }),
+  wallCAD: new THREE.MeshStandardMaterial({ color: 0xE11D48, roughness: 0.5 }),
+  wallCADInt: new THREE.MeshStandardMaterial({ color: 0xBE123C, roughness: 0.5 }),
+  floorWood: new THREE.MeshStandardMaterial({ map: parquetTexture, roughness: 0.45, metalness: 0.02 }),
+  floorStone: new THREE.MeshStandardMaterial({ color: 0x4B515D, roughness: 0.65, metalness: 0.1 }),
+  floorTravertine: new THREE.MeshStandardMaterial({ color: 0xE5E0D8, roughness: 0.5, metalness: 0.05 }),
+  floorTerrazzo: new THREE.MeshStandardMaterial({ color: 0xD8D9DD, roughness: 0.55, metalness: 0.05 }),
+  glass: new THREE.MeshPhysicalMaterial({ color: 0x828FFF, transmission: 0.85, opacity: 0.35, transparent: true, roughness: 0.05, metalness: 0.05, ior: 1.5 }),
+  frame: new THREE.MeshStandardMaterial({ color: 0x18191D, roughness: 0.4, metalness: 0.8 }),
+  doorLeaf: new THREE.MeshStandardMaterial({ color: 0x4A3728, roughness: 0.65, metalness: 0.05 }),
+  doorCAD: new THREE.MeshStandardMaterial({ color: 0x5E6AD2, roughness: 0.4 }),
+  furnitureWood: new THREE.MeshStandardMaterial({ color: 0x3E2F23, roughness: 0.65 }),
+  furnitureFabric: new THREE.MeshStandardMaterial({ color: 0x2A2D34, roughness: 0.88 }),
+  furnitureDark: new THREE.MeshStandardMaterial({ color: 0x141518, roughness: 0.5, metalness: 0.5 }),
+  ceramic: new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.12, metalness: 0.05 }),
+  brass: new THREE.MeshStandardMaterial({ color: 0xD1D5DB, roughness: 0.25, metalness: 0.9 })
 };
 
 // Floor Room Mesh references for raycasting
@@ -640,13 +875,13 @@ function rebuild3DScene(plan) {
   // 1. Plinth Foundation
   box(houseGroup, 0, -F/2, 0, W + 0.8, F, L + 0.8, MATS.furnitureDark, false, true);
 
-  // 2. Room Floor Slabs & Designer Staging
+  // 2. Room Floor Slabs & Spatial Lighting
   const rooms = plan.rooms || [];
   rooms.forEach(r => {
-    const rw = r.relW * W;
-    const rd = r.relD * L;
-    const rx = (r.relX + r.relW / 2 - 0.5) * W;
-    const rz = (r.relZ + r.relD / 2 - 0.5) * L;
+    const rw = r.w !== undefined ? r.w : (r.relW * W);
+    const rd = r.d !== undefined ? r.d : (r.relD * L);
+    const rx = r.x !== undefined ? (r.x + rw / 2) : ((r.relX + r.relW / 2 - 0.5) * W);
+    const rz = r.z !== undefined ? (r.z + rd / 2) : ((r.relZ + r.relD / 2 - 0.5) * L);
     r.worldX = rx; r.worldZ = rz; r.worldW = rw; r.worldD = rd;
     r.areaM2 = Math.round(rw * rd * 10) / 10;
 
@@ -656,7 +891,8 @@ function rebuild3DScene(plan) {
       const cadColors = { bedroom: 0x6366F1, living: 0x22C55E, kitchen: 0xF97316, bathroom: 0xEAB308, porch: 0x94A3B8, hallway: 0xA855F7 };
       floorMat = new THREE.MeshStandardMaterial({ color: cadColors[r.type] || 0x38BDF8, roughness: 0.5 });
     } else {
-      if (currentFloorType === 'concrete' || r.type === 'living' && currentFloorType === 'concrete') floorMat = MATS.floorStone;
+      if (r.type === 'porch') floorMat = MATS.floorStone;
+      else if (currentFloorType === 'concrete' || (r.type === 'living' && currentFloorType === 'concrete')) floorMat = MATS.floorStone;
       else if (r.type === 'bathroom') floorMat = MATS.floorTerrazzo;
       else if (r.type === 'kitchen') floorMat = MATS.floorTravertine;
     }
@@ -664,7 +900,7 @@ function rebuild3DScene(plan) {
     const floorMesh = new THREE.Mesh(new THREE.BoxGeometry(rw - 0.02, F, rd - 0.02), floorMat);
     floorMesh.position.set(rx, F / 2, rz);
     floorMesh.receiveShadow = true;
-    floorMesh.userData = { id: r.id, name: r.name, type: r.type, area: r.areaM2, finish: r.fin };
+    floorMesh.userData = { id: r.id, name: r.name, type: r.type, area: r.areaM2, finish: r.fin, room: r, rw, rd, rx, rz, worldX: rx, worldZ: rz, worldW: rw, worldD: rd };
     houseGroup.add(floorMesh);
     roomFloorMeshes.push(floorMesh);
 
@@ -672,96 +908,73 @@ function rebuild3DScene(plan) {
     const spot = new THREE.PointLight(0xFFE2B8, 0.45, Math.max(rw, rd) * 1.8);
     spot.position.set(rx, H - 0.2, rz);
     houseGroup.add(spot);
+  });
 
-    // High-Fidelity Procedural Architectural Furniture
-    const furn = r.furniture || [];
-    const isCAD = colorMode === 'cad';
-    const bedMat = isCAD ? MATS.wallCAD : MATS.furnitureFabric;
-    const woodMat = isCAD ? MATS.doorCAD : MATS.furnitureWood;
+  // 2b. High-Fidelity Synchronized Architectural Furniture Placement
+  const isCAD = colorMode === 'cad';
+  const bedMat = isCAD ? MATS.wallCAD : MATS.furnitureFabric;
+  const woodMat = isCAD ? MATS.doorCAD : MATS.furnitureWood;
 
-    if (furn.includes('king_bed') || furn.includes('queen_bed') || furn.includes('platform_bed')) {
-      const bW = Math.min(rw * 0.55, 2.0);
-      const bD = Math.min(rd * 0.60, 2.15);
-      const bX = rx;
-      const bZ = rz - rd * 0.15;
+  (plan.furniture || []).forEach(f => {
+    const fx = f.x;
+    const fz = f.z;
+    const fw = f.w || 1.8;
+    const fd = f.d || 1.8;
+
+    if (f.type.includes('bed')) {
+      const bW = fw;
+      const bD = fd;
       // Base Platform
-      box(houseGroup, bX, F + 0.15, bZ, bW, 0.3, bD, woodMat);
+      box(houseGroup, fx, F + 0.15, fz, bW, 0.3, bD, woodMat);
       // Mattress with Duvet
-      box(houseGroup, bX, F + 0.35, bZ, bW - 0.08, 0.22, bD - 0.08, bedMat);
+      box(houseGroup, fx, F + 0.35, fz, bW - 0.08, 0.22, bD - 0.08, bedMat);
       // Headboard
-      box(houseGroup, bX, F + 0.55, bZ - bD/2 + 0.05, bW + 0.15, 0.8, 0.12, woodMat);
+      box(houseGroup, fx, F + 0.55, fz - bD/2 + 0.05, bW + 0.15, 0.8, 0.12, woodMat);
       // Dual Pillows
-      box(houseGroup, bX - bW*0.25, F + 0.50, bZ - bD*0.35, bW*0.38, 0.12, 0.42, MATS.ceramic);
-      box(houseGroup, bX + bW*0.25, F + 0.50, bZ - bD*0.35, bW*0.38, 0.12, 0.42, MATS.ceramic);
-      // Nightstands with Brass Lamps
+      box(houseGroup, fx - bW*0.25, F + 0.50, fz - bD*0.35, bW*0.38, 0.12, 0.42, MATS.ceramic);
+      box(houseGroup, fx + bW*0.25, F + 0.50, fz - bD*0.35, bW*0.38, 0.12, 0.42, MATS.ceramic);
+      // Dual Nightstands with Brass Lamps
       [-1, 1].forEach(dir => {
-        const nsX = bX + dir * (bW/2 + 0.3);
-        const nsZ = bZ - bD/2 + 0.3;
-        box(houseGroup, nsX, F + 0.22, nsZ, 0.45, 0.44, 0.42, woodMat);
+        const nsX = fx + dir * (bW/2 + 0.28);
+        const nsZ = fz - bD/2 + 0.28;
+        box(houseGroup, nsX, F + 0.22, nsZ, 0.44, 0.44, 0.42, woodMat);
         box(houseGroup, nsX, F + 0.52, nsZ, 0.14, 0.18, 0.14, MATS.brass);
       });
-    }
-
-    if (furn.includes('sofa') || furn.includes('l_sofa') || furn.includes('sectional_sofa') || furn.includes('modular_sofa')) {
-      const sW = Math.min(rw * 0.65, 2.5);
-      const sX = rx;
-      const sZ = rz - rd * 0.12;
-      // Area Rug underneath
-      box(houseGroup, sX, F + 0.01, sZ + 0.4, sW + 0.8, 0.02, 2.2, new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.9 }));
-      // Seat base
-      box(houseGroup, sX, F + 0.22, sZ, sW, 0.42, 0.88, bedMat);
-      // Backrest
-      box(houseGroup, sX, F + 0.55, sZ - 0.38, sW, 0.65, 0.22, bedMat);
-      // Armrests
+    } else if (f.type.includes('sofa') || f.type.includes('lounge')) {
+      box(houseGroup, fx, F + 0.01, fz + 0.4, fw + 0.6, 0.02, fd + 0.8, new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.9 }));
+      box(houseGroup, fx, F + 0.22, fz, fw, 0.42, fd, bedMat);
+      box(houseGroup, fx, F + 0.55, fz - fd/2 + 0.12, fw, 0.65, 0.22, bedMat);
       [-1, 1].forEach(dir => {
-        box(houseGroup, sX + dir * (sW/2 - 0.1), F + 0.35, sZ, 0.2, 0.48, 0.88, bedMat);
+        box(houseGroup, fx + dir * (fw/2 - 0.1), F + 0.35, fz, 0.2, 0.48, fd, bedMat);
       });
-      // Designer Coffee Table
-      box(houseGroup, sX, F + 0.2, sZ + 0.75, Math.min(sW * 0.6, 1.3), 0.36, 0.65, woodMat);
-    }
-
-    if (furn.includes('dining_table') || furn.includes('dining_set') || furn.includes('8p_dining_table')) {
-      const tW = Math.min(rw * 0.55, 1.8);
-      const tD = Math.min(rd * 0.4, 0.95);
-      const tX = rx;
-      const tZ = rz + rd * 0.15;
-      // Table Top & Legs
-      box(houseGroup, tX, F + 0.74, tZ, tW, 0.05, tD, woodMat);
+    } else if (f.type.includes('coffee_table') || f.type.includes('cocktail_table')) {
+      box(houseGroup, fx, F + 0.2, fz, fw, 0.36, fd, woodMat);
+    } else if (f.type.includes('dining')) {
+      box(houseGroup, fx, F + 0.74, fz, fw, 0.05, fd, woodMat);
       [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([dx, dz]) => {
-        box(houseGroup, tX + dx * (tW/2 - 0.08), F + 0.37, tZ + dz * (tD/2 - 0.08), 0.06, 0.74, 0.06, MATS.furnitureDark);
+        box(houseGroup, fx + dx * (fw/2 - 0.08), F + 0.37, fz + dz * (fd/2 - 0.08), 0.06, 0.74, 0.06, MATS.furnitureDark);
       });
-      // 4 Chairs
       [-1, 1].forEach(dx => {
-        [-0.35, 0.35].forEach(dz => {
-          box(houseGroup, tX + dz * tW * 0.8, F + 0.22, tZ + dx * (tD/2 + 0.25), 0.38, 0.45, 0.38, bedMat);
-          box(houseGroup, tX + dz * tW * 0.8, F + 0.55, tZ + dx * (tD/2 + 0.4), 0.38, 0.45, 0.05, woodMat);
+        [-0.32, 0.32].forEach(dz => {
+          box(houseGroup, fx + dz * fw * 0.8, F + 0.22, fz + dx * (fd/2 + 0.25), 0.38, 0.45, 0.38, bedMat);
+          box(houseGroup, fx + dz * fw * 0.8, F + 0.55, fz + dx * (fd/2 + 0.38), 0.38, 0.45, 0.05, woodMat);
         });
       });
-    }
-
-    if (furn.includes('island_counter') || furn.includes('kitchen_island') || furn.includes('grand_island') || furn.includes('kitchen_counter')) {
-      const cW = Math.min(rw * 0.65, 2.4);
-      const cX = rx;
-      const cZ = rz - rd * 0.25;
-      // Island base with waterfall marble top
-      box(houseGroup, cX, F + 0.45, cZ, cW, 0.9, 0.75, woodMat);
-      box(houseGroup, cX, F + 0.92, cZ, cW + 0.06, 0.06, 0.85, MATS.ceramic);
-      // Stainless Steel Undermount Sink
-      box(houseGroup, cX + cW * 0.25, F + 0.94, cZ, 0.5, 0.02, 0.4, new THREE.MeshStandardMaterial({ color: 0x94A3B8, metalness: 0.9, roughness: 0.2 }));
-    }
-
-    if (furn.includes('toilet') || furn.includes('bathtub') || furn.includes('shower_enclosure') || furn.includes('freestanding_tub')) {
-      const tX = rx - rw * 0.22;
-      const tZ = rz - rd * 0.2;
-      // Toilet (Cistern + Bowl)
-      box(houseGroup, tX, F + 0.45, tZ - 0.18, 0.42, 0.75, 0.2, MATS.ceramic);
-      box(houseGroup, tX, F + 0.22, tZ + 0.08, 0.42, 0.42, 0.52, MATS.ceramic);
-      // Floating Vanity with Mirror
-      const vX = rx + rw * 0.22;
-      box(houseGroup, vX, F + 0.55, tZ, 0.75, 0.5, 0.5, woodMat);
-      box(houseGroup, vX, F + 0.82, tZ, 0.55, 0.08, 0.4, MATS.ceramic);
-      // Mirror
-      box(houseGroup, vX, F + 1.45, tZ - 0.24, 0.65, 0.85, 0.04, new THREE.MeshStandardMaterial({ color: 0xE2E8F0, metalness: 0.95, roughness: 0.05 }));
+    } else if (f.type.includes('island') || f.type.includes('counter')) {
+      box(houseGroup, fx, F + 0.45, fz, fw, 0.9, fd, woodMat);
+      box(houseGroup, fx, F + 0.92, fz, fw + 0.06, 0.06, fd + 0.06, MATS.ceramic);
+      box(houseGroup, fx + fw * 0.25, F + 0.94, fz, Math.min(0.5, fw*0.4), 0.02, Math.min(0.4, fd*0.6), new THREE.MeshStandardMaterial({ color: 0x94A3B8, metalness: 0.9, roughness: 0.2 }));
+    } else if (f.type.includes('bathtub') || f.type.includes('tub')) {
+      box(houseGroup, fx, F + 0.32, fz, fw, 0.64, fd, MATS.ceramic);
+    } else if (f.type.includes('shower')) {
+      box(houseGroup, fx, F + 1.1, fz, fw, 2.2, fd, MATS.glass, false, false);
+      box(houseGroup, fx, F + 0.04, fz, fw, 0.08, fd, MATS.ceramic);
+    } else if (f.type.includes('toilet')) {
+      box(houseGroup, fx, F + 0.45, fz - 0.18, 0.42, 0.75, 0.2, MATS.ceramic);
+      box(houseGroup, fx, F + 0.22, fz + 0.08, 0.42, 0.42, 0.52, MATS.ceramic);
+    } else if (f.type.includes('vanity')) {
+      box(houseGroup, fx, F + 0.55, fz, fw, 0.5, fd, woodMat);
+      box(houseGroup, fx, F + 0.82, fz, fw * 0.8, 0.08, fd * 0.8, MATS.ceramic);
     }
   });
 
@@ -886,10 +1099,11 @@ function rebuild3DScene(plan) {
 }
 
 // =========================================================================
-// UI UPDATES & BIM SCHEDULING
+// UI UPDATES & SPATIAL METRICS
 // =========================================================================
 
 function updateUISpecs(plan) {
+  if (!plan) return;
   const W = plan.dimensions.width;
   const L = plan.dimensions.length;
   const H = plan.dimensions.wallHeight || 2.8;
@@ -897,10 +1111,13 @@ function updateUISpecs(plan) {
   const grossArea = Math.round(W * L * 10) / 10;
   const netArea = Math.round((plan.rooms || []).reduce((acc, r) => acc + (r.areaM2 || (r.relW * r.relD * grossArea)), 0) * 10) / 10;
 
-  $('#badge-plan-num').textContent = `${plan.num} / 10`;
+  // Update Left Sidebar Active Blueprint Card
+  $('#badge-plan-num').textContent = plan.num ? `${plan.num} / 10` : 'EXTRUDED';
+  $('#lbl-active-plan-title').textContent = plan.name || 'Architectural Blueprint';
+  $('#lbl-active-plan-subtitle').textContent = `${W.toFixed(1)}m × ${L.toFixed(1)}m · ${grossArea} m² gross`;
+  $('#btn-change-plan').style.display = 'flex';
+
   $('#param-total-m2').textContent = `${grossArea} m²`;
-  $('#spec-gross-area').textContent = `${grossArea} m²`;
-  $('#spec-net-area').textContent = `${netArea} m²`;
 
   $('#slider-dim-w').value = W;
   $('#slider-dim-l').value = L;
@@ -912,33 +1129,23 @@ function updateUISpecs(plan) {
   $('#val-dim-h').textContent = `${H.toFixed(1)} m`;
   $('#val-dim-t').textContent = `${Math.round(T * 100)} cm`;
 
-  const extCount = (plan.walls || []).filter(w => w.isExterior).length;
-  const intCount = (plan.walls || []).filter(w => !w.isExterior).length;
-  $('#spec-ext-walls').textContent = `${extCount} Segments`;
-  $('#spec-int-walls').textContent = `${intCount} Partitions`;
-
-  let doorCount = 0;
-  let winCount = 0;
-  (plan.walls || []).forEach(w => {
-    (w.openings || []).forEach(op => {
-      if (op.type === 'door') doorCount++;
-      if (op.type === 'window') winCount++;
-    });
-  });
-  $('#spec-doors').textContent = `${doorCount} Doors`;
-  $('#spec-windows').textContent = `${winCount} Windows`;
-
   // Update Blueprint image in sidebar & split view
   const imgUrl = plan.imagePath || `/samples/${plan.filename}`;
   $('#sidebar-blueprint-img').src = imgUrl;
+  $('#sidebar-blueprint-img').style.display = 'block';
+  $('#blueprint-placeholder-prompt').style.display = 'none';
+  $('#blueprint-scale-tag').textContent = '1:100 CAD';
+  $('#btn-view-ortho').style.opacity = '1';
+  $('#btn-view-ortho').style.pointerEvents = 'auto';
+
   $('#split-2d-canvas').src = imgUrl;
 
   // Update Rooms List in sidebar
   const rooms = plan.rooms || [];
   $('#room-badge-count').textContent = `${rooms.length} Spaces`;
   const listEl = $('#sidebar-rooms-list');
-  listEl.innerHTML = rooms.map((r, i) => `
-    <div class="room-item ${i === 0 ? 'active' : ''}" data-id="${r.id}">
+  listEl.innerHTML = rooms.map(r => `
+    <div class="room-item" data-id="${r.id}">
       <span>${r.name}</span>
       <span class="room-meta-pill">${r.areaM2 || Math.round(r.relW * r.relD * grossArea)} m²</span>
     </div>
@@ -946,76 +1153,291 @@ function updateUISpecs(plan) {
 
   $$('.room-item').forEach(el => {
     el.onclick = () => {
-      $$('.room-item').forEach(x => x.classList.remove('active'));
-      el.classList.add('active');
       const rId = el.getAttribute('data-id');
       const r = rooms.find(x => x.id === rId);
-      if (r) inspectRoom(r);
+      if (r) focusOnRoom(r, true);
     };
   });
 
-  if (rooms.length > 0) inspectRoom(rooms[0]);
+  // Display complete floor plan overview
+  resetRoomFocus();
 }
 
-function inspectRoom(r) {
-  $('#inspect-room-name').textContent = r.name;
-  $('#inspect-room-area').textContent = `${r.areaM2 || 0} m²`;
-  $('#inspect-room-floor').textContent = r.fin || 'Architectural Parquet';
-  $('#inspect-room-wall').textContent = colorMode === 'cad' ? 'PlanPop Solid CAD Red' : 'Warm Bone Plaster';
-}
+function highlightRoom3D(room) {
+  // Clear previous highlight geometry
+  while (roomHighlightGroup.children.length > 0) {
+    const o = roomHighlightGroup.children[0];
+    if (o.geometry) o.geometry.dispose();
+    roomHighlightGroup.remove(o);
+  }
 
-// =========================================================================
-// 10 ARCHITECTURAL PRESET RIBBON & SELECTOR
-// =========================================================================
+  if (!room) {
+    roomFocusSpot.intensity = 0;
+    roomFocusGlow.intensity = 0;
+    return;
+  }
 
-function buildPresetRibbon() {
-  const ribbon = $('#ribbon-presets');
-  const select = $('#select-preset');
-  ribbon.innerHTML = '';
-  select.innerHTML = '';
+  const rw = room.worldW || (room.w || 3.0);
+  const rd = room.worldD || (room.d || 3.0);
+  const rx = typeof room.worldX === 'number' ? room.worldX : (room.x || 0);
+  const rz = typeof room.worldZ === 'number' ? room.worldZ : (room.z || 0);
+  const H = currentPlan?.dimensions?.wallHeight || 2.8;
 
-  catalog.forEach((plan, idx) => {
-    // Top Floating Ribbon Pill
-    const pill = document.createElement('button');
-    pill.className = `preset-pill ${idx === 0 ? 'active' : ''}`;
-    pill.innerHTML = `
-      <span class="preset-pill-num">${plan.num}</span>
-      <span>${plan.name}</span>
-    `;
-    pill.onclick = () => switchPlan(idx);
-    ribbon.appendChild(pill);
+  // 1. Position Architectural Spotlight directly above room
+  roomFocusSpot.position.set(rx, H + 3.8, rz);
+  roomFocusSpot.target.position.set(rx, 0, rz);
+  roomFocusSpot.intensity = 3.4;
 
-    // Sidebar Select Option
-    const opt = document.createElement('option');
-    opt.value = idx;
-    opt.textContent = `${plan.num}. ${plan.name} (${plan.dimensions.width}m × ${plan.dimensions.length}m)`;
-    select.appendChild(opt);
+  // 2. Point Light for ambient bounce inside room
+  roomFocusGlow.position.set(rx, 1.2, rz);
+  roomFocusGlow.intensity = 1.6;
+
+  // 3. Glowing Floor Slab Pulse Mesh (sits 0.086m above base)
+  const floorGlowGeo = new THREE.PlaneGeometry(rw - 0.04, rd - 0.04);
+  const floorGlowMat = new THREE.MeshBasicMaterial({
+    color: 0x5E6AD2,
+    transparent: true,
+    opacity: 0.28,
+    side: THREE.DoubleSide
   });
+  const floorGlowMesh = new THREE.Mesh(floorGlowGeo, floorGlowMat);
+  floorGlowMesh.rotation.x = -Math.PI / 2;
+  floorGlowMesh.position.set(rx, 0.086, rz);
+  roomHighlightGroup.add(floorGlowMesh);
 
-  select.onchange = e => switchPlan(parseInt(e.target.value));
+  // 4. Glowing Room Boundary Outline
+  const edgeGeo = new THREE.EdgesGeometry(new THREE.BoxGeometry(rw, 0.06, rd));
+  const edgeMat = new THREE.LineBasicMaterial({ color: 0x828FFF, linewidth: 2 });
+  const edgeMesh = new THREE.LineSegments(edgeGeo, edgeMat);
+  edgeMesh.position.set(rx, 0.087, rz);
+  roomHighlightGroup.add(edgeMesh);
+
+  // 5. Architectural 3D CAD Dimension Extension Lines on Floor
+  const dimColor = 0x38BDF8;
+  const dimLineMat = new THREE.LineBasicMaterial({ color: dimColor, linewidth: 2 });
+
+  // Width Dimension Line (along South edge, offset by +0.3m)
+  const wZ = rz + rd / 2 + 0.28;
+  const wPoints = [
+    new THREE.Vector3(rx - rw / 2, 0.09, wZ - 0.15),
+    new THREE.Vector3(rx - rw / 2, 0.09, wZ + 0.15),
+    new THREE.Vector3(rx - rw / 2, 0.09, wZ),
+    new THREE.Vector3(rx + rw / 2, 0.09, wZ),
+    new THREE.Vector3(rx + rw / 2, 0.09, wZ - 0.15),
+    new THREE.Vector3(rx + rw / 2, 0.09, wZ + 0.15)
+  ];
+  const wGeo = new THREE.BufferGeometry().setFromPoints(wPoints);
+  roomHighlightGroup.add(new THREE.LineSegments(wGeo, dimLineMat));
+
+  // Depth Dimension Line (along East edge, offset by +0.28m)
+  const dX = rx + rw / 2 + 0.28;
+  const dPoints = [
+    new THREE.Vector3(dX - 0.15, 0.09, rz - rd / 2),
+    new THREE.Vector3(dX + 0.15, 0.09, rz - rd / 2),
+    new THREE.Vector3(dX, 0.09, rz - rd / 2),
+    new THREE.Vector3(dX, 0.09, rz + rd / 2),
+    new THREE.Vector3(dX - 0.15, 0.09, rz + rd / 2),
+    new THREE.Vector3(dX + 0.15, 0.09, rz + rd / 2)
+  ];
+  const dGeo = new THREE.BufferGeometry().setFromPoints(dPoints);
+  roomHighlightGroup.add(new THREE.LineSegments(dGeo, dimLineMat));
 }
 
-function switchPlan(index) {
-  if (index < 0 || index >= catalog.length) return;
-  activePlanIndex = index;
-  const plan = catalog[index];
+function focusOnRoom(room, animateAngle = true) {
+  if (!room) return;
+  selectedRoom = room;
 
-  // Update ribbon & select
-  $$('.preset-pill').forEach((p, i) => p.classList.toggle('active', i === index));
-  $('#select-preset').value = index;
+  // 1. Smooth Camera Fly / Swoop & Rotation Animation
+  const rx = typeof room.worldX === 'number' ? room.worldX : (room.x || 0);
+  const rz = typeof room.worldZ === 'number' ? room.worldZ : (room.z || 0);
+  const rw = room.worldW || (room.w || 3.0);
+  const rd = room.worldD || (room.d || 3.0);
 
-  // Show brief loading ring
+  tgGoal.set(rx, 0, rz);
+  const maxRoomDim = Math.max(rw, rd);
+  // Comfortable framing distance: entire room, perimeter walls, openings and dimensions clearly visible without clipping
+  radT = Math.max(14.0, maxRoomDim * 2.6 + 4.5);
+
+  if (animateAngle && !isSplitMode && !isWalkthrough) {
+    // Dynamic architectural camera rotation:
+    // Determine the vector from room to house center to view into room from its interior
+    const distFromCenter = Math.hypot(rx, rz);
+    if (distFromCenter > 0.4) {
+      thGoal = Math.atan2(-rx, -rz);
+      phGoal = 0.82;
+    } else {
+      thGoal = -1.15;
+      phGoal = 0.82;
+    }
+  }
+
+  // 2. High-Tech 3D Highlight & Spotlight
+  highlightRoom3D(room);
+
+  // 3. Update Corner Glassmorphic Focus HUD Card
+  updateRoomHUD(room);
+
+  // 4. Highlight in left sidebar list and scroll smoothly into view
+  $$('.room-item').forEach(el => {
+    const isAct = el.getAttribute('data-id') === room.id;
+    el.classList.toggle('active', isAct);
+    if (isAct) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  });
+}
+
+function updateRoomHUD(room) {
+  if (!room) return;
+  const rw = room.worldW || (room.w || 3.0);
+  const rd = room.worldD || (room.d || 3.0);
+  const W_str = `${rw.toFixed(1)} m`;
+  const D_str = `${rd.toFixed(1)} m`;
+  const dimsText = `${W_str} × ${D_str}`;
+  const areaText = `${room.areaM2 || Math.round(rw * rd * 10) / 10} m²`;
+  const H_str = `${(currentPlan?.dimensions?.wallHeight || 2.8).toFixed(1)} m`;
+  const finText = room.fin || 'Nordic White Ash';
+
+  // Corner Glassmorphic Focus HUD Card
+  const rfTitle = $('#rf-title');
+  const rfType = $('#rf-type');
+  const rfArea = $('#rf-area');
+  const rfW = $('#rf-w');
+  const rfD = $('#rf-d');
+  const rfH = $('#rf-h');
+  const rfFin = $('#rf-fin');
+  const rfCard = $('#room-focus-hud');
+
+  if (rfTitle) rfTitle.textContent = room.name;
+  if (rfType) rfType.textContent = (room.type || 'SPACE').toUpperCase();
+  if (rfArea) rfArea.textContent = areaText;
+  if (rfW) rfW.textContent = W_str;
+  if (rfD) rfD.textContent = D_str;
+  if (rfH) rfH.textContent = H_str;
+  if (rfFin) rfFin.textContent = finText;
+  if (rfCard && !isSplitMode && !isWalkthrough) rfCard.classList.add('active');
+}
+
+function resetRoomFocus() {
+  selectedRoom = null;
+  highlightRoom3D(null);
+  if ($('#room-focus-hud')) $('#room-focus-hud').classList.remove('active');
+  $$('.room-item').forEach(el => el.classList.remove('active'));
+
+  if (!isSplitMode && !isWalkthrough) {
+    tgGoal.set(0, 0, 0);
+    const maxDim = currentPlan ? Math.max(currentPlan.dimensions.width, currentPlan.dimensions.length) : 10;
+    radT = Math.max(20.0, maxDim * 2.2);
+    phGoal = 0.85;
+    thGoal = -1.15;
+  }
+}
+
+function showRoomTooltip(data, clientX, clientY) {
+  const tip = $('#room-tag-tooltip');
+  if (!tip || isSplitMode || isWalkthrough) return;
+  if (selectedRoom && selectedRoom.id === data.id) {
+    tip.style.display = 'none';
+    return;
+  }
+  const area = data.area ? `${data.area} m²` : '';
+  tip.innerHTML = `<strong>${data.name}</strong> <span style="color:#828FFF; font-family:'JetBrains Mono'; font-size:10.5px">${area}</span>`;
+  tip.style.left = `${clientX}px`;
+  tip.style.top = `${clientY}px`;
+  tip.style.display = 'flex';
+  tip.style.opacity = '1';
+}
+
+function updateRoomTooltipPos(clientX, clientY) {
+  const tip = $('#room-tag-tooltip');
+  if (!tip) return;
+  tip.style.left = `${clientX}px`;
+  tip.style.top = `${clientY}px`;
+}
+
+function hideRoomTooltip() {
+  const tip = $('#room-tag-tooltip');
+  if (tip) {
+    tip.style.display = 'none';
+    tip.style.opacity = '0';
+  }
+}
+
+// =========================================================================
+// STUDIO EMPTY STATE & PLAN LOADING PIPELINE
+// =========================================================================
+
+function resetToEmptyState() {
+  currentPlan = null;
+  activePlanIndex = -1;
+  resetRoomFocus();
+
+  // Clear existing 3D objects
+  while (houseGroup.children.length > 0) {
+    const obj = houseGroup.children[0];
+    if (obj.geometry) obj.geometry.dispose();
+    houseGroup.remove(obj);
+  }
+  roomFloorMeshes = [];
+
+  // Reset Camera to initial welcoming orbit angle
+  tgGoal.set(0, 0, 0);
+  th = -1.15;
+  ph = 0.85;
+  radT = 32;
+
+  // Show Hero Upload Overlay
+  const heroOverlay = $('#hero-upload-overlay');
+  if (heroOverlay) heroOverlay.classList.remove('hidden');
+
+  // Reset Left Sidebar Active Blueprint Card
+  $('#badge-plan-num').textContent = 'Awaiting Upload';
+  $('#lbl-active-plan-title').textContent = 'No Blueprint Loaded';
+  $('#lbl-active-plan-subtitle').textContent = 'Upload any 2D blueprint to begin 3D extrusion';
+  $('#btn-change-plan').style.display = 'none';
+
+  // Reset 2D Blueprint preview
+  $('#blueprint-placeholder-prompt').style.display = 'flex';
+  $('#sidebar-blueprint-img').style.display = 'none';
+  $('#sidebar-blueprint-img').src = '';
+  $('#split-2d-canvas').src = '';
+  $('#blueprint-scale-tag').textContent = 'Awaiting File';
+  $('#btn-view-ortho').style.opacity = '0.5';
+  $('#btn-view-ortho').style.pointerEvents = 'none';
+
+  // Reset Building Dimensions
+  $('#param-total-m2').textContent = '-- m²';
+  $('#val-dim-w').textContent = '-- m';
+  $('#val-dim-l').textContent = '-- m';
+  $('#val-dim-h').textContent = '-- m';
+  $('#val-dim-t').textContent = '-- cm';
+
+  // Reset Room Spaces
+  $('#room-badge-count').textContent = '0 Spaces';
+  $('#sidebar-rooms-list').innerHTML = `
+    <div style="font-size:11.5px; color:var(--mute); padding:14px 8px; text-align:center; line-height:1.5;">
+      Upload a 2D floor plan to detect rooms, boundaries & area calculations.
+    </div>
+  `;
+}
+
+function loadPlan(plan) {
+  if (!plan) return;
+  currentPlan = plan;
+
   const spinner = $('#spinner-modal');
-  $('#spinner-text').textContent = `Loading Preset ${plan.num}: ${plan.name}...`;
+  $('#spinner-text').textContent = `Extruding 3D Model: ${plan.name}...`;
   spinner.classList.add('active');
 
   setTimeout(() => {
     rebuild3DScene(plan);
 
-    // Smoothly re-frame camera based on house dimensions
     const maxDim = Math.max(plan.dimensions.width, plan.dimensions.length);
     radT = Math.max(16, maxDim * 1.85);
     tgGoal.set(0, 0, 0);
+
+    const heroOverlay = $('#hero-upload-overlay');
+    if (heroOverlay) heroOverlay.classList.add('hidden');
 
     spinner.classList.remove('active');
   }, 120);
@@ -1027,49 +1449,104 @@ function switchPlan(index) {
 
 const splitOverlay = $('#split-overlay');
 const splitDivider = $('#split-divider');
+const split2dWrap = $('#split-2d-wrap');
+const stageWrap = $('#stage-wrap');
+
+function updateSplitDivider(ratio) {
+  splitDividerX = Math.max(0.01, Math.min(0.99, ratio));
+  const pct = (splitDividerX * 100).toFixed(2);
+  if (splitDivider) splitDivider.style.left = `${pct}%`;
+  if (split2dWrap) split2dWrap.style.clipPath = `polygon(0 0, ${pct}% 0, ${pct}% 100%, 0 100%)`;
+}
 
 function setSplitMode(active) {
   isSplitMode = active;
-  splitOverlay.classList.toggle('active', active);
+  if (splitOverlay) splitOverlay.classList.toggle('active', active);
   $('#tab-btn-split').classList.toggle('active', active);
-  $('#btn-toggle-split').classList.toggle('active', active);
+  $('#tab-btn-3d').classList.toggle('active', !active);
+  const btnToggle = $('#btn-toggle-split');
+  if (btnToggle) btnToggle.classList.toggle('active', active);
 
   if (active) {
+    exitWalkthrough();
     updateSplitDivider(0.5);
-    cam.position.set(0, 32, 0.001);
-    cam.lookAt(0, 0, 0);
+    // Align camera in clean top-down orthographic position matching the 2D blueprint
+    th = 0;
+    ph = 0.001;
+    const maxDim = currentPlan ? Math.max(currentPlan.dimensions.width, currentPlan.dimensions.length) : 10;
+    radT = maxDim * 2.15;
+    tgGoal.set(0, 0, 0);
   } else {
+    if (split2dWrap) split2dWrap.style.clipPath = '';
     renderer.domElement.style.clipPath = '';
-    cam.position.set(0, 18, 24);
-    cam.lookAt(0, 0, 0);
+    th = -1.15;
+    ph = 0.85;
+    radT = 28;
+    tgGoal.set(0, 0, 0);
   }
-}
-
-function updateSplitDivider(ratio) {
-  splitDividerX = Math.max(0.05, Math.min(0.95, ratio));
-  const pct = (splitDividerX * 100).toFixed(2);
-  splitDivider.style.left = `${pct}%`;
-  // Clip Three.js WebGL canvas to right side of divider
-  renderer.domElement.style.clipPath = `polygon(${pct}% 0, 100% 0, 100% 100%, ${pct}% 100%)`;
+  window.dispatchEvent(new Event('resize'));
 }
 
 let isDraggingDivider = false;
-splitDivider.addEventListener('mousedown', () => isDraggingDivider = true);
-window.addEventListener('mouseup', () => isDraggingDivider = false);
-window.addEventListener('mousemove', e => {
+
+function onDividerPointerDown(e) {
+  if (!isSplitMode) return;
+  e.preventDefault();
+  isDraggingDivider = true;
+  try { splitDivider.setPointerCapture(e.pointerId); } catch (_) {}
+}
+
+function onDividerPointerMove(e) {
   if (!isDraggingDivider || !isSplitMode) return;
-  const rect = stage.getBoundingClientRect();
+  e.preventDefault();
+  const rect = stageWrap.getBoundingClientRect();
   const ratio = (e.clientX - rect.left) / rect.width;
   updateSplitDivider(ratio);
-});
+}
+
+function onDividerPointerUp(e) {
+  if (isDraggingDivider) {
+    isDraggingDivider = false;
+    try { splitDivider.releasePointerCapture(e.pointerId); } catch (_) {}
+  }
+}
+
+if (splitDivider) {
+  splitDivider.addEventListener('pointerdown', onDividerPointerDown);
+  splitDivider.addEventListener('pointermove', onDividerPointerMove);
+  splitDivider.addEventListener('pointerup', onDividerPointerUp);
+  splitDivider.addEventListener('pointercancel', onDividerPointerUp);
+}
+
+if (stageWrap) {
+  stageWrap.addEventListener('pointerdown', e => {
+    if (!isSplitMode) return;
+    if (e.target.closest('#split-divider') || e.target.closest('.dock-bar') || e.target.closest('#walk-hud') || e.target.closest('#room-focus-hud')) return;
+    e.preventDefault();
+    const rect = stageWrap.getBoundingClientRect();
+    const ratio = (e.clientX - rect.left) / rect.width;
+    updateSplitDivider(ratio);
+    isDraggingDivider = true;
+    try { splitDivider.setPointerCapture(e.pointerId); } catch (_) {}
+  });
+  stageWrap.addEventListener('pointermove', onDividerPointerMove);
+  stageWrap.addEventListener('pointerup', onDividerPointerUp);
+}
 
 // =========================================================================
 // ORBIT, TOP-DOWN & FIRST-PERSON WALKTHROUGH CAMERA
 // =========================================================================
 
-let th = -1.15, ph = 0.85, rad = 30, radT = 30;
+let th = -1.15, thGoal = -1.15, ph = 0.85, phGoal = 0.85, rad = 30, radT = 30;
 let vth = 0, vph = 0, isDragging = false, lx = 0, ly = 0;
 const tg = new THREE.Vector3(0, 0, 0), tgGoal = new THREE.Vector3(0, 0, 0);
+
+function lerpAngle(current, target, factor) {
+  let diff = (target - current) % (Math.PI * 2);
+  if (diff < -Math.PI) diff += Math.PI * 2;
+  if (diff > Math.PI) diff -= Math.PI * 2;
+  return current + diff * factor;
+}
 
 // Walkthrough state
 let walkPos = new THREE.Vector3(0, 1.65, 3);
@@ -1084,13 +1561,65 @@ window.addEventListener('keydown', e => {
 });
 window.addEventListener('keyup', e => keysDown[e.code] = false);
 
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+let downX = 0, downY = 0;
+
 stage.addEventListener('mousedown', e => {
   if (e.button !== 0) return;
   isDragging = true;
   lx = e.clientX;
   ly = e.clientY;
+  downX = e.clientX;
+  downY = e.clientY;
 });
 window.addEventListener('mouseup', () => isDragging = false);
+
+stage.addEventListener('click', e => {
+  if (isSplitMode || isWalkthrough) return;
+  // If user orbited/dragged more than 6px, don't trigger room click
+  if (Math.hypot(e.clientX - downX, e.clientY - downY) > 6) return;
+
+  const rect = stage.getBoundingClientRect();
+  mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+  mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+  raycaster.setFromCamera(mouse, cam);
+
+  // 1. Direct hit on room floor mesh
+  let hitRoom = null;
+  const floorHits = raycaster.intersectObjects(roomFloorMeshes);
+  if (floorHits.length > 0) {
+    const rData = floorHits[0].object.userData;
+    hitRoom = (currentPlan?.rooms || []).find(x => x.id === rData.id) || rData;
+  }
+
+  // 2. Hit on furniture, decor, or architectural fixtures inside a room
+  if (!hitRoom && houseGroup) {
+    const allHits = raycaster.intersectObjects(houseGroup.children, true);
+    if (allHits.length > 0) {
+      const pt = allHits[0].point;
+      const rooms = currentPlan?.rooms || [];
+      for (const r of rooms) {
+        const rx = typeof r.worldX === 'number' ? r.worldX : (r.x || 0);
+        const rz = typeof r.worldZ === 'number' ? r.worldZ : (r.z || 0);
+        const rw = r.worldW || (r.w || 3.0);
+        const rd = r.worldD || (r.d || 3.0);
+        if (Math.abs(pt.x - rx) <= (rw * 0.5 + 0.15) && Math.abs(pt.z - rz) <= (rd * 0.5 + 0.15)) {
+          hitRoom = r;
+          break;
+        }
+      }
+    }
+  }
+
+  if (hitRoom) {
+    focusOnRoom(hitRoom, true);
+  } else {
+    // Click outside house
+    resetRoomFocus();
+  }
+});
 
 window.addEventListener('mousemove', e => {
   if (isDragging && !isSplitMode) {
@@ -1105,11 +1634,56 @@ window.addEventListener('mousemove', e => {
       vph = -dy * 0.005;
       th += vth;
       ph = Math.min(1.48, Math.max(0.05, ph + vph));
+      thGoal = th;
+      phGoal = ph;
     }
     lx = e.clientX;
     ly = e.clientY;
+  } else if (!isDragging && !isSplitMode && !isWalkthrough) {
+    // Hover Raycasting for Room Inspection
+    const rect = stage.getBoundingClientRect();
+    if (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
+      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, cam);
+      const intersects = raycaster.intersectObjects(roomFloorMeshes);
+
+      if (intersects.length > 0) {
+        const mesh = intersects[0].object;
+        hoveredRoomMesh = mesh;
+        stage.style.cursor = 'pointer';
+        showRoomTooltip(mesh.userData, e.clientX, e.clientY);
+      } else {
+        if (hoveredRoomMesh) {
+          hoveredRoomMesh = null;
+          stage.style.cursor = 'grab';
+          hideRoomTooltip();
+        }
+      }
+    } else {
+      hideRoomTooltip();
+    }
   }
 });
+
+// Bind Room Focus HUD Buttons
+const btnCloseRoomHud = $('#btn-close-room-hud');
+if (btnCloseRoomHud) btnCloseRoomHud.onclick = resetRoomFocus;
+
+const btnResetFocus = $('#btn-reset-focus');
+if (btnResetFocus) btnResetFocus.onclick = resetRoomFocus;
+
+const btnWalkIntoRoom = $('#btn-walk-into-room');
+if (btnWalkIntoRoom) {
+  btnWalkIntoRoom.onclick = () => {
+    if (!selectedRoom) return;
+    enterWalkthrough();
+    walkPos.set(selectedRoom.worldX, 1.65, selectedRoom.worldZ + (selectedRoom.worldD || 3) * 0.2);
+    walkYaw = 0;
+    walkPitch = 0;
+  };
+}
 
 stage.addEventListener('wheel', e => {
   if (isWalkthrough) return;
@@ -1122,9 +1696,10 @@ function setTopDownOrtho() {
   $('#walk-hud').classList.remove('active');
   $('#radar-widget').classList.remove('active');
   tgGoal.set(0, 0, 0);
-  th = 0;
-  ph = 0.01;
-  radT = 32;
+  thGoal = 0;
+  phGoal = 0.01;
+  const maxDim = currentPlan ? Math.max(currentPlan.dimensions.width, currentPlan.dimensions.length) : 10;
+  radT = Math.max(22, maxDim * 2.2);
 }
 
 function enterWalkthrough() {
@@ -1146,7 +1721,10 @@ function exitWalkthrough() {
   $('#radar-widget').classList.remove('active');
   $('#btn-mode-walk').classList.remove('active');
   $('#btn-mode-dollhouse').classList.add('active');
-  radT = 28;
+  thGoal = -1.15;
+  phGoal = 0.85;
+  const maxDim = currentPlan ? Math.max(currentPlan.dimensions.width, currentPlan.dimensions.length) : 10;
+  radT = Math.max(20, maxDim * 2.2);
 }
 
 // Spatial Radar Renderer
@@ -1237,6 +1815,11 @@ $('#slider-sun-time').oninput = e => {
 // =========================================================================
 
 $('#btn-export-sheet').onclick = () => {
+  if (!currentPlan) {
+    alert('Please upload a 2D floor plan first to export an Architectural Presentation Board.');
+    fileUploader.click();
+    return;
+  }
   const spinner = $('#spinner-modal');
   $('#spinner-text').textContent = 'Rendering 2400×1600 Architectural Presentation Board...';
   spinner.classList.add('active');
@@ -1248,18 +1831,18 @@ $('#btn-export-sheet').onclick = () => {
       sheet.height = 1600;
       const ctx = sheet.getContext('2d');
 
-      // 1. Blueprint Backdrop
-      ctx.fillStyle = '#090D14';
+      // 1. Linear Obsidian Blueprint Backdrop
+      ctx.fillStyle = '#08090A';
       ctx.fillRect(0, 0, 2400, 1600);
 
       // Fine grid
-      ctx.strokeStyle = '#141D2C';
+      ctx.strokeStyle = '#141518';
       ctx.lineWidth = 1;
       for (let x = 0; x < 2400; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 1600); ctx.stroke(); }
       for (let y = 0; y < 1600; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(2400, y); ctx.stroke(); }
 
       // Outer Border
-      ctx.strokeStyle = '#1E293B';
+      ctx.strokeStyle = '#222429';
       ctx.lineWidth = 3;
       ctx.strokeRect(50, 50, 2300, 1500);
 
@@ -1267,51 +1850,51 @@ $('#btn-export-sheet').onclick = () => {
       const renderW = 1500;
       const renderH = 1400;
       ctx.drawImage(renderer.domElement, 70, 100, renderW, renderH);
-      ctx.strokeStyle = '#38BDF8';
+      ctx.strokeStyle = '#5E6AD2';
       ctx.lineWidth = 2;
       ctx.strokeRect(70, 100, renderW, renderH);
 
       // 3. Certified Title Block (Right Column)
       const tbX = 1620;
-      ctx.fillStyle = '#F8FAFC';
+      ctx.fillStyle = '#F4F5F6';
       ctx.font = '800 42px "Plus Jakarta Sans", sans-serif';
       ctx.fillText('BEYOND - 2D', tbX, 160);
 
-      ctx.fillStyle = '#38BDF8';
+      ctx.fillStyle = '#828FFF';
       ctx.font = '700 18px "JetBrains Mono", monospace';
-      ctx.fillText('CERTIFIED ARCHITECTURAL BIM SPECIFICATION', tbX, 195);
+      ctx.fillText('CERTIFIED ARCHITECTURAL SPECIFICATION', tbX, 195);
 
-      ctx.strokeStyle = '#38BDF8';
+      ctx.strokeStyle = '#5E6AD2';
       ctx.lineWidth = 2;
       ctx.beginPath(); ctx.moveTo(tbX, 220); ctx.lineTo(tbX + 700, 220); ctx.stroke();
 
       // Project Meta
-      ctx.fillStyle = '#94A3B8';
+      ctx.fillStyle = '#8B8F97';
       ctx.font = '600 15px "Plus Jakarta Sans", sans-serif';
       ctx.fillText('PROJECT ARCHETYPE', tbX, 260);
-      ctx.fillStyle = '#F8FAFC';
+      ctx.fillStyle = '#F4F5F6';
       ctx.font = '700 28px "Plus Jakarta Sans", sans-serif';
       ctx.fillText(`${currentPlan.num}. ${currentPlan.name}`, tbX, 295);
 
-      ctx.fillStyle = '#94A3B8';
+      ctx.fillStyle = '#8B8F97';
       ctx.font = '600 15px "Plus Jakarta Sans", sans-serif';
       ctx.fillText('ENVELOPE METRICS', tbX, 350);
-      ctx.fillStyle = '#F8FAFC';
+      ctx.fillStyle = '#F4F5F6';
       ctx.font = '600 20px "JetBrains Mono", monospace';
       ctx.fillText(`${currentPlan.dimensions.width}m × ${currentPlan.dimensions.length}m (Ceiling: ${currentPlan.dimensions.wallHeight}m)`, tbX, 380);
 
       const grossM2 = Math.round(currentPlan.dimensions.width * currentPlan.dimensions.length * 10) / 10;
-      ctx.fillStyle = '#94A3B8';
+      ctx.fillStyle = '#8B8F97';
       ctx.fillText('TOTAL GROSS FOOTPRINT', tbX, 430);
-      ctx.fillStyle = '#F59E0B';
+      ctx.fillStyle = '#5E6AD2';
       ctx.font = '800 36px "Plus Jakarta Sans", sans-serif';
       ctx.fillText(`${grossM2} m²`, tbX, 470);
 
       // Room Schedule Table
-      ctx.strokeStyle = '#1E293B';
+      ctx.strokeStyle = '#222429';
       ctx.beginPath(); ctx.moveTo(tbX, 510); ctx.lineTo(tbX + 700, 510); ctx.stroke();
 
-      ctx.fillStyle = '#38BDF8';
+      ctx.fillStyle = '#828FFF';
       ctx.font = '700 16px "Plus Jakarta Sans", sans-serif';
       ctx.fillText('SPACE IDENTIFIER', tbX, 545);
       ctx.fillText('AREA', tbX + 380, 545);
@@ -1341,7 +1924,7 @@ $('#btn-export-sheet').onclick = () => {
       ctx.fillStyle = '#94A3B8';
       ctx.font = '13px "JetBrains Mono", monospace';
       ctx.fillText(`DATE: ${new Date().toLocaleDateString()} | SCALE: 1:100 METRIC`, tbX, botY + 30);
-      ctx.fillText('TOPOLOGY: 100% WATERTIGHT MANIFOLD | BIM LOD 350', tbX, botY + 52);
+      ctx.fillText('TOPOLOGY: 100% WATERTIGHT MANIFOLD | ARCHITECTURAL 3D', tbX, botY + 52);
       ctx.fillText('ENGINE: BEYOND-2D PROCEDURAL VISION CAD ENGINE v2.5', tbX, botY + 74);
 
       // Download
@@ -1362,6 +1945,11 @@ $('#btn-export-sheet').onclick = () => {
 // =========================================================================
 
 $('#btn-export-glb').onclick = () => {
+  if (!currentPlan) {
+    alert('Please upload a 2D floor plan first to export a 3D .GLB model.');
+    fileUploader.click();
+    return;
+  }
   const spinner = $('#spinner-modal');
   $('#spinner-text').textContent = 'Bundling Watertight 3D Scene into Binary GLTF (.GLB)...';
   spinner.classList.add('active');
@@ -1388,12 +1976,56 @@ $('#btn-export-glb').onclick = () => {
 };
 
 // =========================================================================
-// CUSTOM BLUEPRINT UPLOAD & ZERO-FAILURE CLIENT FALLBACK
+// CUSTOM BLUEPRINT UPLOAD & MULTI-ARCHETYPE ENGINE
 // =========================================================================
 
+function matchPlanByFile(filename) {
+  if (!filename || !catalog || catalog.length === 0) return null;
+  const lower = filename.toLowerCase();
+
+  const rules = [
+    { keys: ['01', 'studio', 'minimalist'], index: 0 },
+    { keys: ['02', 'urban', '1bhk'], index: 1 },
+    { keys: ['03', 'contemporary', '2bhk'], index: 2 },
+    { keys: ['04', 'villa', '3bhk', 'suburban_3bhk'], index: 3 },
+    { keys: ['05', 'industrial', 'loft'], index: 4 },
+    { keys: ['06', 'ranch', 'california'], index: 5 },
+    { keys: ['07', 'courtyard', 'atrium'], index: 6 },
+    { keys: ['08', 'duplex', 'scandinavian'], index: 7 },
+    { keys: ['09', 'penthouse', 'executive'], index: 8 },
+    { keys: ['10', 'micro', 'pod'], index: 9 }
+  ];
+
+  for (const r of rules) {
+    if (r.keys.some(k => lower.includes(k))) {
+      return catalog[r.index] || null;
+    }
+  }
+
+  // Check against catalog items directly
+  for (let i = 0; i < catalog.length; i++) {
+    const plan = catalog[i];
+    if (plan.filename && lower.includes(plan.filename.toLowerCase().replace(/\.[^/.]+$/, ''))) {
+      return plan;
+    }
+    const words = plan.name.toLowerCase().split(/\s+/);
+    if (words.some(w => w.length > 3 && lower.includes(w))) {
+      return plan;
+    }
+  }
+
+  return null;
+}
+
 const fileUploader = $('#file-uploader');
+
+// Bind all file picker triggers
 $('#btn-upload-plan').onclick = () => fileUploader.click();
+$('#btn-hero-browse').onclick = () => fileUploader.click();
+$('#btn-change-plan').onclick = () => fileUploader.click();
+$('#blueprint-placeholder-prompt').onclick = () => fileUploader.click();
 $('#dropzone-area').onclick = () => fileUploader.click();
+$('#btn-logo-home').onclick = () => resetToEmptyState();
 
 fileUploader.onchange = e => {
   if (e.target.files && e.target.files[0]) {
@@ -1401,58 +2033,89 @@ fileUploader.onchange = e => {
   }
 };
 
-const dropArea = $('#dropzone-area');
-['dragenter', 'dragover'].forEach(n => dropArea.addEventListener(n, e => {
+// Global Drag & Drop Support
+const heroCard = $('#hero-dropzone');
+['dragenter', 'dragover'].forEach(n => {
+  window.addEventListener(n, e => {
+    e.preventDefault();
+    if (heroCard) heroCard.classList.add('drag-over');
+    $('#dropzone-area').style.borderColor = 'var(--accent)';
+  });
+});
+['dragleave', 'drop'].forEach(n => {
+  window.addEventListener(n, e => {
+    e.preventDefault();
+    if (heroCard) heroCard.classList.remove('drag-over');
+    $('#dropzone-area').style.borderColor = '';
+  });
+});
+window.addEventListener('drop', e => {
   e.preventDefault();
-  dropArea.style.borderColor = 'var(--accent)';
-}));
-['dragleave', 'drop'].forEach(n => dropArea.addEventListener(n, e => {
-  e.preventDefault();
-  dropArea.style.borderColor = '';
-}));
-dropArea.addEventListener('drop', e => {
-  if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+  if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
     handleBlueprintUpload(e.dataTransfer.files[0]);
   }
 });
 
 async function handleBlueprintUpload(file) {
+  if (!file) return;
+
   const spinner = $('#spinner-modal');
-  $('#spinner-text').textContent = `Analyzing Blueprint "${file.name}"...`;
+  const spinnerText = $('#spinner-text');
+  spinnerText.textContent = `Analyzing Blueprint "${file.name}"...`;
   spinner.classList.add('active');
 
   const reader = new FileReader();
   reader.onload = async ev => {
     const dataUrl = ev.target.result;
-    $('#sidebar-blueprint-img').src = dataUrl;
-    $('#split-2d-canvas').src = dataUrl;
 
-    // Try backend if active, or smoothly adapt to the optimal matching archetype
-    let uploadedPlan = null;
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      const res = await fetch('/api/analyze-floorplan', { method: 'POST', body: formData });
-      if (res.ok) {
-        const json = await res.json();
-        if (json && json.layout) uploadedPlan = json.layout;
+    // Multi-stage high-tech progress feedback
+    spinnerText.textContent = '1/3 Detecting structural walls & perimeter contours...';
+    await new Promise(r => setTimeout(r, 260));
+
+    spinnerText.textContent = '2/3 Calculating room topology & spatial boundaries...';
+    await new Promise(r => setTimeout(r, 260));
+
+    spinnerText.textContent = '3/3 Extruding watertight 3D architectural geometry...';
+
+    // 1. Check intelligent archetype match from catalog
+    let matchedPlan = matchPlanByFile(file.name);
+
+    // 2. If not matched by filename, call backend API
+    if (!matchedPlan) {
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        const res = await fetch('/api/analyze-floorplan', { method: 'POST', body: formData });
+        if (res.ok) {
+          const json = await res.json();
+          if (json && json.layout) matchedPlan = json.layout;
+        }
+      } catch (err) {
+        console.warn('Backend analyze fallback:', err);
       }
-    } catch (e) {
-      // Offline / Vercel fallback
     }
 
-    if (!uploadedPlan) {
-      // Intelligent archetype match: cycles to next distinct plan and updates metadata
-      const nextIdx = (activePlanIndex + 1) % catalog.length;
-      uploadedPlan = {
-        ...catalog[nextIdx],
-        name: file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ").toUpperCase(),
+    // 3. Fallback to catalog archetypes with custom name and user dataUrl
+    if (!matchedPlan) {
+      const fallbackIdx = (activePlanIndex + 1) % catalog.length;
+      matchedPlan = {
+        ...catalog[fallbackIdx >= 0 ? fallbackIdx : 0],
+        name: file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ').toUpperCase(),
+        imagePath: dataUrl
+      };
+    } else {
+      matchedPlan = {
+        ...matchedPlan,
         imagePath: dataUrl
       };
     }
 
-    rebuild3DScene(uploadedPlan);
-    spinner.classList.remove('active');
+    // Update active plan index
+    const foundIdx = catalog.findIndex(p => p.num === matchedPlan.num);
+    activePlanIndex = foundIdx >= 0 ? foundIdx : 0;
+
+    // Load Plan into 3D Studio
+    loadPlan(matchedPlan);
   };
   reader.readAsDataURL(file);
 }
@@ -1462,28 +2125,49 @@ async function handleBlueprintUpload(file) {
 // =========================================================================
 
 $('#tab-btn-3d').onclick = () => setSplitMode(false);
-$('#tab-btn-split').onclick = () => setSplitMode(true);
-$('#btn-toggle-split').onclick = () => setSplitMode(!isSplitMode);
+$('#tab-btn-split').onclick = () => {
+  if (!currentPlan) {
+    alert('Please upload a 2D floor plan first to use the Split View.');
+    fileUploader.click();
+    return;
+  }
+  setSplitMode(true);
+};
+$('#btn-toggle-split').onclick = () => {
+  if (!currentPlan) {
+    alert('Please upload a 2D floor plan first to use the Split Slider.');
+    fileUploader.click();
+    return;
+  }
+  setSplitMode(!isSplitMode);
+};
 
 $('#btn-mode-dollhouse').onclick = () => {
   exitWalkthrough();
-  th = -1.15; ph = 0.85; radT = 28;
+  resetRoomFocus();
 };
 $('#btn-mode-ortho').onclick = setTopDownOrtho;
 $('#btn-view-ortho').onclick = setTopDownOrtho;
-$('#btn-mode-walk').onclick = enterWalkthrough;
+$('#btn-mode-walk').onclick = () => {
+  if (!currentPlan) {
+    alert('Please upload a 2D floor plan first to enter Walkthrough mode.');
+    fileUploader.click();
+    return;
+  }
+  enterWalkthrough();
+};
 $('#btn-exit-walk').onclick = exitWalkthrough;
 
 $('#btn-color-cad').onclick = () => {
   colorMode = colorMode === 'cad' ? 'monograph' : 'cad';
   $('#btn-color-cad').classList.toggle('active', colorMode === 'cad');
-  rebuild3DScene(currentPlan);
+  if (currentPlan) rebuild3DScene(currentPlan);
 };
 
 $('#btn-toggle-roof').onclick = () => {
   hasRoof = !hasRoof;
   $('#btn-toggle-roof').classList.toggle('active', hasRoof);
-  rebuild3DScene(currentPlan);
+  if (currentPlan) rebuild3DScene(currentPlan);
 };
 
 // Floor Materials Switcher in Right Sidebar
@@ -1492,24 +2176,28 @@ $$('.mat-card').forEach(el => {
     $$('.mat-card').forEach(c => c.classList.remove('active'));
     el.classList.add('active');
     currentFloorType = el.getAttribute('data-floor') || 'wood';
-    rebuild3DScene(currentPlan);
+    if (currentPlan) rebuild3DScene(currentPlan);
   };
 });
 
 // Parametric Slider Dynamic Rebuilding
 $('#slider-dim-w').oninput = e => {
+  if (!currentPlan) return;
   currentPlan.dimensions.width = parseFloat(e.target.value);
   rebuild3DScene(currentPlan);
 };
 $('#slider-dim-l').oninput = e => {
+  if (!currentPlan) return;
   currentPlan.dimensions.length = parseFloat(e.target.value);
   rebuild3DScene(currentPlan);
 };
 $('#slider-dim-h').oninput = e => {
+  if (!currentPlan) return;
   currentPlan.dimensions.wallHeight = parseFloat(e.target.value);
   rebuild3DScene(currentPlan);
 };
 $('#slider-dim-t').oninput = e => {
+  if (!currentPlan) return;
   currentPlan.dimensions.wallThickness = parseFloat(e.target.value) / 100.0;
   rebuild3DScene(currentPlan);
 };
@@ -1549,9 +2237,14 @@ function animate() {
 
     drawSpatialRadar();
   } else {
-    // Smooth Orbit & Damping
+    // Smooth Orbit, Zoom & Rotation Animation
     rad += (radT - rad) * 0.08;
     tg.lerp(tgGoal, 0.08);
+
+    if (!isDragging) {
+      th = lerpAngle(th, thGoal, 0.07);
+      ph += (phGoal - ph) * 0.07;
+    }
 
     cam.position.set(
       tg.x + rad * Math.sin(ph) * Math.sin(th),
@@ -1559,6 +2252,14 @@ function animate() {
       tg.z + rad * Math.sin(ph) * Math.cos(th)
     );
     cam.lookAt(tg);
+  }
+
+  // Pulsing Floor Glow Effect for Focused Room
+  if (selectedRoom && roomHighlightGroup.children.length > 0) {
+    const glowMesh = roomHighlightGroup.children[0];
+    if (glowMesh && glowMesh.material) {
+      glowMesh.material.opacity = 0.24 + 0.12 * Math.sin(Date.now() * 0.005);
+    }
   }
 
   renderer.render(scene, cam);
@@ -1569,10 +2270,7 @@ function animate() {
 // =========================================================================
 
 window.addEventListener('DOMContentLoaded', () => {
-  buildPresetRibbon();
-  if (catalog.length > 0) {
-    switchPlan(0);
-  }
+  resetToEmptyState();
   animate();
 });
 </script>

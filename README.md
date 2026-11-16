@@ -65,7 +65,7 @@ Reading traditional 2D architectural blueprints is challenging for non-specialis
   - Real-time sliders for width ($X$), length ($Z$), wall height ($Y$), and wall thickness with instant 3D mesh regeneration.
 - **💾 Multi-Format Architectural Export**:
   - Direct in-browser binary **GLB 3D model** export via `THREE.GLTFExporter`.
-  - High-resolution $2400 \times 1600\text{ px}$ **Architectural Presentation Board** export with certified title block and BIM room schedule.
+  - High-resolution $2400 \times 1600\text{ px}$ **Architectural Presentation Board** export with certified title block and spatial room schedule.
 
 ---
 
