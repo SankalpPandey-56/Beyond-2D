@@ -6,111 +6,665 @@
 <title>BEYOND - 2D · Architectural 3D Studio & Vision CAD Engine</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #08090A;
-  --panel: #0E1013;
-  --panel-alt: #141518;
-  --panel-glass: rgba(14, 16, 19, 0.88);
-  --line: rgba(255, 255, 255, 0.08);
-  --line-subtle: rgba(255, 255, 255, 0.05);
-  --line-active: #5E6AD2;
-  --text: #F4F5F6;
-  --text-dim: #8B8F97;
-  --mute: #585C64;
-  --accent: #5E6AD2;
-  --accent-hover: #727DE0;
-  --accent-glow: rgba(94, 106, 210, 0.35);
-  --accent-subtle: rgba(94, 106, 210, 0.12);
-  --amber: #F59E0B;
-  --green: #22C55E;
-  --red: #E11D48;
-  --cyan: #38BDF8;
-  --radius: 10px;
+  /* Midnight Graphite Backgrounds */
+  --background: #0B0D12;
+  --sidebar: #11141B;
+  --surface: #191E28;
+  --surface-hover: #202633;
+  --toolbar: #11141B;
+
+  /* Architectural Borders */
+  --border: #292F3B;
+  --border-subtle: #202530;
+  --border-focus: #858BFF;
+
+  /* Typography */
+  --text-primary: #F3F4F6;
+  --text-secondary: #9AA3B2;
+  --text-muted: #8B93A3;
+
+  /* Accent & Technical */
+  --accent: #858BFF;
+  --accent-hover: #747BEE;
+  --accent-subtle: rgba(133, 139, 255, 0.12);
+  --technical-cyan: #63C7DC;
+
+  /* Semantic Feedback */
+  --success: #55C99A;
+  --warning: #E9B96E;
+  --error: #EF7777;
+
+  /* Precision Radii */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  /* Aliases for backwards compatibility */
+  --bg: var(--background);
+  --panel: var(--sidebar);
+  --panel-alt: var(--surface);
+  --line: var(--border);
+  --line-subtle: var(--border-subtle);
+  --text: var(--text-primary);
+  --text-dim: var(--text-secondary);
+  --mute: var(--text-muted);
+  --amber: var(--warning);
+  --green: var(--success);
+  --red: var(--error);
+  --cyan: var(--technical-cyan);
+  --accent-glow: rgba(133, 139, 255, 0.28);
+
   color-scheme: dark;
   box-sizing: border-box;
 }
+
 *, *::before, *::after { box-sizing: inherit; }
-html, body { height: 100%; margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; overflow: hidden; -webkit-font-smoothing: antialiased; }
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--background);
+  color: var(--text-primary);
+  font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
 /* Main Application Layout */
-.app { display: grid; grid-template-rows: 60px 1fr; height: 100vh; overflow: hidden; }
+.app {
+  display: grid;
+  grid-template-rows: 52px 1fr;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--background);
+}
 
 /* Top Navigation Bar */
-nav { display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: rgba(8, 9, 10, 0.95); border-bottom: 1px solid var(--line); backdrop-filter: blur(16px); z-index: 50; }
-.nav-left { display: flex; align-items: center; gap: 16px; }
-.logo-box { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-.logo-icon { width: 32px; height: 32px; background: linear-gradient(135deg, #5E6AD2 0%, #4338CA 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 16px var(--accent-glow); font-size: 15px; font-weight: 800; color: #FFF; }
-.logo-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 17px; font-weight: 800; letter-spacing: -0.02em; background: linear-gradient(to right, #FFF, #94A3B8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.version-pill { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: var(--accent-subtle); color: #828FFF; border: 1px solid rgba(94, 106, 210, 0.3); letter-spacing: 0.04em; text-transform: uppercase; display: flex; align-items: center; gap: 5px; }
-.pulsing-dot { width: 6px; height: 6px; border-radius: 50%; background: #5E6AD2; box-shadow: 0 0 8px #5E6AD2; animation: pulse 2s infinite; }
-@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } }
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  background: var(--sidebar);
+  border-bottom: 1px solid var(--border);
+  z-index: 50;
+  height: 52px;
+}
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.btn-toggle-sidebar {
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+.btn-toggle-sidebar:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+.btn-toggle-sidebar.active {
+  background: var(--accent-subtle);
+  color: var(--accent);
+  border-color: rgba(133, 139, 255, 0.4);
+}
+.logo-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+.logo-icon {
+  width: 26px;
+  height: 26px;
+  background: var(--accent-subtle);
+  border: 1px solid rgba(133, 139, 255, 0.35);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+}
+.logo-title {
+  font-family: 'Geist', sans-serif;
+  font-size: 14.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+.version-pill {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.pulsing-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 6px var(--success);
+}
 
-.nav-tabs { display: flex; gap: 4px; background: rgba(255, 255, 255, 0.04); padding: 3px; border-radius: 10px; border: 1px solid var(--line); }
-.nav-tab { background: none; border: 0; color: var(--text-dim); font-size: 12.5px; font-weight: 600; padding: 6px 14px; border-radius: 7px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
-.nav-tab:hover { color: var(--text); background: rgba(255, 255, 255, 0.06); }
-.nav-tab.active { background: var(--panel-alt); color: #F4F5F6; border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4); }
+.nav-tabs {
+  display: flex;
+  gap: 2px;
+  background: var(--surface);
+  padding: 2px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  margin-left: 6px;
+}
+.nav-tab {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.nav-tab:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.03);
+}
+.nav-tab.active {
+  background: var(--sidebar);
+  color: var(--text-primary);
+  border-color: var(--border);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  font-weight: 600;
+}
 
-.nav-right { display: flex; align-items: center; gap: 10px; }
-.btn-nav { background: rgba(255, 255, 255, 0.04); border: 1px solid var(--line); color: var(--text); border-radius: 8px; padding: 7px 13px; font-size: 12.5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 7px; transition: all 0.2s; }
-.btn-nav:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.2); transform: translateY(-1px); }
-.btn-primary { background: linear-gradient(135deg, #5E6AD2 0%, #4338CA 100%); color: #FFF; border: 0; font-weight: 700; box-shadow: 0 4px 16px var(--accent-glow); }
-.btn-primary:hover { filter: brightness(1.12); transform: translateY(-1px); }
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-nav {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  border-radius: var(--radius-md);
+  padding: 0 12px;
+  height: 34px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+.btn-nav:hover {
+  background: var(--surface-hover);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+.btn-primary {
+  background: var(--accent);
+  color: #FFF;
+  border: 1px solid var(--accent);
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(133, 139, 255, 0.25);
+}
+.btn-primary:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+  color: #FFF;
+}
 
 /* Main Workspace Grid */
-main { display: grid; grid-template-columns: 320px 1fr; height: calc(100vh - 60px); min-height: 0; }
+main {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  height: calc(100vh - 52px);
+  min-height: 0;
+  background: var(--background);
+  transition: grid-template-columns 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+main.sidebar-collapsed {
+  grid-template-columns: 0px 1fr;
+}
+main.sidebar-collapsed aside.sidebar-left {
+  padding: 0;
+  border-right-width: 0;
+  opacity: 0;
+  pointer-events: none;
+}
 
-/* Sidebars */
-aside { background: var(--panel); padding: 18px 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; border-color: var(--line); z-index: 20; }
-aside.sidebar-left { border-right: 1px solid var(--line); }
+/* Left Property Inspector Sidebar */
+aside.sidebar-left {
+  background: var(--sidebar);
+  border-right: 1px solid var(--border);
+  padding: 14px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 20;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) var(--sidebar);
+  transition: padding 0.25s ease, opacity 0.2s ease;
+}
 
-.section-head { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--mute); margin-bottom: 2px; }
-.badge-count { background: rgba(94, 106, 210, 0.15); color: #828FFF; padding: 2px 7px; border-radius: 6px; font-size: 10px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+/* Collapsible Section Layout */
+.sidebar-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sidebar-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 2px;
+  cursor: pointer;
+  user-select: none;
+}
+.section-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+.section-chevron {
+  color: var(--text-muted);
+  transition: transform 0.2s ease;
+}
+.sidebar-section.collapsed .section-chevron {
+  transform: rotate(-90deg);
+}
+.sidebar-section-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sidebar-section.collapsed .sidebar-section-content {
+  display: none;
+}
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  margin-bottom: 2px;
+}
+.badge-count {
+  background: var(--surface);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+}
 
-/* Preset Selector / Active Blueprint Card in Left Sidebar */
-.preset-card { background: var(--panel-alt); border: 1px solid var(--line); border-radius: 10px; padding: 12px 10px; display: flex; flex-direction: column; gap: 6px; transition: all 0.2s; }
-.preset-card:hover { border-color: rgba(94, 106, 210, 0.4); }
+/* Active Blueprint Card */
+.preset-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: border-color 0.15s ease;
+}
+.preset-card:hover {
+  border-color: rgba(133, 139, 255, 0.35);
+}
+.active-plan-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: 2px;
+}
+.active-plan-subtitle {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
 
 /* 2D Plan Preview Card */
-.blueprint-card { background: #090A0D; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; position: relative; }
-.blueprint-card-header { padding: 8px 12px; background: rgba(255, 255, 255, 0.02); border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; }
-.blueprint-card-title { font-size: 11px; font-weight: 700; color: #828FFF; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 6px; }
-.blueprint-img-wrap { width: 100%; height: 165px; position: relative; display: flex; align-items: center; justify-content: center; background: #0B0C0E; overflow: hidden; }
-.blueprint-img-wrap img { max-width: 96%; max-height: 96%; object-fit: contain; transition: transform 0.3s; }
-.blueprint-img-wrap:hover img { transform: scale(1.04); }
-.blueprint-empty-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: var(--mute); text-align: center; padding: 14px; cursor: pointer; transition: all 0.2s; }
-.blueprint-empty-placeholder:hover { background: rgba(94, 106, 210, 0.06); color: #828FFF; }
-.blueprint-empty-placeholder svg { color: #828FFF; opacity: 0.8; margin-bottom: 2px; }
-.btn-ortho { width: 100%; background: rgba(255, 255, 255, 0.03); border: 0; border-top: 1px solid var(--line); color: var(--text-dim); padding: 7px; font-size: 11.5px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
-.btn-ortho:hover { color: #828FFF; background: rgba(94, 106, 210, 0.08); }
+.blueprint-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  position: relative;
+}
+.blueprint-card-header {
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.blueprint-card-title {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.blueprint-img-wrap {
+  width: 100%;
+  height: 155px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #090B0F;
+  overflow: hidden;
+}
+.blueprint-img-wrap img {
+  max-width: 96%;
+  max-height: 96%;
+  object-fit: contain;
+  transition: transform 0.25s ease;
+}
+.blueprint-img-wrap:hover img {
+  transform: scale(1.03);
+}
+.blueprint-empty-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.blueprint-empty-placeholder:hover {
+  background: var(--accent-subtle);
+  color: var(--accent);
+}
+.blueprint-empty-placeholder svg {
+  color: var(--text-secondary);
+  margin-bottom: 2px;
+}
+.btn-ortho {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.02);
+  border: 0;
+  border-top: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  padding: 7px;
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.btn-ortho:hover {
+  color: var(--text-primary);
+  background: var(--surface-hover);
+}
 
-/* Parametric Sliders */
-.param-box { background: var(--panel-alt); border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
-.param-row { display: flex; flex-direction: column; gap: 4px; }
-.param-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-dim); font-weight: 500; }
-.param-val { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: #828FFF; font-weight: 600; }
-.slider-styled { -webkit-appearance: none; width: 100%; height: 5px; border-radius: 3px; background: #1C1E23; outline: none; cursor: pointer; }
-.slider-styled::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--accent); cursor: pointer; box-shadow: 0 0 10px var(--accent-glow); border: 2px solid #FFF; }
+/* Parametric Dimension Sliders */
+.param-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.param-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.param-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+.param-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  color: var(--technical-cyan);
+  font-weight: 500;
+}
+.slider-styled {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border-subtle);
+  outline: none;
+  cursor: pointer;
+}
+.slider-styled::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  border: 2px solid var(--text-primary);
+  transition: transform 0.15s ease;
+}
+.slider-styled::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  background: var(--accent-hover);
+}
 
 /* Rooms List in Left Sidebar */
-.rooms-container { display: flex; flex-direction: column; gap: 5px; max-height: 210px; overflow-y: auto; overflow-x: hidden; padding-right: 4px; scrollbar-width: thin; }
-.room-item { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text); cursor: pointer; user-select: none; flex-shrink: 0; transition: background 0.15s ease, border-color 0.15s ease; }
-.room-item:hover { background: rgba(94, 106, 210, 0.12); border-color: rgba(94, 106, 210, 0.4); }
-.room-item.active { background: rgba(94, 106, 210, 0.22); border-color: #5E6AD2; font-weight: 700; box-shadow: 0 0 14px var(--accent-glow); }
-.room-meta-pill { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #828FFF; font-weight: 600; }
+.rooms-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 210px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 2px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.room-item {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 0 10px;
+  height: 34px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+.room-item:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+.room-item.active {
+  background: var(--accent-subtle);
+  border-color: rgba(133, 139, 255, 0.4);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.room-meta-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  color: var(--technical-cyan);
+  font-weight: 500;
+}
 
 /* Dropzone for Uploads */
-.dropzone-box { border: 1.5px dashed var(--line); border-radius: 10px; padding: 14px 10px; text-align: center; cursor: pointer; transition: all 0.2s; background: rgba(0, 0, 0, 0.15); display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.dropzone-box:hover { border-color: var(--accent); background: rgba(94, 106, 210, 0.05); }
-.dropzone-icon { font-size: 20px; color: var(--accent); }
-.dropzone-main { font-size: 11.5px; font-weight: 600; color: var(--text); }
-.dropzone-sub { font-size: 10px; color: var(--mute); }
+.dropzone-box {
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  background: rgba(25, 30, 40, 0.25);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.dropzone-box:hover {
+  border-color: var(--accent);
+  background: var(--accent-subtle);
+}
+.dropzone-icon {
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dropzone-box:hover .dropzone-icon {
+  color: var(--accent);
+}
+.dropzone-main {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.dropzone-sub {
+  font-size: 10px;
+  color: var(--text-muted);
+}
 
-/* 3D Viewport Stage */
-#stage-wrap { position: relative; width: 100%; height: 100%; min-width: 0; min-height: 0; background: #08090A; overflow: hidden; }
-#stage { width: 100%; height: 100%; cursor: grab; }
-#stage:active { cursor: grabbing; }
+/* Dedicated 3D Viewport Workspace Frame (Highest Priority Requirement) */
+.viewport-workspace {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding: 10px 12px 12px 10px;
+  background: var(--background);
+  display: flex;
+}
+#stage-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  background: #0B0D12;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
+}
+#stage {
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+}
+#stage:active {
+  cursor: grabbing;
+}
+
+/* Architectural Viewport HUD Header */
+.viewport-hud-header {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 22;
+  pointer-events: none;
+  user-select: none;
+}
+.viewport-mode-tag {
+  background: rgba(17, 20, 27, 0.88);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 4px 9px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  backdrop-filter: blur(8px);
+}
+.hud-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 6px var(--success);
+}
+.viewport-grid-tag {
+  background: rgba(17, 20, 27, 0.88);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+  backdrop-filter: blur(8px);
+}
 
 /* Hero Upload Overlay (Initial Clean Studio State) */
 .hero-upload-overlay {
@@ -120,9 +674,9 @@ aside.sidebar-left { border-right: 1px solid var(--line); }
   align-items: center;
   justify-content: center;
   z-index: 35;
-  background: radial-gradient(circle at center, rgba(14, 16, 19, 0.72) 0%, rgba(8, 9, 10, 0.94) 100%);
-  backdrop-filter: blur(10px);
-  transition: opacity 0.35s ease, visibility 0.35s ease;
+  background: radial-gradient(circle at center, rgba(11, 13, 18, 0.85) 0%, rgba(11, 13, 18, 0.98) 100%);
+  backdrop-filter: blur(12px);
+  transition: opacity 0.3s ease, visibility 0.3s ease;
   pointer-events: auto;
 }
 .hero-upload-overlay.hidden {
@@ -131,103 +685,100 @@ aside.sidebar-left { border-right: 1px solid var(--line); }
   pointer-events: none;
 }
 .hero-upload-card {
-  max-width: 560px;
+  max-width: 500px;
   width: 90%;
-  background: rgba(14, 16, 19, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 18px;
-  padding: 38px 32px;
+  background: var(--sidebar);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 34px 28px;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(94, 106, 210, 0.15);
-  transition: transform 0.25s ease, border-color 0.25s ease;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+  transition: transform 0.2s ease, border-color 0.2s ease;
 }
 .hero-upload-card.drag-over {
-  border-color: #5E6AD2;
-  box-shadow: 0 24px 70px rgba(94, 106, 210, 0.35);
-  transform: scale(1.02);
+  border-color: var(--accent);
+  box-shadow: 0 20px 60px rgba(133, 139, 255, 0.25);
+  transform: scale(1.01);
 }
 .hero-upload-badge {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 4px 12px;
+  gap: 7px;
+  padding: 3px 10px;
   border-radius: 999px;
-  background: rgba(94, 106, 210, 0.12);
-  border: 1px solid rgba(94, 106, 210, 0.3);
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10.5px;
-  font-weight: 700;
-  color: #828FFF;
-  letter-spacing: 0.06em;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 .hero-upload-icon {
-  width: 76px;
-  height: 76px;
-  border-radius: 20px;
-  background: linear-gradient(135deg, rgba(94, 106, 210, 0.18), rgba(67, 56, 202, 0.3));
-  border: 1.5px dashed rgba(94, 106, 210, 0.45);
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  background: var(--accent-subtle);
+  border: 1.5px dashed rgba(133, 139, 255, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #828FFF;
-  margin-bottom: 18px;
-  transition: all 0.25s;
+  color: var(--accent);
+  margin-bottom: 16px;
+  transition: all 0.2s ease;
 }
 .hero-upload-card:hover .hero-upload-icon {
-  border-color: #5E6AD2;
-  transform: scale(1.06);
-  box-shadow: 0 0 25px rgba(94, 106, 210, 0.4);
+  border-color: var(--accent);
+  transform: scale(1.05);
 }
 .hero-upload-title {
-  font-size: 26px;
-  font-weight: 800;
+  font-size: 22px;
+  font-weight: 600;
   letter-spacing: -0.02em;
-  margin: 0 0 10px 0;
-  background: linear-gradient(to right, #FFFFFF, #CBD5E1);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  margin: 0 0 8px 0;
+  color: var(--text-primary);
 }
 .hero-upload-sub {
-  font-size: 13.5px;
+  font-size: 13px;
   line-height: 1.55;
-  color: var(--text-dim);
-  margin: 0 0 22px 0;
-  max-width: 440px;
+  color: var(--text-secondary);
+  margin: 0 0 20px 0;
+  max-width: 400px;
 }
 .hero-upload-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: 10px;
+  margin-bottom: 18px;
 }
 .btn-hero-upload {
-  background: linear-gradient(135deg, #5E6AD2 0%, #4338CA 100%);
+  background: var(--accent);
   color: #FFF;
-  border: 0;
-  padding: 12px 24px;
-  border-radius: 10px;
-  font-size: 13.5px;
-  font-weight: 700;
+  border: 1px solid var(--accent);
+  padding: 10px 22px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 9px;
-  box-shadow: 0 4px 20px var(--accent-glow);
-  transition: all 0.2s;
+  gap: 8px;
+  box-shadow: 0 2px 10px rgba(133, 139, 255, 0.25);
+  transition: all 0.15s ease;
 }
 .btn-hero-upload:hover {
-  filter: brightness(1.12);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 28px var(--accent-glow);
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+  transform: translateY(-1px);
 }
 .hero-upload-footer {
-  font-size: 11.5px;
-  color: var(--mute);
+  font-size: 11px;
+  color: var(--text-muted);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -236,111 +787,555 @@ aside.sidebar-left { border-right: 1px solid var(--line); }
 }
 .hero-upload-footer code {
   font-family: 'JetBrains Mono', monospace;
-  background: rgba(255, 255, 255, 0.06);
-  padding: 2px 6px;
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  padding: 1px 5px;
   border-radius: 4px;
-  color: #828FFF;
+  color: var(--technical-cyan);
 }
 
-/* Floating Bottom Control Dock */
-.dock-bar { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; background: rgba(14, 16, 19, 0.92); border: 1px solid rgba(255, 255, 255, 0.08); padding: 6px 10px; border-radius: 12px; backdrop-filter: blur(20px); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6); z-index: 30; max-width: 95%; }
-.dock-group { display: flex; gap: 3px; border-right: 1px solid var(--line); padding-right: 8px; margin-right: 2px; }
-.dock-btn { background: none; border: 0; color: var(--text-dim); font-size: 11.5px; font-weight: 600; padding: 7px 11px; border-radius: 7px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
-.dock-btn:hover { color: var(--text); background: rgba(255, 255, 255, 0.06); }
-.dock-btn.active { background: rgba(94, 106, 210, 0.16); color: #828FFF; border: 1px solid rgba(94, 106, 210, 0.35); font-weight: 700; }
-
-.dock-sun { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-dim); padding: 0 6px; }
-.dock-sun input { width: 70px; accent-color: var(--amber); cursor: pointer; }
-.dock-sun-val { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--amber); }
+/* Floating Bottom Control Dock (3 Logical Groups) */
+.dock-bar {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: var(--toolbar);
+  border: 1px solid var(--border);
+  padding: 4px 6px;
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.03);
+  z-index: 30;
+  max-width: 95%;
+}
+.dock-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  border-right: 1px solid var(--border-subtle);
+  padding-right: 5px;
+  margin-right: 3px;
+}
+.dock-group:last-child {
+  border-right: 0;
+  padding-right: 0;
+  margin-right: 0;
+}
+.dock-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 0 10px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+.dock-btn:hover {
+  color: var(--text-primary);
+  background: var(--surface-hover);
+}
+.dock-btn.active {
+  background: var(--accent-subtle);
+  color: var(--accent);
+  border-color: rgba(133, 139, 255, 0.35);
+  font-weight: 600;
+}
+.dock-popover-wrap {
+  position: relative;
+}
+.dock-popover {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  right: 0;
+  width: 250px;
+  background: var(--toolbar);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.7);
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 35;
+  backdrop-filter: blur(16px);
+}
+.dock-popover.active {
+  display: flex;
+  animation: popoverFadeIn 0.15s ease;
+}
+@keyframes popoverFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.dock-popover-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.dock-popover-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.dock-popover-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--warning);
+}
+.dock-popover-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+.dock-sun-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  color: var(--warning);
+  font-weight: 600;
+  margin-left: 2px;
+}
 
 /* Draggable Split-Screen Slider Overlay */
-#split-overlay { position: absolute; inset: 0; pointer-events: none; z-index: 25; display: none; }
-#split-overlay.active { display: block; }
-#split-2d-wrap { position: absolute; inset: 0; width: 100%; height: 100%; background: #08090A; pointer-events: none; overflow: hidden; clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%); }
-#split-2d-canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
-.split-tag { position: absolute; top: 18px; display: flex; align-items: center; gap: 6px; background: rgba(14, 16, 19, 0.92); border: 1px solid rgba(255, 255, 255, 0.12); backdrop-filter: blur(10px); padding: 6px 14px; border-radius: 999px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; color: var(--text); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5); pointer-events: none; user-select: none; z-index: 28; }
-.split-tag-dot { width: 6px; height: 6px; border-radius: 50%; }
-.split-tag-2d { left: 20px; }
-.split-tag-3d { right: 20px; }
-#split-divider { position: absolute; top: 0; bottom: 0; left: 50%; width: 4px; margin-left: -2px; background: #5E6AD2; cursor: ew-resize; pointer-events: auto; box-shadow: 0 0 16px var(--accent-glow), 0 0 4px rgba(255, 255, 255, 0.5); z-index: 30; touch-action: none; }
-#split-divider::before { content: ''; position: absolute; top: 0; bottom: 0; left: -25px; right: -25px; cursor: ew-resize; }
-#split-handle { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #0E1013; border: 1.5px solid #5E6AD2; color: #F4F5F6; font-size: 10px; font-weight: 800; padding: 7px 13px; border-radius: 999px; white-space: nowrap; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8), 0 0 14px var(--accent-glow); pointer-events: auto; letter-spacing: 0.08em; display: flex; align-items: center; gap: 5px; user-select: none; cursor: ew-resize; }
+#split-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 25;
+  display: none;
+}
+#split-overlay.active {
+  display: block;
+}
+#split-2d-wrap {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: #0B0D12;
+  pointer-events: none;
+  overflow: hidden;
+  clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
+}
+#split-2d-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+.split-tag {
+  position: absolute;
+  top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(17, 20, 27, 0.9);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(10px);
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--text-primary);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  user-select: none;
+  z-index: 28;
+}
+.split-tag-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.split-tag-2d { left: 16px; }
+.split-tag-3d { right: 16px; }
+#split-divider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 3px;
+  margin-left: -1.5px;
+  background: var(--accent);
+  cursor: ew-resize;
+  pointer-events: auto;
+  box-shadow: 0 0 12px rgba(133, 139, 255, 0.4);
+  z-index: 30;
+  touch-action: none;
+}
+#split-divider::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -22px;
+  right: -22px;
+  cursor: ew-resize;
+}
+#split-handle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--toolbar);
+  border: 1.5px solid var(--accent);
+  color: var(--text-primary);
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 5px 11px;
+  border-radius: 999px;
+  white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7);
+  pointer-events: auto;
+  letter-spacing: 0.08em;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  user-select: none;
+  cursor: ew-resize;
+}
 
 /* Walkthrough Mini-Radar Floor Map */
-#radar-widget { position: absolute; bottom: 85px; left: 20px; width: 170px; height: 130px; background: rgba(14, 16, 19, 0.92); border: 1px solid rgba(94, 106, 210, 0.3); border-radius: 12px; padding: 8px; backdrop-filter: blur(16px); z-index: 30; display: none; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6); }
-#radar-widget.active { display: flex; flex-direction: column; gap: 6px; }
-.radar-title { font-size: 9.5px; font-weight: 700; color: #828FFF; text-transform: uppercase; letter-spacing: 0.05em; display: flex; justify-content: space-between; }
-#radar-canvas { width: 100%; height: 95px; background: #090A0D; border-radius: 6px; }
+#radar-widget {
+  position: absolute;
+  bottom: 80px;
+  left: 18px;
+  width: 160px;
+  height: 120px;
+  background: rgba(17, 20, 27, 0.94);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 8px;
+  backdrop-filter: blur(16px);
+  z-index: 30;
+  display: none;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+}
+#radar-widget.active {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.radar-title {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: flex;
+  justify-content: space-between;
+}
+#radar-canvas {
+  width: 100%;
+  height: 85px;
+  background: #090B0F;
+  border-radius: 4px;
+}
 
 /* Walkthrough HUD Instructions */
-#walk-hud { position: absolute; top: 75px; left: 50%; transform: translateX(-50%); background: rgba(14, 16, 19, 0.92); border: 1px solid var(--line); border-radius: 10px; padding: 8px 16px; font-size: 11.5px; color: var(--text); display: none; align-items: center; gap: 12px; backdrop-filter: blur(16px); z-index: 30; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5); }
-#walk-hud.active { display: flex; }
-.hud-key { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); padding: 2px 6px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: #828FFF; }
-#btn-exit-walk { background: rgba(225, 29, 72, 0.15); border: 1px solid var(--red); color: #FDA4AF; font-size: 10.5px; font-weight: 700; padding: 4px 10px; border-radius: 6px; cursor: pointer; }
-#btn-exit-walk:hover { background: var(--red); color: #FFF; }
+#walk-hud {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(17, 20, 27, 0.94);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 6px 14px;
+  font-size: 11.5px;
+  color: var(--text-primary);
+  display: none;
+  align-items: center;
+  gap: 10px;
+  backdrop-filter: blur(16px);
+  z-index: 30;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+#walk-hud.active {
+  display: flex;
+}
+.hud-key {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--accent);
+}
+#btn-exit-walk {
+  background: rgba(239, 119, 119, 0.15);
+  border: 1px solid var(--error);
+  color: #FDA4AF;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+#btn-exit-walk:hover {
+  background: var(--error);
+  color: #FFF;
+}
 
 /* Architectural Finishes Picker */
-.mat-picker-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-.mat-card { background: var(--panel-alt); border: 1px solid var(--line); border-radius: 8px; padding: 8px; cursor: pointer; display: flex; flex-direction: column; gap: 4px; transition: all 0.2s; }
-.mat-card:hover { border-color: var(--accent); transform: translateY(-2px); }
-.mat-card.active { border-color: var(--accent); background: rgba(94, 106, 210, 0.12); }
-.mat-swatch { height: 26px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.08); }
-.mat-name { font-size: 11px; font-weight: 600; color: var(--text); }
-.mat-sub { font-size: 9.5px; color: var(--mute); }
+.mat-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+.mat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  transition: all 0.15s ease;
+}
+.mat-card:hover {
+  background: var(--surface-hover);
+  border-color: rgba(133, 139, 255, 0.3);
+}
+.mat-card.active {
+  border-color: var(--accent);
+  background: var(--accent-subtle);
+}
+.mat-swatch {
+  height: 26px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 2px;
+}
+.mat-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.mat-sub {
+  font-size: 9.5px;
+  color: var(--text-muted);
+}
 
-/* Glassmorphic Room Focus HUD Card */
+/* Property Inspector Focus HUD Card */
 .room-focus-hud {
   position: absolute;
-  bottom: 85px;
-  right: 24px;
-  width: 310px;
-  background: rgba(14, 16, 19, 0.95);
-  border: 1px solid rgba(94, 106, 210, 0.45);
-  border-radius: 12px;
-  padding: 16px;
-  backdrop-filter: blur(24px);
+  bottom: 18px;
+  right: 18px;
+  width: 290px;
+  background: var(--sidebar);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.65);
   z-index: 30;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), 0 0 24px var(--accent-glow);
+  gap: 10px;
   opacity: 0;
   pointer-events: none;
-  transform: translateY(10px);
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  transform: translateY(8px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 .room-focus-hud.active {
   opacity: 1;
   pointer-events: auto;
   transform: translateY(0);
 }
-.rf-header { display: flex; justify-content: space-between; align-items: center; }
-.rf-badge-row { display: flex; align-items: center; gap: 6px; }
-.rf-dot { width: 7px; height: 7px; border-radius: 50%; background: #22C55E; box-shadow: 0 0 8px #22C55E; }
-.rf-type { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #828FFF; }
-.rf-area-pill { background: rgba(94, 106, 210, 0.18); border: 1px solid rgba(94, 106, 210, 0.3); color: #F4F5F6; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 6px; }
-.rf-close { background: rgba(255, 255, 255, 0.06); border: 0; color: #8B8F97; width: 22px; height: 22px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-.rf-close:hover { background: rgba(225, 29, 72, 0.2); color: #FDA4AF; }
-.rf-title { font-size: 15px; font-weight: 800; color: #F4F5F6; letter-spacing: -0.01em; }
-.rf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
-.rf-metric { display: flex; flex-direction: column; gap: 2px; }
-.rf-label { font-size: 9px; font-weight: 700; color: var(--mute); letter-spacing: 0.06em; text-transform: uppercase; }
-.rf-val { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; font-weight: 700; color: #F4F5F6; }
-.rf-actions { display: flex; gap: 6px; margin-top: 2px; }
-.rf-btn { flex: 1; background: rgba(94, 106, 210, 0.15); border: 1px solid rgba(94, 106, 210, 0.4); color: #828FFF; font-size: 11px; font-weight: 700; padding: 7px 10px; border-radius: 7px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; }
-.rf-btn:hover { background: #5E6AD2; color: #FFF; }
-.rf-btn-reset { flex: 0 0 auto; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--line); color: #8B8F97; }
-.rf-btn-reset:hover { background: rgba(255, 255, 255, 0.08); color: #F4F5F6; }
+.rf-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.rf-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.rf-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 6px var(--success);
+}
+.rf-type {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+}
+.rf-area-pill {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  color: var(--technical-cyan);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+.rf-close {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+.rf-close:hover {
+  background: rgba(239, 119, 119, 0.15);
+  color: var(--error);
+  border-color: rgba(239, 119, 119, 0.3);
+}
+.rf-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+.rf-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+}
+.rf-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.rf-label {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.rf-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+.rf-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 2px;
+}
+.rf-btn {
+  flex: 1;
+  background: var(--accent-subtle);
+  border: 1px solid rgba(133, 139, 255, 0.35);
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 600;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+.rf-btn:hover {
+  background: var(--accent);
+  color: #FFF;
+}
+.rf-btn-reset {
+  flex: 0 0 auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+.rf-btn-reset:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
 
 /* Quick Hover Tooltip */
-#room-tag-tooltip { position: absolute; pointer-events: none; background: rgba(14, 16, 19, 0.94); border: 1px solid var(--accent); border-radius: 8px; padding: 6px 12px; font-size: 11.5px; color: var(--text); display: none; align-items: center; gap: 8px; white-space: nowrap; z-index: 40; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6); transform: translate(12px, 12px); }
+#room-tag-tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: var(--toolbar);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 5px 10px;
+  font-size: 11.5px;
+  color: var(--text-primary);
+  display: none;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  z-index: 40;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  transform: translate(12px, 12px);
+}
 
-/* Loading Spinner */
-#spinner-modal { position: absolute; inset: 0; background: rgba(9, 13, 20, 0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.3s; backdrop-filter: blur(10px); }
-#spinner-modal.active { opacity: 1; pointer-events: auto; }
-.loading-ring { width: 38px; height: 38px; border: 3px solid rgba(56, 189, 248, 0.15); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+/* Loading Spinner Modal */
+#spinner-modal {
+  position: absolute;
+  inset: 0;
+  background: rgba(11, 13, 18, 0.88);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  backdrop-filter: blur(8px);
+}
+#spinner-modal.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+.loading-ring {
+  width: 32px;
+  height: 32px;
+  border: 2.5px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
 @keyframes spin { to { transform: rotate(360deg); } }
-#spinner-text { font-size: 13px; font-weight: 600; color: var(--text); }
+#spinner-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
 </style>
 </head>
 <body>
@@ -349,22 +1344,27 @@ aside.sidebar-left { border-right: 1px solid var(--line); }
   <!-- Top Navigation -->
   <nav>
     <div class="nav-left">
+      <button class="btn-toggle-sidebar" id="btn-toggle-sidebar" title="Toggle Property Inspector (Ctrl+B / ⌘B)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+      </button>
+
       <div class="logo-box" id="btn-logo-home">
         <div class="logo-icon">B2</div>
         <span class="logo-title">BEYOND - 2D</span>
       </div>
+
       <div class="version-pill">
         <span class="pulsing-dot"></span>
-        <span>STUDIO v2.5 · 10 ARCHETYPES</span>
+        <span>STUDIO v2.5</span>
       </div>
 
       <div class="nav-tabs">
         <button class="nav-tab active" id="tab-btn-3d">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
           3D Viewport
         </button>
         <button class="nav-tab" id="tab-btn-split">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 3v18"/></svg>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 3v18"/></svg>
           Split 2D / 3D
         </button>
       </div>
@@ -373,33 +1373,34 @@ aside.sidebar-left { border-right: 1px solid var(--line); }
     <div class="nav-right">
       <input type="file" id="file-uploader" accept="image/*" style="display:none">
       <button class="btn-nav" id="btn-upload-plan">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
         Upload Blueprint
       </button>
       <button class="btn-nav" id="btn-export-sheet" title="Generate High-Resolution Architectural Presentation Sheet">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
         Presentation Board
       </button>
       <button class="btn-nav btn-primary" id="btn-export-glb" title="Export 3D Model in Binary GLTF (.GLB) format">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Export .GLB
       </button>
     </div>
   </nav>
 
   <!-- Main Viewport Area -->
-  <main>
+  <main id="main-layout">
     <!-- Left Sidebar: Architectural Parameters & Active Blueprint -->
-    <aside class="sidebar-left">
+    <aside class="sidebar-left" id="sidebar-inspector">
+      <!-- Section 1: Active Blueprint (Primary Header Card) -->
       <div class="preset-card" id="card-active-plan">
         <div class="section-head">
           <span>Active Blueprint</span>
           <span class="badge-count" id="badge-plan-num">Awaiting Upload</span>
         </div>
-        <div style="font-size: 13px; font-weight: 700; color: var(--text); margin-top: 2px;" id="lbl-active-plan-title">
+        <div class="active-plan-title" id="lbl-active-plan-title">
           No Blueprint Loaded
         </div>
-        <div style="font-size: 11px; color: var(--text-dim);" id="lbl-active-plan-subtitle">
+        <div class="active-plan-subtitle" id="lbl-active-plan-subtitle">
           Upload any 2D blueprint to begin 3D extrusion
         </div>
         <button class="btn-nav" id="btn-change-plan" style="width: 100%; justify-content: center; margin-top: 4px; display: none;">
@@ -408,281 +1409,327 @@ aside.sidebar-left { border-right: 1px solid var(--line); }
         </button>
       </div>
 
-      <!-- 2D Blueprint Preview -->
+      <!-- 2D Blueprint Preview Card -->
       <div class="blueprint-card">
         <div class="blueprint-card-header">
           <span class="blueprint-card-title">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
             2D Blueprint
           </span>
-          <span id="blueprint-scale-tag" style="font-size:10px; color:var(--text-dim); font-family:'JetBrains Mono'">Awaiting File</span>
+          <span id="blueprint-scale-tag" style="font-size:10px; color:var(--text-muted); font-family:'JetBrains Mono'">Awaiting File</span>
         </div>
         <div class="blueprint-img-wrap" id="blueprint-img-wrap">
           <div class="blueprint-empty-placeholder" id="blueprint-placeholder-prompt">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            <span style="font-weight:600; color:var(--text)">No Blueprint Loaded</span>
-            <span style="font-size:10px; color:var(--mute)">Click to browse or drop file</span>
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span style="font-weight:600; color:var(--text-primary)">No Blueprint Loaded</span>
+            <span style="font-size:10.5px; color:var(--text-muted)">Click to browse or drop file</span>
           </div>
           <img id="sidebar-blueprint-img" src="" alt="Architectural Floor Plan" style="display:none">
         </div>
         <button class="btn-ortho" id="btn-view-ortho" style="opacity: 0.5; pointer-events: none;">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="12" x2="16" y2="16"/></svg>
-          Top-Down Ortho View [7]
+          Top-Down Plan [7]
         </button>
       </div>
 
-      <!-- Parametric Sliders -->
-      <div class="param-box">
-        <div class="section-head">
-          <span>Building Dimensions</span>
-          <span class="badge-count" id="param-total-m2">-- m²</span>
-        </div>
-        <div class="param-row">
-          <div class="param-label">
-            <span>Width (X-Axis)</span>
-            <span class="param-val" id="val-dim-w">-- m</span>
+      <!-- Section 2: Building Dimensions (Collapsible) -->
+      <div class="sidebar-section" id="sec-dimensions">
+        <div class="sidebar-section-header">
+          <div class="section-title-wrap">
+            <span class="section-title">Building Dimensions</span>
+            <span class="badge-count" id="param-total-m2">-- m²</span>
           </div>
-          <input type="range" class="slider-styled" id="slider-dim-w" min="4.0" max="18.0" step="0.2" value="6.0">
+          <svg class="section-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
-        <div class="param-row">
-          <div class="param-label">
-            <span>Length (Z-Axis)</span>
-            <span class="param-val" id="val-dim-l">-- m</span>
-          </div>
-          <input type="range" class="slider-styled" id="slider-dim-l" min="4.0" max="16.0" step="0.2" value="5.5">
-        </div>
-        <div class="param-row">
-          <div class="param-label">
-            <span>Ceiling Height</span>
-            <span class="param-val" id="val-dim-h">-- m</span>
-          </div>
-          <input type="range" class="slider-styled" id="slider-dim-h" min="2.4" max="4.0" step="0.1" value="2.8">
-        </div>
-        <div class="param-row">
-          <div class="param-label">
-            <span>Wall Thickness</span>
-            <span class="param-val" id="val-dim-t">-- cm</span>
-          </div>
-          <input type="range" class="slider-styled" id="slider-dim-t" min="15" max="35" step="1" value="22">
-        </div>
-      </div>
-
-      <!-- Room Program -->
-      <div>
-        <div class="section-head" style="margin-bottom:8px">
-          <span>Room Spaces</span>
-          <span class="badge-count" id="room-badge-count">0 Spaces</span>
-        </div>
-        <div class="rooms-container" id="sidebar-rooms-list">
-          <div style="font-size:11.5px; color:var(--mute); padding:14px 8px; text-align:center; line-height:1.5;">
-            Upload a 2D floor plan to detect rooms, boundaries & area calculations.
+        <div class="sidebar-section-content">
+          <div class="param-box">
+            <div class="param-row">
+              <div class="param-label">
+                <span>Width (X-Axis)</span>
+                <span class="param-val" id="val-dim-w">-- m</span>
+              </div>
+              <input type="range" class="slider-styled" id="slider-dim-w" min="4.0" max="18.0" step="0.2" value="6.0">
+            </div>
+            <div class="param-row">
+              <div class="param-label">
+                <span>Length (Z-Axis)</span>
+                <span class="param-val" id="val-dim-l">-- m</span>
+              </div>
+              <input type="range" class="slider-styled" id="slider-dim-l" min="4.0" max="16.0" step="0.2" value="5.5">
+            </div>
+            <div class="param-row">
+              <div class="param-label">
+                <span>Ceiling Height</span>
+                <span class="param-val" id="val-dim-h">-- m</span>
+              </div>
+              <input type="range" class="slider-styled" id="slider-dim-h" min="2.4" max="4.0" step="0.1" value="2.8">
+            </div>
+            <div class="param-row">
+              <div class="param-label">
+                <span>Wall Thickness</span>
+                <span class="param-val" id="val-dim-t">-- cm</span>
+              </div>
+              <input type="range" class="slider-styled" id="slider-dim-t" min="15" max="35" step="1" value="22">
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Architectural Finishes -->
-      <div>
-        <div class="section-head" style="margin-bottom:8px">
-          <span>Architectural Finishes</span>
-          <span class="badge-count">PBR</span>
+      <!-- Section 3: Room Spaces (Collapsible) -->
+      <div class="sidebar-section" id="sec-rooms">
+        <div class="sidebar-section-header">
+          <div class="section-title-wrap">
+            <span class="section-title">Room Spaces</span>
+            <span class="badge-count" id="room-badge-count">0 Spaces</span>
+          </div>
+          <svg class="section-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
-        <div class="mat-picker-grid">
-          <div class="mat-card active" data-floor="wood">
-            <div class="mat-swatch" style="background:linear-gradient(45deg, #c9c3ba, #a8a299)"></div>
-            <span class="mat-name">Nordic White Ash</span>
-            <span class="mat-sub">Living & Bedrooms</span>
+        <div class="sidebar-section-content">
+          <div class="rooms-container" id="sidebar-rooms-list">
+            <div style="font-size:11.5px; color:var(--text-muted); padding:14px 8px; text-align:center; line-height:1.5;">
+              Upload a 2D floor plan to detect rooms, boundaries & area calculations.
+            </div>
           </div>
-          <div class="mat-card" data-floor="concrete">
-            <div class="mat-swatch" style="background:#4B515D"></div>
-            <span class="mat-name">Graphite Concrete</span>
-            <span class="mat-sub">Industrial Microcement</span>
+        </div>
+      </div>
+
+      <!-- Section 4: Architectural Finishes (Collapsible) -->
+      <div class="sidebar-section" id="sec-finishes">
+        <div class="sidebar-section-header">
+          <div class="section-title-wrap">
+            <span class="section-title">Architectural Finishes</span>
+            <span class="badge-count">PBR</span>
           </div>
-          <div class="mat-card" data-floor="travertine">
-            <div class="mat-swatch" style="background:#E5E0D8"></div>
-            <span class="mat-name">Honed Travertine</span>
-            <span class="mat-sub">Luxury Stone</span>
-          </div>
-          <div class="mat-card" data-floor="terrazzo">
-            <div class="mat-swatch" style="background:#D8D9DD"></div>
-            <span class="mat-name">Architectural Terrazzo</span>
-            <span class="mat-sub">Kitchen & Bath</span>
+          <svg class="section-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="sidebar-section-content">
+          <div class="mat-picker-grid">
+            <div class="mat-card active" data-floor="wood">
+              <div class="mat-swatch" style="background:linear-gradient(45deg, #c9c3ba, #a8a299)"></div>
+              <span class="mat-name">Nordic White Ash</span>
+              <span class="mat-sub">Living & Bedrooms</span>
+            </div>
+            <div class="mat-card" data-floor="concrete">
+              <div class="mat-swatch" style="background:#4B515D"></div>
+              <span class="mat-name">Graphite Concrete</span>
+              <span class="mat-sub">Industrial Microcement</span>
+            </div>
+            <div class="mat-card" data-floor="travertine">
+              <div class="mat-swatch" style="background:#E5E0D8"></div>
+              <span class="mat-name">Honed Travertine</span>
+              <span class="mat-sub">Luxury Stone</span>
+            </div>
+            <div class="mat-card" data-floor="terrazzo">
+              <div class="mat-swatch" style="background:#D8D9DD"></div>
+              <span class="mat-name">Architectural Terrazzo</span>
+              <span class="mat-sub">Kitchen & Bath</span>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Custom Upload Dropzone -->
       <div class="dropzone-box" id="dropzone-area">
-        <div class="dropzone-icon">⇪</div>
+        <div class="dropzone-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
         <div class="dropzone-main">Drop Blueprint Image Here</div>
         <div class="dropzone-sub">PNG, JPG, WEBP with automatic 3D extrusion</div>
       </div>
     </aside>
 
-    <!-- Center 3D Viewport Stage -->
-    <div id="stage-wrap">
-      <!-- Three.js Canvas Container -->
-      <div id="stage"></div>
+    <!-- Center 3D Viewport Workspace Frame -->
+    <div class="viewport-workspace">
+      <div id="stage-wrap">
+        <!-- Three.js Canvas Container -->
+        <div id="stage"></div>
 
-      <!-- Hero Upload Overlay (Initial Clean Studio State) -->
-      <div id="hero-upload-overlay" class="hero-upload-overlay">
-        <div class="hero-upload-card" id="hero-dropzone">
-          <div class="hero-upload-badge">
-            <span class="pulsing-dot"></span>
-            <span>Architectural Vision CAD Engine</span>
-          </div>
-          <div class="hero-upload-icon">
-            <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-              <polyline points="17 8 12 3 7 8"/>
-              <line x1="12" y1="3" x2="12" y2="15"/>
-            </svg>
-          </div>
-          <h1 class="hero-upload-title">Upload 2D Blueprint</h1>
-          <p class="hero-upload-sub">
-            Drag & drop an architectural floor plan image here or browse files to automatically detect room boundaries and extrude an accurate, watertight 3D model.
-          </p>
-          <div class="hero-upload-actions">
-            <button class="btn-hero-upload" id="btn-hero-browse">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="3" width="18" height="18" rx="2"/>
-                <circle cx="8.5" cy="8.5" r="1.5"/>
-                <polyline points="21 15 16 10 5 21"/>
+        <!-- Architectural Viewport Frame HUD -->
+        <div class="viewport-hud-header">
+          <span class="viewport-mode-tag" id="viewport-mode-tag"><span class="hud-status-dot"></span> PERSPECTIVE · DOLLHOUSE</span>
+          <span class="viewport-grid-tag" id="viewport-scale-tag">1:100 CAD</span>
+        </div>
+
+        <!-- Hero Upload Overlay (Initial Clean Studio State) -->
+        <div id="hero-upload-overlay" class="hero-upload-overlay">
+          <div class="hero-upload-card" id="hero-dropzone">
+            <div class="hero-upload-badge">
+              <span class="pulsing-dot"></span>
+              <span>Architectural Vision CAD Engine</span>
+            </div>
+            <div class="hero-upload-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
               </svg>
-              Select Blueprint File
+            </div>
+            <h1 class="hero-upload-title">Upload 2D Blueprint</h1>
+            <p class="hero-upload-sub">
+              Drag & drop an architectural floor plan image here or browse files to automatically detect room boundaries and extrude an accurate, watertight 3D model.
+            </p>
+            <div class="hero-upload-actions">
+              <button class="btn-hero-upload" id="btn-hero-browse">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <polyline points="21 15 16 10 5 21"/>
+                </svg>
+                Select Blueprint File
+              </button>
+            </div>
+            <div class="hero-upload-footer">
+              <span>Supported: PNG, JPG, WEBP</span>
+              <span>•</span>
+              <span>10 Tested Archetypes in <code>floorplans/</code></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Split-Screen 2D/3D Slider Overlay -->
+        <div id="split-overlay">
+          <!-- 2D Blueprint Side (clipped from 0 to pct%) -->
+          <div id="split-2d-wrap">
+            <img id="split-2d-canvas" src="" alt="2D CAD Blueprint">
+            <div class="split-tag split-tag-2d">
+              <span class="split-tag-dot" style="background:#858BFF"></span>
+              <span>2D CAD BLUEPRINT</span>
+            </div>
+          </div>
+
+          <!-- 3D Model Side Label (Right) -->
+          <div class="split-tag split-tag-3d">
+            <span class="split-tag-dot" style="background:#55C99A"></span>
+            <span>3D EXTRUDED MODEL</span>
+          </div>
+
+          <!-- Draggable Divider Line & Handle -->
+          <div id="split-divider">
+            <div id="split-handle">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+              <span>SLIDE</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Walkthrough Mode HUD & Controls -->
+        <div id="walk-hud">
+          <span style="font-weight:600; color:var(--text-primary)">Walkthrough Mode Active</span>
+          <span style="color:var(--text-secondary)">Use <span class="hud-key">W</span> <span class="hud-key">A</span> <span class="hud-key">S</span> <span class="hud-key">D</span> or Arrow Keys · Drag mouse to look</span>
+          <button id="btn-exit-walk">Exit [ESC]</button>
+        </div>
+
+        <!-- Walkthrough Mini-Radar Floor Map -->
+        <div id="radar-widget">
+          <div class="radar-title">
+            <span>Spatial Radar</span>
+            <span style="font-family:'JetBrains Mono'">1.65m EYE</span>
+          </div>
+          <canvas id="radar-canvas"></canvas>
+        </div>
+
+        <!-- Glassmorphic Room Focus HUD Card -->
+        <div id="room-focus-hud" class="room-focus-hud">
+          <div class="rf-header">
+            <div class="rf-badge-row">
+              <span class="rf-dot"></span>
+              <span class="rf-type" id="rf-type">LIVING SPACE</span>
+              <span class="rf-area-pill" id="rf-area">-- m²</span>
+            </div>
+            <button class="rf-close" id="btn-close-room-hud" title="Reset Camera View to Full Floor Plan">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
           </div>
-          <div class="hero-upload-footer">
-            <span>Supported: PNG, JPG, WEBP</span>
-            <span>•</span>
-            <span>10 Tested Archetypes in <code>floorplans/</code></span>
+          <div class="rf-title" id="rf-title">Selected Room</div>
+          <div class="rf-grid">
+            <div class="rf-metric">
+              <span class="rf-label">WIDTH (X)</span>
+              <span class="rf-val" id="rf-w">-- m</span>
+            </div>
+            <div class="rf-metric">
+              <span class="rf-label">LENGTH (Z)</span>
+              <span class="rf-val" id="rf-d">-- m</span>
+            </div>
+            <div class="rf-metric">
+              <span class="rf-label">CEILING</span>
+              <span class="rf-val" id="rf-h">-- m</span>
+            </div>
+            <div class="rf-metric">
+              <span class="rf-label">FINISH</span>
+              <span class="rf-val" id="rf-fin">--</span>
+            </div>
+          </div>
+          <div class="rf-actions">
+            <button class="rf-btn" id="btn-walk-into-room">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>
+              Walk Inside
+            </button>
+            <button class="rf-btn rf-btn-reset" id="btn-reset-focus">
+              Overview
+            </button>
           </div>
         </div>
-      </div>
 
-      <!-- Split-Screen 2D/3D Slider Overlay -->
-      <div id="split-overlay">
-        <!-- 2D Blueprint Side (clipped from 0 to pct%) -->
-        <div id="split-2d-wrap">
-          <img id="split-2d-canvas" src="" alt="2D CAD Blueprint">
-          <div class="split-tag split-tag-2d">
-            <span class="split-tag-dot" style="background:#5E6AD2"></span>
-            <span>2D CAD BLUEPRINT</span>
+        <!-- Floating Room Hover Tooltip -->
+        <div id="room-tag-tooltip"></div>
+
+        <!-- Floating Bottom Control Dock (3 Logical Groups) -->
+        <div class="dock-bar">
+          <!-- Group 1: Viewing Modes -->
+          <div class="dock-group">
+            <button class="dock-btn active" id="btn-mode-dollhouse" title="Perspective Dollhouse Cutaway">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              Dollhouse
+            </button>
+            <button class="dock-btn" id="btn-mode-ortho" title="Architectural Top-Down Plan">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+              Plan View
+            </button>
+            <button class="dock-btn" id="btn-mode-walk" title="First-Person Human Eye-Level Walkthrough">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>
+              Walkthrough
+            </button>
           </div>
-        </div>
 
-        <!-- 3D Model Side Label (Right) -->
-        <div class="split-tag split-tag-3d">
-          <span class="split-tag-dot" style="background:#22C55E"></span>
-          <span>3D EXTRUDED MODEL</span>
-        </div>
-
-        <!-- Draggable Divider Line & Handle -->
-        <div id="split-divider">
-          <div id="split-handle">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-            <span>SLIDE</span>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          <!-- Group 2: Architectural Tools -->
+          <div class="dock-group">
+            <button class="dock-btn" id="btn-toggle-split" title="Interactive 2D vs 3D Draggable Split Screen">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 3v18"/></svg>
+              Split Slider
+            </button>
+            <button class="dock-btn" id="btn-color-cad" title="Toggle Schematic PlanPop CAD vs Monograph Finishes">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="3" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="21"/><line x1="3" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="21" y2="12"/></svg>
+              CAD Schematic
+            </button>
+            <button class="dock-btn" id="btn-toggle-roof" title="Toggle Architectural Roof Ceiling">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              Roof View
+            </button>
           </div>
-        </div>
-      </div>
 
-      <!-- Walkthrough Mode HUD & Controls -->
-      <div id="walk-hud">
-        <span>Walkthrough Mode Active</span>
-        <span>Use <span class="hud-key">W</span> <span class="hud-key">A</span> <span class="hud-key">S</span> <span class="hud-key">D</span> or Arrow Keys to move · Drag mouse to look</span>
-        <button id="btn-exit-walk">Exit [ESC]</button>
-      </div>
-
-      <!-- Walkthrough Mini-Radar Floor Map -->
-      <div id="radar-widget">
-        <div class="radar-title">
-          <span>Spatial Radar</span>
-          <span style="font-family:'JetBrains Mono'">1.65m EYE</span>
-        </div>
-        <canvas id="radar-canvas"></canvas>
-      </div>
-
-      <!-- Glassmorphic Room Focus HUD Card -->
-      <div id="room-focus-hud" class="room-focus-hud">
-        <div class="rf-header">
-          <div class="rf-badge-row">
-            <span class="rf-dot"></span>
-            <span class="rf-type" id="rf-type">LIVING SPACE</span>
-            <span class="rf-area-pill" id="rf-area">-- m²</span>
+          <!-- Group 3: Environment (Lighting & Solar) -->
+          <div class="dock-group dock-group-env">
+            <div class="dock-popover-wrap">
+              <button class="dock-btn" id="btn-toggle-lighting" title="Solar & Daylight Study">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                <span>Lighting</span>
+                <span class="dock-sun-val" id="val-sun-time">1:30 PM</span>
+              </button>
+              <div class="dock-popover" id="lighting-popover">
+                <div class="dock-popover-header">
+                  <span class="dock-popover-title">Solar & Daylight Study</span>
+                  <span class="dock-popover-time" id="popover-sun-time">1:30 PM</span>
+                </div>
+                <input type="range" id="slider-sun-time" min="6" max="22" step="0.5" value="13.5" class="slider-styled">
+                <div class="dock-popover-ticks">
+                  <span>06:00 Dawn</span>
+                  <span>12:00 Noon</span>
+                  <span>20:00 Dusk</span>
+                </div>
+              </div>
+            </div>
           </div>
-          <button class="rf-close" id="btn-close-room-hud" title="Reset Camera View to Full Floor Plan">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
-        </div>
-        <div class="rf-title" id="rf-title">Selected Room</div>
-        <div class="rf-grid">
-          <div class="rf-metric">
-            <span class="rf-label">WIDTH (X)</span>
-            <span class="rf-val" id="rf-w">-- m</span>
-          </div>
-          <div class="rf-metric">
-            <span class="rf-label">LENGTH (Z)</span>
-            <span class="rf-val" id="rf-d">-- m</span>
-          </div>
-          <div class="rf-metric">
-            <span class="rf-label">CEILING</span>
-            <span class="rf-val" id="rf-h">-- m</span>
-          </div>
-          <div class="rf-metric">
-            <span class="rf-label">FINISH</span>
-            <span class="rf-val" id="rf-fin">--</span>
-          </div>
-        </div>
-        <div class="rf-actions">
-          <button class="rf-btn" id="btn-walk-into-room">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>
-            Walk Inside
-          </button>
-          <button class="rf-btn rf-btn-reset" id="btn-reset-focus">
-            Overview
-          </button>
-        </div>
-      </div>
-
-      <!-- Floating Room Hover Tooltip -->
-      <div id="room-tag-tooltip"></div>
-
-      <!-- Floating Bottom Control Dock -->
-      <div class="dock-bar">
-        <div class="dock-group">
-          <button class="dock-btn active" id="btn-mode-dollhouse" title="Perspective Dollhouse Cutaway">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            Dollhouse
-          </button>
-          <button class="dock-btn" id="btn-mode-ortho" title="Architectural Top-Down Plan">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-            Plan View
-          </button>
-          <button class="dock-btn" id="btn-mode-walk" title="First-Person Human Eye-Level Walkthrough">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>
-            Walkthrough
-          </button>
-          <button class="dock-btn" id="btn-toggle-split" title="Interactive 2D vs 3D Draggable Split Screen">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 3v18"/></svg>
-            Split Slider
-          </button>
-        </div>
-
-        <div class="dock-group">
-          <button class="dock-btn" id="btn-color-cad" title="Toggle Schematic PlanPop CAD vs Monograph Finishes">
-            <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#EF4444; margin-right:2px"></span>
-            CAD Schematic
-          </button>
-          <button class="dock-btn" id="btn-toggle-roof" title="Toggle Architectural Roof Ceiling">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 22 22 22"/></svg>
-            Roof
-          </button>
-        </div>
-
-        <div class="dock-sun">
-          <span>☀️ Sun Path:</span>
-          <input type="range" id="slider-sun-time" min="6" max="22" step="0.5" value="13.5">
-          <span class="dock-sun-val" id="val-sun-time">1:30 PM</span>
         </div>
       </div>
     </div>
@@ -722,8 +1769,8 @@ let splitDividerX = 0.5;
 // Three.js Core
 const stage = $('#stage');
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x08090A);
-scene.fog = new THREE.FogExp2(0x08090A, 0.012);
+scene.background = new THREE.Color(0x0B0D12);
+scene.fog = new THREE.FogExp2(0x0B0D12, 0.012);
 
 const cam = new THREE.PerspectiveCamera(45, stage.clientWidth / stage.clientHeight, 0.1, 500);
 const orthoCam = new THREE.OrthographicCamera(-15, 15, 15, -15, 0.1, 500);
@@ -773,23 +1820,25 @@ roomFocusSpot.castShadow = true;
 scene.add(roomFocusSpot);
 scene.add(roomFocusSpot.target);
 
-const roomFocusGlow = new THREE.PointLight(0x828FFF, 0, 10, 1.6);
+const roomFocusGlow = new THREE.PointLight(0x858BFF, 0, 10, 1.6);
 scene.add(roomFocusGlow);
 
 let selectedRoom = null;
 let hoveredRoomMesh = null;
 
 const groundGeo = new THREE.PlaneGeometry(300, 300);
-const groundMat = new THREE.MeshStandardMaterial({ color: 0x0E0F12, roughness: 0.95, metalness: 0.05 });
+const groundMat = new THREE.MeshStandardMaterial({ color: 0x0E1117, roughness: 0.96, metalness: 0.02 });
 const ground = new THREE.Mesh(groundGeo, groundMat);
 ground.rotation.x = -Math.PI / 2;
 ground.position.y = -0.22;
 ground.receiveShadow = true;
 scene.add(ground);
 
-// Grid plane
-const gridHelper = new THREE.GridHelper(80, 80, 0x22242B, 0x141519);
+// Subtle Architectural Grid plane
+const gridHelper = new THREE.GridHelper(80, 80, 0x292F3B, 0x161A22);
 gridHelper.position.y = -0.21;
+gridHelper.material.transparent = true;
+gridHelper.material.opacity = 0.4;
 scene.add(gridHelper);
 
 // Procedural Canvas Textures (Linear Nordic Ash Parquet)
@@ -1195,9 +2244,9 @@ function highlightRoom3D(room) {
   // 3. Glowing Floor Slab Pulse Mesh (sits 0.086m above base)
   const floorGlowGeo = new THREE.PlaneGeometry(rw - 0.04, rd - 0.04);
   const floorGlowMat = new THREE.MeshBasicMaterial({
-    color: 0x5E6AD2,
+    color: 0x858BFF,
     transparent: true,
-    opacity: 0.28,
+    opacity: 0.22,
     side: THREE.DoubleSide
   });
   const floorGlowMesh = new THREE.Mesh(floorGlowGeo, floorGlowMat);
@@ -1207,13 +2256,13 @@ function highlightRoom3D(room) {
 
   // 4. Glowing Room Boundary Outline
   const edgeGeo = new THREE.EdgesGeometry(new THREE.BoxGeometry(rw, 0.06, rd));
-  const edgeMat = new THREE.LineBasicMaterial({ color: 0x828FFF, linewidth: 2 });
+  const edgeMat = new THREE.LineBasicMaterial({ color: 0x858BFF, linewidth: 2 });
   const edgeMesh = new THREE.LineSegments(edgeGeo, edgeMat);
   edgeMesh.position.set(rx, 0.087, rz);
   roomHighlightGroup.add(edgeMesh);
 
   // 5. Architectural 3D CAD Dimension Extension Lines on Floor
-  const dimColor = 0x38BDF8;
+  const dimColor = 0x63C7DC;
   const dimLineMat = new THREE.LineBasicMaterial({ color: dimColor, linewidth: 2 });
 
   // Width Dimension Line (along South edge, offset by +0.3m)
@@ -1459,6 +2508,13 @@ function updateSplitDivider(ratio) {
   if (split2dWrap) split2dWrap.style.clipPath = `polygon(0 0, ${pct}% 0, ${pct}% 100%, 0 100%)`;
 }
 
+function updateViewportModeTag(text) {
+  const el = $('#viewport-mode-tag');
+  if (el) {
+    el.innerHTML = `<span class="hud-status-dot"></span> ${text}`;
+  }
+}
+
 function setSplitMode(active) {
   isSplitMode = active;
   if (splitOverlay) splitOverlay.classList.toggle('active', active);
@@ -1476,6 +2532,7 @@ function setSplitMode(active) {
     const maxDim = currentPlan ? Math.max(currentPlan.dimensions.width, currentPlan.dimensions.length) : 10;
     radT = maxDim * 2.15;
     tgGoal.set(0, 0, 0);
+    updateViewportModeTag('DUAL VIEW · SPLIT 2D / 3D');
   } else {
     if (split2dWrap) split2dWrap.style.clipPath = '';
     renderer.domElement.style.clipPath = '';
@@ -1483,6 +2540,7 @@ function setSplitMode(active) {
     ph = 0.85;
     radT = 28;
     tgGoal.set(0, 0, 0);
+    updateViewportModeTag('PERSPECTIVE · DOLLHOUSE');
   }
   window.dispatchEvent(new Event('resize'));
 }
@@ -1695,6 +2753,10 @@ function setTopDownOrtho() {
   isWalkthrough = false;
   $('#walk-hud').classList.remove('active');
   $('#radar-widget').classList.remove('active');
+  $('#btn-mode-dollhouse').classList.remove('active');
+  $('#btn-mode-ortho').classList.add('active');
+  $('#btn-mode-walk').classList.remove('active');
+  updateViewportModeTag('TOP-DOWN · PLAN VIEW');
   tgGoal.set(0, 0, 0);
   thGoal = 0;
   phGoal = 0.01;
@@ -1713,6 +2775,7 @@ function enterWalkthrough() {
   $('#btn-mode-walk').classList.add('active');
   $('#btn-mode-dollhouse').classList.remove('active');
   $('#btn-mode-ortho').classList.remove('active');
+  updateViewportModeTag('FIRST PERSON · WALKTHROUGH');
 }
 
 function exitWalkthrough() {
@@ -1721,6 +2784,8 @@ function exitWalkthrough() {
   $('#radar-widget').classList.remove('active');
   $('#btn-mode-walk').classList.remove('active');
   $('#btn-mode-dollhouse').classList.add('active');
+  $('#btn-mode-ortho').classList.remove('active');
+  updateViewportModeTag('PERSPECTIVE · DOLLHOUSE');
   thGoal = -1.15;
   phGoal = 0.85;
   const maxDim = currentPlan ? Math.max(currentPlan.dimensions.width, currentPlan.dimensions.length) : 10;
@@ -1787,7 +2852,9 @@ $('#slider-sun-time').oninput = e => {
   const mins = t % 1 === 0 ? '00' : '30';
   const ampm = hours >= 12 ? 'PM' : 'AM';
   const displayH = hours > 12 ? hours - 12 : hours;
-  $('#val-sun-time').textContent = `${displayH}:${mins} ${ampm}`;
+  const timeStr = `${displayH}:${mins} ${ampm}`;
+  if ($('#val-sun-time')) $('#val-sun-time').textContent = timeStr;
+  if ($('#popover-sun-time')) $('#popover-sun-time').textContent = timeStr;
 
   // Solar angle math (6 AM to 10 PM)
   const sunAngle = ((t - 6) / 16) * Math.PI;
@@ -1831,18 +2898,18 @@ $('#btn-export-sheet').onclick = () => {
       sheet.height = 1600;
       const ctx = sheet.getContext('2d');
 
-      // 1. Linear Obsidian Blueprint Backdrop
-      ctx.fillStyle = '#08090A';
+      // 1. Midnight Graphite Blueprint Backdrop
+      ctx.fillStyle = '#0B0D12';
       ctx.fillRect(0, 0, 2400, 1600);
 
       // Fine grid
-      ctx.strokeStyle = '#141518';
+      ctx.strokeStyle = '#191E28';
       ctx.lineWidth = 1;
       for (let x = 0; x < 2400; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 1600); ctx.stroke(); }
       for (let y = 0; y < 1600; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(2400, y); ctx.stroke(); }
 
       // Outer Border
-      ctx.strokeStyle = '#222429';
+      ctx.strokeStyle = '#292F3B';
       ctx.lineWidth = 3;
       ctx.strokeRect(50, 50, 2300, 1500);
 
@@ -1850,65 +2917,66 @@ $('#btn-export-sheet').onclick = () => {
       const renderW = 1500;
       const renderH = 1400;
       ctx.drawImage(renderer.domElement, 70, 100, renderW, renderH);
-      ctx.strokeStyle = '#5E6AD2';
+      ctx.strokeStyle = '#858BFF';
       ctx.lineWidth = 2;
       ctx.strokeRect(70, 100, renderW, renderH);
 
       // 3. Certified Title Block (Right Column)
       const tbX = 1620;
-      ctx.fillStyle = '#F4F5F6';
-      ctx.font = '800 42px "Plus Jakarta Sans", sans-serif';
+      ctx.fillStyle = '#F3F4F6';
+      ctx.font = '800 42px "Geist", "Plus Jakarta Sans", sans-serif';
       ctx.fillText('BEYOND - 2D', tbX, 160);
 
-      ctx.fillStyle = '#828FFF';
+      ctx.fillStyle = '#858BFF';
       ctx.font = '700 18px "JetBrains Mono", monospace';
       ctx.fillText('CERTIFIED ARCHITECTURAL SPECIFICATION', tbX, 195);
 
-      ctx.strokeStyle = '#5E6AD2';
+      ctx.strokeStyle = '#858BFF';
       ctx.lineWidth = 2;
       ctx.beginPath(); ctx.moveTo(tbX, 220); ctx.lineTo(tbX + 700, 220); ctx.stroke();
 
       // Project Meta
-      ctx.fillStyle = '#8B8F97';
-      ctx.font = '600 15px "Plus Jakarta Sans", sans-serif';
+      ctx.fillStyle = '#9AA3B2';
+      ctx.font = '600 15px "Geist", sans-serif';
       ctx.fillText('PROJECT ARCHETYPE', tbX, 260);
-      ctx.fillStyle = '#F4F5F6';
-      ctx.font = '700 28px "Plus Jakarta Sans", sans-serif';
+      ctx.fillStyle = '#F3F4F6';
+      ctx.font = '700 28px "Geist", sans-serif';
       ctx.fillText(`${currentPlan.num}. ${currentPlan.name}`, tbX, 295);
 
-      ctx.fillStyle = '#8B8F97';
-      ctx.font = '600 15px "Plus Jakarta Sans", sans-serif';
+      ctx.fillStyle = '#9AA3B2';
+      ctx.font = '600 15px "Geist", sans-serif';
       ctx.fillText('ENVELOPE METRICS', tbX, 350);
-      ctx.fillStyle = '#F4F5F6';
+      ctx.fillStyle = '#63C7DC';
       ctx.font = '600 20px "JetBrains Mono", monospace';
       ctx.fillText(`${currentPlan.dimensions.width}m × ${currentPlan.dimensions.length}m (Ceiling: ${currentPlan.dimensions.wallHeight}m)`, tbX, 380);
 
       const grossM2 = Math.round(currentPlan.dimensions.width * currentPlan.dimensions.length * 10) / 10;
-      ctx.fillStyle = '#8B8F97';
+      ctx.fillStyle = '#9AA3B2';
       ctx.fillText('TOTAL GROSS FOOTPRINT', tbX, 430);
-      ctx.fillStyle = '#5E6AD2';
-      ctx.font = '800 36px "Plus Jakarta Sans", sans-serif';
+      ctx.fillStyle = '#858BFF';
+      ctx.font = '800 36px "Geist", sans-serif';
       ctx.fillText(`${grossM2} m²`, tbX, 470);
 
       // Room Schedule Table
-      ctx.strokeStyle = '#222429';
+      ctx.strokeStyle = '#292F3B';
       ctx.beginPath(); ctx.moveTo(tbX, 510); ctx.lineTo(tbX + 700, 510); ctx.stroke();
 
-      ctx.fillStyle = '#828FFF';
-      ctx.font = '700 16px "Plus Jakarta Sans", sans-serif';
+      ctx.fillStyle = '#858BFF';
+      ctx.font = '700 16px "Geist", sans-serif';
       ctx.fillText('SPACE IDENTIFIER', tbX, 545);
       ctx.fillText('AREA', tbX + 380, 545);
       ctx.fillText('FINISH SPECIFICATION', tbX + 490, 545);
 
       let curY = 585;
       (currentPlan.rooms || []).forEach(r => {
-        ctx.fillStyle = '#F8FAFC';
-        ctx.font = '600 16px "Plus Jakarta Sans", sans-serif';
+        ctx.fillStyle = '#F3F4F6';
+        ctx.font = '600 16px "Geist", sans-serif';
         ctx.fillText(r.name, tbX, curY);
+        ctx.fillStyle = '#63C7DC';
         ctx.font = '600 16px "JetBrains Mono", monospace';
         ctx.fillText(`${r.areaM2 || 0} m²`, tbX + 380, curY);
-        ctx.fillStyle = '#94A3B8';
-        ctx.font = '500 15px "Plus Jakarta Sans", sans-serif';
+        ctx.fillStyle = '#9AA3B2';
+        ctx.font = '500 15px "Geist", sans-serif';
         ctx.fillText(r.fin || 'Pale Oak', tbX + 490, curY);
 
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
@@ -1918,10 +2986,10 @@ $('#btn-export-sheet').onclick = () => {
 
       // Bottom Certification Stamp
       const botY = 1420;
-      ctx.strokeStyle = '#1E293B';
+      ctx.strokeStyle = '#292F3B';
       ctx.beginPath(); ctx.moveTo(tbX, botY); ctx.lineTo(tbX + 700, botY); ctx.stroke();
 
-      ctx.fillStyle = '#94A3B8';
+      ctx.fillStyle = '#6B7280';
       ctx.font = '13px "JetBrains Mono", monospace';
       ctx.fillText(`DATE: ${new Date().toLocaleDateString()} | SCALE: 1:100 METRIC`, tbX, botY + 30);
       ctx.fillText('TOPOLOGY: 100% WATERTIGHT MANIFOLD | ARCHITECTURAL 3D', tbX, botY + 52);
@@ -2145,6 +3213,10 @@ $('#btn-toggle-split').onclick = () => {
 $('#btn-mode-dollhouse').onclick = () => {
   exitWalkthrough();
   resetRoomFocus();
+  $('#btn-mode-dollhouse').classList.add('active');
+  $('#btn-mode-ortho').classList.remove('active');
+  $('#btn-mode-walk').classList.remove('active');
+  updateViewportModeTag('PERSPECTIVE · DOLLHOUSE');
 };
 $('#btn-mode-ortho').onclick = setTopDownOrtho;
 $('#btn-view-ortho').onclick = setTopDownOrtho;
@@ -2169,6 +3241,61 @@ $('#btn-toggle-roof').onclick = () => {
   $('#btn-toggle-roof').classList.toggle('active', hasRoof);
   if (currentPlan) rebuild3DScene(currentPlan);
 };
+
+// Sidebar Toggle (Button + Ctrl/Cmd + B)
+const toggleSidebar = () => {
+  const main = $('#main-layout');
+  if (main) {
+    main.classList.toggle('sidebar-collapsed');
+    const isCollapsed = main.classList.contains('sidebar-collapsed');
+    const btn = $('#btn-toggle-sidebar');
+    if (btn) btn.classList.toggle('active', isCollapsed);
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, 260);
+  }
+};
+if ($('#btn-toggle-sidebar')) {
+  $('#btn-toggle-sidebar').onclick = toggleSidebar;
+}
+window.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && (e.key === 'b' || e.key === 'B')) {
+    e.preventDefault();
+    toggleSidebar();
+  }
+});
+
+// Sidebar Collapsible Accordion Sections
+$$('.sidebar-section-header').forEach(header => {
+  header.addEventListener('click', () => {
+    const section = header.closest('.sidebar-section');
+    if (section) {
+      section.classList.toggle('collapsed');
+    }
+  });
+});
+
+// Solar Heliodon / Lighting Popover
+const lightingBtn = $('#btn-toggle-lighting');
+const lightingPopover = $('#lighting-popover');
+if (lightingBtn && lightingPopover) {
+  lightingBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    const isActive = lightingPopover.classList.toggle('active');
+    lightingBtn.classList.toggle('active', isActive);
+  });
+
+  lightingPopover.addEventListener('click', e => {
+    e.stopPropagation();
+  });
+
+  document.addEventListener('click', e => {
+    if (!lightingPopover.contains(e.target) && !lightingBtn.contains(e.target)) {
+      lightingPopover.classList.remove('active');
+      lightingBtn.classList.remove('active');
+    }
+  });
+}
 
 // Floor Materials Switcher in Right Sidebar
 $$('.mat-card').forEach(el => {
